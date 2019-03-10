@@ -1,0 +1,14 @@
+a = 2
+b = 3
+c = 4
+for( i = 0; i < 2; i = i + 1) {
+	 print a
+	 for( j = 0; j < 2; j = j + 1) {
+	 	  print b
+	 	  for( k = 0; k < 2; k = k + 1) {
+		  	   print c
+	 	  }
+	 }
+}
+
+
