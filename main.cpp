@@ -23,20 +23,12 @@ int main(int argc, char *argv[]) {
 
     Tokenizer tokenizer(inputStream);
 
-	Token tok = tokenizer.getToken();
-	while( !tok.eof() ) {
-		tok.print();
-		std::cout << std::endl;
-		tok = tokenizer.getToken();
-	}
-
-	
-    /*Parser parser(tokenizer);
+    Parser parser(tokenizer);
     Statements *statements = parser.statements();
     SymTab symTab;
 
     //statements->print();
-    statements->evaluate(symTab);*/
+    statements->evaluate(symTab);
     
     return 0;
 }
