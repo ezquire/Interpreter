@@ -24,12 +24,11 @@ int main(int argc, char *argv[]) {
     Tokenizer tokenizer(inputStream);
 
 	Token tok = tokenizer.getToken();
-	while( !tok.eof() ) {
-		tok.print();
-		std::cout << std::endl;
-		tok = tokenizer.getToken();
-	}
 
+	while( !tok.eof() )
+		tok = tokenizer.getToken();
+
+	tokenizer.printProcessedTokens();
 	
     /*Parser parser(tokenizer);
     Statements *statements = parser.statements();

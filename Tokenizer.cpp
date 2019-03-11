@@ -7,7 +7,6 @@
 #include "Tokenizer.hpp"
 
 #define TABSIZE 8
-#define ALTTABSIZE 1
 
 // This function is called when it is known that
 // the first character in input is an alphabetic character.
@@ -48,7 +47,7 @@ std::string Tokenizer::readOp() {
 	return op;
 }
 
-Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, inStream{stream}, lastToken{}, stack{}, altstack{} { stack.push(0), altstack.push(0); }
+Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, inStream{stream}, lastToken{}, stack{}, altstack{} { stack.push(0), altstack.push(0); }
 
 // This function gets a token for the parser
 // It determines the scoping by parsing whitespace
@@ -56,76 +55,73 @@ Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, inStream{stre
 Token Tokenizer::getToken() {
 
     if(ungottenToken) {
-        ungottenToken = false;
-        return lastToken;
+		ungottenToken = false;
+		return lastToken;
 	}
 
-    char c;
+	char c;
 	Token token;
-	int col = 0;
-	int altcol = 0;
-	//int blankline;
 
+	if(bol) {
 	// read tabs and spaces to determine indent/dedent tokens
-	while( inStream.get(c) && ( c == ' ' || c == '\t') ) {
-		if ( c == ' ' )
-			col++, altcol++;
-		else if ( c == '\t' ) {
-			col = ( col / TABSIZE + 1 ) * TABSIZE;
-			altcol = ( altcol / ALTTABSIZE + 1 ) * ALTTABSIZE;
+		int col = 0;
+		bol = false;
+
+		while( inStream.get(c) && ( c == ' ' || c == '\t') ) {
+			if ( c == ' ' )
+				col++;
+			else if ( c == '\t' )
+				col = ( col / TABSIZE + 1 ) * TABSIZE;
 		}
-	}
-	//if( inStream.good() )
-	//	inStream.putback(c); // put the last character back into the stream
-	
-	if( col == stack.top() ) {
-		if( altcol != altstack.top() ) {
-			std::cout << "\nError: altcol != altstack.top()\n";
-			exit(1);
-		}
-	} else if ( col > stack.top() ) {
-		if( altcol <= altstack.top() ) {
-			std::cout << "\nError: altcol <= altstack.top()\n";
-			exit(1);
-		}
-		else {
+		
+		if( inStream.good() ) // Read one too many chars
+			inStream.putback(c); // Put one character back
+
+		if ( col > stack.top() ) {
 			stack.push(col);
-			altstack.push(altcol);
-		    token.indent() = true;
-			_tokens.push_back(token);
+			token.indent() = true;
+		    _tokens.push_back(token);
 			return lastToken = token;
 		}
-	} else {
-		if( altcol >= altstack.top() ) {
-			std::cout << "\nError: altcol >= altstack.top()\n";
-			exit(1);
-		}
-		while( col < stack.top() ) {
-			stack.pop();
-			altstack.pop();
-			token.dedent() = true;
-			_tokens.push_back(token);
-		}
-		return lastToken = token;
-	}
-		
-    if(inStream.bad()) {
-        std::cout << "Error while reading the input stream in Tokenizer.\n";
-        exit(1);
-    }
-	
-    if( inStream.eof() )
-        token.eof() = true;
-    else if( c == '\n' )
-        token.eol() = true;
-    else if( isdigit(c) ) { // a integer?
-        // put the digit back into the input stream so
-        // we read the entire number in a function
-        inStream.putback(c);
-        token.setWholeNumber( readInteger() );
 
-    } else if( c == '=' ) {
-        inStream.get(c);
+		if ( col < stack.top() ) {
+			while( col < stack.top() ) {
+				stack.pop();
+				token.dedent() = true;
+				_tokens.push_back(token);
+			}
+			if( col != stack.top() ) {
+				std::cout << "Error: inconsistent dedent.\n";
+				exit(1);
+			}
+			return lastToken = token;
+		}
+
+	}	
+
+	while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
+		;
+
+	if(inStream.bad()) {
+		std::cout << "Error reading the input stream in Tokenizer.\n";
+		exit(1);
+	}
+
+	if( c == '\n' ) {
+		token.eol() = true;
+		bol = true;
+	}
+	else if( inStream.eof() )
+		token.eof() = true;
+	else if( isdigit(c) ) { // a integer?
+		// put the digit back into the input stream so
+		// we read the entire number in a function
+		inStream.putback(c);
+		token.setWholeNumber( readInteger() );
+
+	}
+	else if( c == '=' ) {
+		inStream.get(c);
 		if(c != '=') { 
 			token.symbol('=');
 			inStream.putback(c); // we have read one too many characters
@@ -137,23 +133,24 @@ Token Tokenizer::getToken() {
 		inStream.putback(c);
 		token.relOp( readOp() );
 	}
-    else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
-        token.symbol(c);
-    else if( c == ';' )
-	  token.symbol(c);
-    else if( c == '(' || c == ')' || c == '{' || c == '}')
-        token.symbol(c);
-    else if(isalpha(c)) {  // an identifier?
-        // put c back into the stream so we can
+	else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
+		token.symbol(c);
+	else if( c == ';' )
+		token.symbol(c);
+	else if( c == '(' || c == ')' || c == '{' || c == '}')
+		token.symbol(c);
+	else if(isalpha(c)) {  // an identifier?
+		// put c back into the stream so we can
 		// read the entire name in a function.
-        inStream.putback(c);
-        token.setName( readName() );
-    } else {
-        std::cout << "Unknown character in input. >" << c << "<" << std::endl;
-        exit(1);
-    }
-    _tokens.push_back(token);
-    return lastToken = token;
+		inStream.putback(c);
+		token.setName( readName() );
+	}
+	else {
+		std::cout << "Unknown character in input. >" << c << "<" << std::endl;
+		exit(1);
+	}
+	_tokens.push_back(token);
+	return lastToken = token;
 }
 
 void Tokenizer::ungetToken() {

@@ -5,13 +5,13 @@
 #include <iostream>
 #include "Token.hpp"
 
-Token::Token(): _name{""}, _eof{false}, _eol{false}, _symbol{'\0'}, _isWholeNumber{false} {}
+Token::Token(): _name{""}, _eof{false}, _eol{false}, _indent{false}, _dedent{false}, _symbol{'\0'}, _isWholeNumber{false} {}
 
 void Token::print() const {
-    if( eol() ) std::cout << " EOL " ;
-    else if( eof() ) std::cout << " EOF " ;
-	else if( indent() ) std::cout << " INDENT ";
-	else if( dedent() ) std::cout << " DEDENT ";
+    if( eol() ) std::cout << "EOL" ;
+    else if( eof() ) std::cout << "EOF" ;
+	else if( indent() ) std::cout << "INDENT";
+	else if( dedent() ) std::cout << "DEDENT";
 	else if( isOpenBrace() ) std::cout << " { ";
 	else if( isCloseBrace() ) std::cout << " } ";
 	else if( isEqual() ) std::cout << " == ";

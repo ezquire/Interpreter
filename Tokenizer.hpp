@@ -17,11 +17,12 @@ public:
     Tokenizer(std::ifstream &inStream);
     Token getToken();
     void ungetToken();
-	void printProcessedTokens();
+	void printProcessedTokens();	
 
 private:
     Token lastToken;
     bool ungottenToken;
+	bool bol;
 	std::stack <int> stack;
 	std::stack <int> altstack;
     std::ifstream &inStream;

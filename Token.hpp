@@ -22,9 +22,6 @@ public:
 
     bool indent() const { return _indent; }
     bool dedent() const  { return _dedent; }
-
-	bool &bol()  { return _bol; }
-	bool bol() const { return _bol; )
 	
     bool isOpenParen() const  { return _symbol == '('; }
     bool isCloseParen() const { return _symbol == ')'; }
@@ -87,7 +84,7 @@ public:
 private:
     std::string _name;
 	std::string _relOp;
-    bool _eof, _eol, _bol;
+    bool _eof, _eol;
 	bool _indent, _dedent;
 	bool _isWholeNumber;
     char _symbol;
