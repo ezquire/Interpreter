@@ -45,7 +45,6 @@ private:
 
 // AssignmentStatement represents the notion of an lValue having been assigned an rValue.
 // The rValue is an expression.
-
 class AssignmentStatement : public Statement {
 public:
     AssignmentStatement();
@@ -63,7 +62,6 @@ private:
 };
 
 // PrintStatement
-
 class PrintStatement : public Statement {
 public:
 	PrintStatement();
@@ -79,7 +77,6 @@ private:
 };
 
 // ForStatement
-
 class ForStatement : public Statement {
 public:
 	ForStatement();

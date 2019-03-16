@@ -5,10 +5,11 @@
 #ifndef EXPRINTER_SYMTAB_HPP
 #define EXPRINTER_SYMTAB_HPP
 
+#include "TypeDescriptor.hpp"
 #include <string>
 #include <map>
 
-// This is a flat and integer-based symbol table. It allows for variables to be
+// This is a flat symbol table. It allows for variables to be
 // initialized, determines if a give variable has been defined or not, and if
 // a variable has been defined, it returns its value.
 

@@ -30,4 +30,3 @@ int SymTab::getValueFor(std::string vName) {
 #endif
     return symTab.find(vName)->second;
 }
-

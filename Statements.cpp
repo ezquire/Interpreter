@@ -7,9 +7,10 @@
 // Statement
 Statement::Statement() {}
 
-// Statements
 
+// Statements
 Statements::Statements() {}
+
 void Statements::addStatement(Statement *statement) { _statements.push_back(statement); }
 
 void Statements::print() {
@@ -22,9 +23,9 @@ void Statements::evaluate(SymTab &symTab) {
         s->evaluate(symTab);
 }
 
-// AssignmentStatement
 
-AssignmentStatement::AssignmentStatement() : _lhsVariable{""}, _rhsExpression{nullptr} {}
+// AssignmentStatement
+AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr} {}
 
 AssignmentStatement::AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr):
         _lhsVariable{lhsVar}, _rhsExpression{rhsExpr} {}
@@ -48,8 +49,8 @@ void AssignmentStatement::print() {
     std::cout << std::endl;
 }
 
-// PrintStatement
 
+// PrintStatement
 PrintStatement::PrintStatement() : _rhsExpression{nullptr} {}
 
 PrintStatement::PrintStatement(ExprNode *rhsExpr):
@@ -70,7 +71,6 @@ void PrintStatement::print() {
 
 
 // ForStatement
-
 ForStatement::ForStatement() : _firstAssign{nullptr}, _midExpr{nullptr}, _secondAssign{nullptr}, _statements{nullptr}  {}
 
 ForStatement::ForStatement(AssignmentStatement *firstAssign, ExprNode *midExpr, AssignmentStatement *secondAssign, Statements* stmts):

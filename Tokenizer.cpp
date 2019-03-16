@@ -23,7 +23,8 @@ std::string Tokenizer::readName() {
 
 // This function is called when it is known that
 // the first character in input is a digit.
-// The function reads and returns all remaining digits.
+// The function reads and returns the appropriate number with the
+// appropriate type.
 int Tokenizer::readInteger() {
     int intValue = 0;
     char c;
@@ -62,7 +63,7 @@ Token Tokenizer::getToken() {
 	char c;
 	Token token;
 
-	if(bol) {
+	/*if(bol) {
 	// read tabs and spaces to determine indent/dedent tokens
 		int col = 0;
 		bol = false;
@@ -97,7 +98,7 @@ Token Tokenizer::getToken() {
 			return lastToken = token;
 		}
 
-	}	
+	}*/	
 
 	while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
 		;
@@ -110,12 +111,16 @@ Token Tokenizer::getToken() {
 	if( c == '\n' ) {
 		token.eol() = true;
 		bol = true;
-	}
+	}	
 	else if( inStream.eof() )
 		token.eof() = true;
-	else if( isdigit(c) ) { // a integer?
+	else if( isdigit(c) ) { // an integer, double
 		// put the digit back into the input stream so
 		// we read the entire number in a function
+
+
+
+
 		inStream.putback(c);
 		token.setWholeNumber( readInteger() );
 

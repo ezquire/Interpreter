@@ -8,7 +8,7 @@
 Token::Token(): _name{""}, _eof{false}, _eol{false}, _indent{false}, _dedent{false}, _symbol{'\0'}, _isWholeNumber{false} {}
 
 void Token::print() const {
-    if( eol() ) std::cout << "EOL" ;
+    if( eol() ) std::cout << "NEWLINE" ;
     else if( eof() ) std::cout << "EOF" ;
 	else if( indent() ) std::cout << "INDENT";
 	else if( dedent() ) std::cout << "DEDENT";

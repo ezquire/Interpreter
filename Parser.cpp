@@ -1,12 +1,3 @@
-
-/*  The majority of the work is done by the class 'convert'.
-    This class builds an expression tree using the input infix
-    expression.  A post-order traversal of the expression tree 'dumps'
-    it into an array in postfix form.  The iterator copies the token
-    from this array to user's arrays.
-
-*/
-
 #include<vector>
 #include<iostream>
 
@@ -59,71 +50,75 @@ Statements *Parser::statements() {
 AssignmentStatement *Parser::assignStatement() {
     Token varName = tokenizer.getToken();
     if (!varName.isName())
-        die("Parser::assignStatement", "Expected a name token, instead got", varName);
+        die("Parser::assignStatement", "Expected name token, instead got", varName);
 
-    Token op = tokenizer.getToken();
-    if ( !op.isAssignmentOperator() )
-	  die("Parser::assignStatement", "Expected an assignment operator, instead got", op);
+    Token tok = tokenizer.getToken();
+    if ( !tok.isAssignmentOperator() )
+	  die("Parser::assignStatement", "Expected assignment operator, instead got", tok);
 
     ExprNode *rightHandSideExpr = rel_expr();
+
+	tok = tokenizer.getToken();
+	if( !tok.eol() )
+		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
 
     return new AssignmentStatement(varName.getName(), rightHandSideExpr);
 }
 
-// Print
-
+// Print statement parser
 PrintStatement *Parser::printStatement() {
-    Token keyword = tokenizer.getToken();
-    if (!keyword.isPrintKeyword())
-        die("Parser::PrintStatement", "Expected print keyword, instead got", keyword);
-
+    Token tok = tokenizer.getToken();
+    if ( !tok.isPrintKeyword() )
+        die("Parser::PrintStatement", "Expected 'print', instead got", tok);
+	
     ExprNode *rightHandSideExpr = rel_expr();
+
+	tok = tokenizer.getToken();
+	if( !tok.eol() )
+		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
 
     return new PrintStatement(rightHandSideExpr);
 }
 
-// For
+// For statement parser
 ForStatement *Parser::forStatement() {
-    Token keyword = tokenizer.getToken();
-    if (!keyword.isForKeyword())
-        die("Parser::forStatement", "Expected for keyword, instead got", keyword);
-
-	Token tok = tokenizer.getToken();
-    if (!tok.isOpenParen())
-        die("Parser::forStatement", "Expected a '(', instead got",tok);
-	
-	AssignmentStatement *firstAssign = assignStatement();
-
-    tok = tokenizer.getToken();
-    if (!tok.isSemiColon())
-        die("Parser::forStatement", "Expected a ';', instead got",tok);
-
-    ExprNode *midExpr = rel_expr();
+    Token tok = tokenizer.getToken();
+    if ( !tok.isForKeyword() )
+        die("Parser::forStatement", "Expected 'for', instead got", tok);
 
 	tok = tokenizer.getToken();
-    if (!tok.isSemiColon())
-        die("Parser::forStatement", "Expected a ';', instead got",tok);
+    if ( !tok.isOpenParen() )
+		die("Parser::forStatement", "Expected '(', instead got", tok);
+		
+	AssignmentStatement *firstAssign = assignStatement();
 
+	tok = tokenizer.getToken();
+	if ( !tok.isSemiColon() )
+		die("Parser::forStatement", "Expected ';', instead got",tok);
+
+	ExprNode *midExpr = rel_expr();
+
+	tok = tokenizer.getToken();
+	if ( !tok.isSemiColon() )
+		die("Parser::forStatement", "Expected ';', instead got",tok);
+		
 	AssignmentStatement *secondAssign = assignStatement();
 
 	tok = tokenizer.getToken();
-    if (!tok.isCloseParen())
-        die("Parser::forStatement", "Expected a ')', instead got",tok);
+    if ( !tok.isCloseParen() )
+		die("Parser::forStatement", "Expected ')', instead got", tok);
+
 
 	tok = tokenizer.getToken();
-    if (!tok.isOpenBrace())
-        die("Parser::forStatement", "Expected a '{', instead got",tok);
+	if ( !tok.eol() )
+		die("Parser::forStatement", "Expected 'NEWLINE', instead got",tok);
 
 	Statements *stmts = statements();
 
-	tok = tokenizer.getToken();
-    if (!tok.isCloseBrace())
-        die("Parser::forStatement", "Expected a '}', instead got",tok);
-
-    return new ForStatement(firstAssign, midExpr, secondAssign, stmts);
+	return new ForStatement(firstAssign, midExpr, secondAssign, stmts);
 }
 
-ExprNode *Parser::rel_expr() {
+/*ExprNode *Parser::rel_expr() {
     // This function parses the grammar rules:
 
     // <rel-expr> -> <rel-term> { (==, !=) <rel-term> }
@@ -139,16 +134,18 @@ ExprNode *Parser::rel_expr() {
     }
     tokenizer.ungetToken();
     return left;
-}
+	}*/
 
-ExprNode *Parser::rel_term() {
+ExprNode *Parser::rel_expr() {
     // This function parses the grammar rules:
 
-    // <rel-expr> -> <rel-primary> { (<, <=, >, >=) <rel-primary> }
+    // <rel-expr> -> <expr> { (<, >, ==, >=, <=, <>, !=) <expr> }
 
     ExprNode *left = expr();
     Token tok = tokenizer.getToken();
-    while (tok.isLessThan() || tok.isLessThanEqual()  || tok.isGreaterThan() || tok.isGreaterThanEqual() ) {
+    while (tok.isLessThan() || tok.isGreaterThan()
+		   || tok.isEqual() || tok.isGreaterThanEqual()
+		   || tok.isLessThanEqual() || tok.isNotEqual() ) {
         InfixExprNode *p = new InfixExprNode(tok);
         p->left() = left;
         p->right() = expr();
@@ -191,7 +188,8 @@ ExprNode *Parser::term() {
     ExprNode *left = primary();
     Token tok = tokenizer.getToken();
 
-    while (tok.isMultiplicationOperator() || tok.isDivisionOperator() || tok.isModuloOperator()) {
+    while (tok.isMultiplicationOperator()
+		   || tok.isDivisionOperator() || tok.isModuloOperator()) {
         InfixExprNode *p = new InfixExprNode(tok);
         p->left() = left;
         p->right() = primary();
@@ -216,13 +214,14 @@ ExprNode *Parser::primary() {
     else if( tok.isName() )
         return new Variable(tok);
     else if (tok.isOpenParen()) {
-        ExprNode *p = expr();
+        ExprNode *p = rel_expr();
         Token token = tokenizer.getToken();
         if (!token.isCloseParen())
             die("Parser::primary", "Expected close-parenthesis, instead got", token);
         return p;
     }
-    die("Parser::primary", "Unexpected token", tok);
+	
+	die("Parser::primary", "Unexpected token", tok);
 
     return nullptr;  // Will not reach this statement!
 }
