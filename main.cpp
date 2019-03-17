@@ -8,11 +8,11 @@
 
 int main(int argc, char *argv[]) {
 
-	NumberDescriptor *desc = new NumberDescriptor(TypeDescriptor::INTEGER);
+	/*NumberDescriptor *desc = new NumberDescriptor(TypeDescriptor::INTEGER);
 	desc->value.intValue =  25;
-	printValue(desc);
+	printValue(desc);*/
 
-    /*if( argc != 2) {
+    if( argc != 2) {
         std::cout << "usage: " << argv[0] << " nameOfAnInputFile\n";
         exit(1);
     }
@@ -24,18 +24,17 @@ int main(int argc, char *argv[]) {
         std::cout << "Unable top open " << argv[1] << ". Terminating...";
         perror("Error when attempting to open the input file.");
         exit(2);
-    }
+		}
 
     Tokenizer tokenizer(inputStream);
 
-	//Token tok = tokenizer.getToken();
-
-	/*while( !tok.eof() )
+	Token tok = tokenizer.getToken();
+	while( !tok.eof() )
 		tok = tokenizer.getToken();
-
-		tokenizer.printProcessedTokens();
 	
-    Parser parser(tokenizer);
+	tokenizer.printProcessedTokens();
+	
+		/*Parser parser(tokenizer);
     Statements *statements = parser.statements();
     SymTab symTab;
 

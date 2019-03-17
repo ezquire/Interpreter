@@ -13,7 +13,7 @@ ExprNode::ExprNode(Token token): _token{token} {}
 
 Token ExprNode::token() { return _token; }
 
-// InfixExprNode functions
+// InfixExprNode
 InfixExprNode::InfixExprNode(Token tk) : ExprNode{tk}, _left(nullptr), _right(nullptr) {}
 
 ExprNode *&InfixExprNode::left() { return _left; }
@@ -63,7 +63,7 @@ void InfixExprNode::print() {
     _right->print();
 }
 
-// WHoleNumber
+// WholeNumber
 WholeNumber::WholeNumber(Token token): ExprNode{token} {}
 
 void WholeNumber::print() {
@@ -77,8 +77,21 @@ int WholeNumber::evaluate(SymTab &symTab) {
     return token().getWholeNumber();
 }
 
-// Variable
+// Float
+Float::Float(Token token): ExprNode{token} {}
 
+void Float::print() {
+	token().print();
+}
+
+int Float::evaluate(SymTab &symTab) {
+#ifdef DEBUG
+    std::cout << "Float::evaluate: returning " << token().getFloat() << std::endl;
+#endif
+    return token().getFloat();
+}
+
+// Variable
 Variable::Variable(Token token): ExprNode{token} {}
 
 void Variable::print() {
@@ -86,8 +99,9 @@ void Variable::print() {
 }
 
 int Variable::evaluate(SymTab &symTab) {
-    if( ! symTab.isDefined(token().getName())) {
-        std::cout << "Use of undefined variable, " << token().getName() << std::endl;
+    if( !symTab.isDefined( token().getName() ) ) {
+        std::cout << "Use of undefined variable, ";
+		std::cout << token().getName() << std::endl;
         exit(1);
     }
 #ifdef DEBUG

@@ -5,6 +5,7 @@
 #ifndef EXPRINTER_ARITHEXPR_HPP
 #define EXPRINTER_ARITHEXPR_HPP
 
+#inclue "TypeDescriptor.hpp"
 #include "Token.hpp"
 #include "SymTab.hpp"
 
@@ -20,7 +21,7 @@ public:
     Token token();
     virtual void print() = 0;
     virtual int evaluate(SymTab &symTab) = 0;
-
+	virtual TypeDescriptor *evaluate(SymTab &symTab) = 0;
 private:
     Token _token;
 };
@@ -36,7 +37,7 @@ public:
     ExprNode *&right();
     virtual void print();
     virtual int evaluate(SymTab &symTab);
-
+	virtual TypeDescriptor *evaluate(SymTab &symTab);
 private:
     ExprNode *_left, *_right;
 };
@@ -44,23 +45,34 @@ private:
 // WholeNumber is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
 // syntax of arithmetic expressions.
-
 class WholeNumber: public ExprNode {
 public:
     WholeNumber(Token token);
     virtual void print();
     virtual int evaluate(SymTab &symTab);
+	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
-// Varialbe is a leaf-node in an expression tree. It corresponds to
+// Float is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
 // syntax of arithmetic expressions.
+class Float: public ExprNode {
+public:
+	Float(Token token);
+	virtual void print();
+	virtual int evaluate(SymTab &symTab);
+	virtual TypeDescriptor *evaluate(SymTab &symTab);
+};
 
+// Variable is a leaf-node in an expression tree. It corresponds to
+// a terminal in the production rules of the grammar that describes the
+// syntax of arithmetic expressions.
 class Variable: public ExprNode {
 public:
     Variable(Token token);
     virtual void print();
     virtual int evaluate(SymTab &symTab);
+	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
 #endif //EXPRINTER_ARITHEXPR_HPP

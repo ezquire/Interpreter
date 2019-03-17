@@ -31,5 +31,6 @@ void Token::print() const {
     else if( isDivisionOperator() )  std::cout << " / " ;
     else if( isName() )  std::cout << getName();
     else if( isWholeNumber() ) std::cout << getWholeNumber();
+	else if( isFloat() ) std::cout << getFloat();
     else std::cout << "Uninitialized token.\n";
 }

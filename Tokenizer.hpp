@@ -31,7 +31,7 @@ private:
 private:
     std::string readName();
 	std::string readOp();
-    int readInteger();
+    void readNumber(Token &tok);
 };
 
 #endif //EXPRINTER_TOKENIZER_HPP

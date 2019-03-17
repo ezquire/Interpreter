@@ -79,11 +79,17 @@ public:
     void setName(std::string n) { _name = n; }
 	std::string getName() const { return _name; }
 
-    int getWholeNumber() const { return _wholeNumber; }
     void setWholeNumber(int n) {
         _wholeNumber = n;
         isWholeNumber() = true;
     }
+    int getWholeNumber() const { return _wholeNumber; }
+
+	void setFloat(double n) {
+		_float = n;
+		isFloat() = true;
+	}
+	double getFloat() const { return _float; }
 
     void print() const;
 

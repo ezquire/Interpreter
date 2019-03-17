@@ -22,17 +22,36 @@ std::string Tokenizer::readName() {
 }
 
 // This function is called when it is known that
-// the first character in input is a digit.
-// The function reads and returns the appropriate number with the
+// the first character in input is a digit or a '.'
+// The function reads and sets the appropriate number with the
 // appropriate type.
-int Tokenizer::readInteger() {
-    int intValue = 0;
-    char c;
-    while( inStream.get(c) && isdigit(c) )
-        intValue = intValue * 10 + c - '0';
-    if(inStream.good())  // In the loop, we have read one char too many.
-        inStream.putback(c);
-    return intValue;
+void Tokenizer::readNumber(Token &tok) {
+
+	char c;
+	std::string input = ""; // This string collects input
+
+	int integerVal = 0; // This will hold a valid integer
+	double doubleVal = 0; // This will hold a valid float
+
+	bool isFloat = 0; // set if we encounter a period character
+				
+	while( inStream.get(c) && ( isdigit(c) || c == '.' ) ) {
+		if(c == '.' && isFloat) {
+			std::cout << "Unexpected character in input. -> ";
+			std::cout << c << " <-" << std::endl;
+			exit(1);
+		}
+		else if( c == '.' )
+			isFloat = true;
+		input += c;
+	}
+	std::cout << input << std::endl;
+		
+	// convert string to integer or double
+	if( isFloat )
+		tok.setFloat( stod(input) );
+	else
+		tok.setWholeNumber( stoi(input) );
 }
 
 // This function is called when it is known that
@@ -114,16 +133,12 @@ Token Tokenizer::getToken() {
 	}	
 	else if( inStream.eof() )
 		token.eof() = true;
-	else if( isdigit(c) ) { // an integer, double
+	else if( isdigit(c) || c == '.') {
+		// an integer, or double?
 		// put the digit back into the input stream so
 		// we read the entire number in a function
-
-
-
-
 		inStream.putback(c);
-		token.setWholeNumber( readInteger() );
-
+		readNumber(token);
 	}
 	else if( c == '=' ) {
 		inStream.get(c);
@@ -151,7 +166,8 @@ Token Tokenizer::getToken() {
 		token.setName( readName() );
 	}
 	else {
-		std::cout << "Unknown character in input. >" << c << "<" << std::endl;
+		std::cout << "Unknown character in input. -> ";
+		std::cout << c << " <-" << std::endl;
 		exit(1);
 	}
 	_tokens.push_back(token);
