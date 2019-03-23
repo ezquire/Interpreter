@@ -6,6 +6,7 @@
 #define EXPRINTER_SYMTAB_HPP
 
 #include "TypeDescriptor.hpp"
+#include "Token.hpp"
 #include <string>
 #include <map>
 
@@ -15,12 +16,12 @@
 
 class SymTab {
 public:
-    void setValueFor(std::string vName, int value);
+    void setValueFor(std::string vName, Token tok);
     bool isDefined(std::string vName);
-    int getValueFor(std::string vName);
+    TypeDescriptor *getValueFor(std::string vName);
 
 private:
-    std::map<std::string, int> symTab;
+    std::map<std::string, TypeDescriptor *> symTab;
 };
 
 #endif //EXPRINTER_SYMTAB_HPP

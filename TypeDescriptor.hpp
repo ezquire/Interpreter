@@ -14,7 +14,7 @@ public:
 	enum types { INTEGER, DOUBLE, BOOLEAN, STRING };
 
 	TypeDescriptor(types type);
-
+	
 	types &type();
 
 	virtual ~TypeDescriptor() {}
@@ -35,11 +35,14 @@ public:
 };
 
 class StringDescriptor : public TypeDescriptor {
+public:
 	StringDescriptor(types descType);
 
 	std::string value;
 };
 
 void printValue (TypeDescriptor *desc);
+
+bool isValidType(TypeDescriptor *desc1, TypeDescriptor *desc2);
 
 #endif //EXPRINTER_TYPEDESCRIPTOR_HPP	

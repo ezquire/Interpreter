@@ -22,9 +22,7 @@ Statements *Parser::statements() {
 
     Statements *stmts = new Statements();
     Token tok = tokenizer.getToken();
-    while ( tok.isName() || tok.isSemiColon() ) {
-		if( tok.isSemiColon() ) // skip semicolons in input
-			tok = tokenizer.getToken();
+    while ( tok.isName() ) {
 		if( tok.isPrintKeyword() ) {
 			tokenizer.ungetToken();
 			PrintStatement *printStmt = printStatement();
@@ -60,8 +58,8 @@ AssignmentStatement *Parser::assignStatement() {
 
 	tok = tokenizer.getToken();
 	if( !tok.eol() )
-		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
-
+		die("Parser::assignStatement", "Expected 'NEWLINE', instead got", tok);
+	
     return new AssignmentStatement(varName.getName(), rightHandSideExpr);
 }
 
@@ -76,7 +74,7 @@ PrintStatement *Parser::printStatement() {
 	tok = tokenizer.getToken();
 	if( !tok.eol() )
 		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
-
+	
     return new PrintStatement(rightHandSideExpr);
 }
 
@@ -211,8 +209,11 @@ ExprNode *Parser::primary() {
 
     if (tok.isWholeNumber() )
         return new WholeNumber(tok);
-    else if( tok.isName() )
+	else if( tok.isFloat() )
+		return new Float(tok);
+    else if( tok.isName() ) {
         return new Variable(tok);
+	}
     else if (tok.isOpenParen()) {
         ExprNode *p = rel_expr();
         Token token = tokenizer.getToken();

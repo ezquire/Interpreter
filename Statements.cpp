@@ -3,6 +3,7 @@
 //
 
 #include "Statements.hpp"
+#include "TypeDescriptor.hpp"
 
 // Statement
 Statement::Statement() {}
@@ -31,8 +32,7 @@ AssignmentStatement::AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr):
         _lhsVariable{lhsVar}, _rhsExpression{rhsExpr} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
-    int rhs = rhsExpression()->evaluate(symTab);
-    symTab.setValueFor(lhsVariable(), rhs);
+    symTab.setValueFor(lhsVariable(), rhsExpression()->token());
 }
 
 std::string &AssignmentStatement::lhsVariable() {
@@ -57,7 +57,8 @@ PrintStatement::PrintStatement(ExprNode *rhsExpr):
         _rhsExpression{rhsExpr} {}
 
 void PrintStatement::evaluate(SymTab &symTab) {
-	std::cout << rhsExpression()->evaluate(symTab) << std::endl;
+	printValue( rhsExpression()->evaluate(symTab) );
+	std::cout << std::endl;
 }
 
 ExprNode *&PrintStatement::rhsExpression() {

@@ -45,7 +45,6 @@ void Tokenizer::readNumber(Token &tok) {
 			isFloat = true;
 		input += c;
 	}
-	std::cout << input << std::endl;
 		
 	// convert string to integer or double
 	if( isFloat )
@@ -119,20 +118,21 @@ Token Tokenizer::getToken() {
 
 	}*/	
 
-	while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
-		;
-
 	if(inStream.bad()) {
 		std::cout << "Error reading the input stream in Tokenizer.\n";
 		exit(1);
 	}
 
-	if( c == '\n' ) {
+	// Skip spaces but not new-line chars.
+	while( inStream.get(c) && ( isspace(c) && c != '\n' ) )
+		 ;
+	
+	if( inStream.eof() )
+		token.eof() = true;
+	else if( c == '\n') {
 		token.eol() = true;
 		bol = true;
-	}	
-	else if( inStream.eof() )
-		token.eof() = true;
+	}
 	else if( isdigit(c) || c == '.') {
 		// an integer, or double?
 		// put the digit back into the input stream so

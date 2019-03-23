@@ -5,7 +5,7 @@
 #ifndef EXPRINTER_ARITHEXPR_HPP
 #define EXPRINTER_ARITHEXPR_HPP
 
-#inclue "TypeDescriptor.hpp"
+#include "TypeDescriptor.hpp"
 #include "Token.hpp"
 #include "SymTab.hpp"
 
@@ -20,7 +20,6 @@ public:
     ExprNode(Token token);
     Token token();
     virtual void print() = 0;
-    virtual int evaluate(SymTab &symTab) = 0;
 	virtual TypeDescriptor *evaluate(SymTab &symTab) = 0;
 private:
     Token _token;
@@ -36,7 +35,6 @@ public:
     ExprNode *&left();
     ExprNode *&right();
     virtual void print();
-    virtual int evaluate(SymTab &symTab);
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 private:
     ExprNode *_left, *_right;
@@ -49,7 +47,6 @@ class WholeNumber: public ExprNode {
 public:
     WholeNumber(Token token);
     virtual void print();
-    virtual int evaluate(SymTab &symTab);
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
@@ -60,7 +57,6 @@ class Float: public ExprNode {
 public:
 	Float(Token token);
 	virtual void print();
-	virtual int evaluate(SymTab &symTab);
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
@@ -71,7 +67,16 @@ class Variable: public ExprNode {
 public:
     Variable(Token token);
     virtual void print();
-    virtual int evaluate(SymTab &symTab);
+	virtual TypeDescriptor *evaluate(SymTab &symTab);
+};
+
+// String is a leaf-node in an expression tree. It corresponds to
+// a terminal in the production rules of the grammar that describes the
+// syntax of arithmetic expressions.
+class String: public ExprNode {
+public:
+    String(Token token);
+    virtual void print();
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
