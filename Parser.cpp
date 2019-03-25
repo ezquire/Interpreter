@@ -116,7 +116,7 @@ ForStatement *Parser::forStatement() {
 	return new ForStatement(firstAssign, midExpr, secondAssign, stmts);
 }
 
-/*ExprNode *Parser::rel_expr() {
+/*ExprNode *Parser::testlist() {
     // This function parses the grammar rules:
 
     // <rel-expr> -> <rel-term> { (==, !=) <rel-term> }
@@ -211,9 +211,10 @@ ExprNode *Parser::primary() {
         return new WholeNumber(tok);
 	else if( tok.isFloat() )
 		return new Float(tok);
-    else if( tok.isName() ) {
+    else if( tok.isName() )
         return new Variable(tok);
-	}
+	else if( tok.isString() )
+		return new String(tok);
     else if (tok.isOpenParen()) {
         ExprNode *p = rel_expr();
         Token token = tokenizer.getToken();

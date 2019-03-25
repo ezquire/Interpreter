@@ -20,27 +20,26 @@ StringDescriptor::StringDescriptor(types descType): TypeDescriptor(descType) {}
 
 // Print function
 void printValue(TypeDescriptor *desc) {	
-	StringDescriptor *sDesc;
+	StringDescriptor *sDesc = dynamic_cast<StringDescriptor *>(desc);;
 	NumberDescriptor *nDesc = dynamic_cast<NumberDescriptor *>(desc);
 	// dynamic_cast will return a nullptr if
 	// desc is not of datatype NumberDescritpr.
-	if( nDesc == nullptr ) { // We don't have a number so check for string
-		sDesc = dynamic_cast<StringDescriptor *>(desc);
-		if( sDesc == nullptr ) {
-			std::cout << "Unable to cast to valid type\n";
-			exit(1);
-		}
-	}
-	// desc must have been of type NumberDescriptor or StringDescriptor
-	if( nDesc->type() == TypeDescriptor::INTEGER )
-		std::cout << nDesc->value.intValue;
-	else if( nDesc->type() == TypeDescriptor::DOUBLE )
-		std::cout << nDesc->value.doubleValue;
-	else if( nDesc->type() == TypeDescriptor::BOOLEAN )
-		std::cout << nDesc->value.boolValue;
-	else if( sDesc->type() == TypeDescriptor::STRING )
+	if( nDesc != nullptr ) { // We have a number
+		// desc must have been of type NumberDescriptor
+		if( nDesc->type() == TypeDescriptor::INTEGER )
+			std::cout << nDesc->value.intValue;
+		else if( nDesc->type() == TypeDescriptor::DOUBLE )
+			std::cout << nDesc->value.doubleValue;
+		else if( nDesc->type() == TypeDescriptor::BOOLEAN )
+			std::cout << nDesc->value.boolValue;
+		else std::cout << "Misconfigured union type." << std::endl;		
+	} else if( sDesc != nullptr ) // we must have a string
 		std::cout << sDesc->value;
-	else std::cout << "Misconfigured union type." << std::endl;
+	else { // we don't know the type
+		std::cout << "Unable to cast TypeDescriptor to a known type\n";
+		exit(1);
+	}
+
 }
 
 // Type Checking

@@ -22,6 +22,7 @@ public:
 	PrintStatement *printStatement();
 	ForStatement *forStatement();
 
+	ExprNode *testlist();
     ExprNode *expr();
     ExprNode *term();
     ExprNode *primary();

@@ -31,6 +31,8 @@ public:
 
 	bool isName() const { return _name.length() > 0; }
 
+	bool isString() const { return _string.length() > 0; }
+
 	bool &isWholeNumber() { return _isWholeNumber; }
     bool isWholeNumber() const { return _isWholeNumber; }
 	
@@ -79,6 +81,9 @@ public:
     void setName(std::string n) { _name = n; }
 	std::string getName() const { return _name; }
 
+	void setString(std::string n) { _string = n; }
+	std::string getString() const { return _string; }
+
     void setWholeNumber(int n) {
         _wholeNumber = n;
         isWholeNumber() = true;
@@ -95,6 +100,7 @@ public:
 
 private:
     std::string _name;
+	std::string _string;
 	std::string _relOp;
     bool _eof, _eol;
 	bool _indent, _dedent;

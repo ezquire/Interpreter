@@ -32,7 +32,7 @@ AssignmentStatement::AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr):
         _lhsVariable{lhsVar}, _rhsExpression{rhsExpr} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
-    symTab.setValueFor(lhsVariable(), rhsExpression()->token());
+    symTab.setValueFor(lhsVariable(), rhsExpression()->evaluate(symTab) );
 }
 
 std::string &AssignmentStatement::lhsVariable() {

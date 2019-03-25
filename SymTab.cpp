@@ -10,37 +10,9 @@
 // Uncomment the line below to enable debugging
 //#define DEBUG 1
 
-void SymTab::setValueFor(std::string vName, Token tok) {
+void SymTab::setValueFor(std::string vName, TypeDescriptor *rDesc) {
     // Define a variable by setting its initial value.
-	if( tok.isWholeNumber() ) {
-		NumberDescriptor *desc = new NumberDescriptor(TypeDescriptor::INTEGER);
-		desc->value.intValue = tok.getWholeNumber();
-		symTab[vName] = desc;
-#ifdef DEBUG
-		std::cout<< "\nHit SymTab::setValueFor tok.isWholeNumber()\n";
-		std::cout << vName << " <- ";
-		printValue(desc);
-		std::cout << std::endl;
-#endif
-	}
-	else if( tok.isFloat() ) {
-		NumberDescriptor *desc = new NumberDescriptor(TypeDescriptor::DOUBLE);
-		desc->value.doubleValue = tok.getFloat();
-		symTab[vName] = desc;
-#ifdef DEBUG
-		std::cout << "\nHit SymTab::setValueFor tok.isFloat()\n";
-		std::cout << vName << " <- ";
-		printValue(desc);
-		std::cout << std::endl;
-#endif
-	}
-	else if( tok.isName() ) {
-#ifdef DEBUG
-		std::cout << "\nHit SymTab::setValueFor tok.isName()\n";
-		std::cout << "vName: " << vName << std::endl;
-#endif
-		symTab[vName] = getValueFor( tok.getName() );
-	}
+	symTab[vName] = rDesc;
 }
 
 bool SymTab::isDefined(std::string vName) {

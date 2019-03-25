@@ -22,6 +22,19 @@ std::string Tokenizer::readName() {
 }
 
 // This function is called when it is known that
+// the first character in input is an alphabetic character.
+// The function reads and returns all characters of the name.
+std::string Tokenizer::readString() {
+    std::string _string;
+    char c;
+    while( inStream.get(c) && c != '"')
+        _string += c; 
+    //if(inStream.good())  // In the loop, we have read one char too many.
+	//	  inStream.putback(c);
+    return _string;
+}
+
+// This function is called when it is known that
 // the first character in input is a digit or a '.'
 // The function reads and sets the appropriate number with the
 // appropriate type.
@@ -29,12 +42,8 @@ void Tokenizer::readNumber(Token &tok) {
 
 	char c;
 	std::string input = ""; // This string collects input
-
-	int integerVal = 0; // This will hold a valid integer
-	double doubleVal = 0; // This will hold a valid float
-
 	bool isFloat = 0; // set if we encounter a period character
-				
+	
 	while( inStream.get(c) && ( isdigit(c) || c == '.' ) ) {
 		if(c == '.' && isFloat) {
 			std::cout << "Unexpected character in input. -> ";
@@ -45,7 +54,9 @@ void Tokenizer::readNumber(Token &tok) {
 			isFloat = true;
 		input += c;
 	}
-		
+	if(inStream.good())  // In the loop, we have read one char too many.
+        inStream.putback(c);
+
 	// convert string to integer or double
 	if( isFloat )
 		tok.setFloat( stod(input) );
@@ -139,8 +150,7 @@ Token Tokenizer::getToken() {
 		// we read the entire number in a function
 		inStream.putback(c);
 		readNumber(token);
-	}
-	else if( c == '=' ) {
+	} else if( c == '=' ) {
 		inStream.get(c);
 		if(c != '=') { 
 			token.symbol('=');
@@ -148,23 +158,23 @@ Token Tokenizer::getToken() {
 		}
 		else
 			token.relOp("==");
-	}
-	else if( c == '<' || c == '>' || c == '!') {
+	} else if( c == '<' || c == '>' || c == '!') {
 		inStream.putback(c);
 		token.relOp( readOp() );
-	}
-	else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
+	} else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
 		token.symbol(c);
 	else if( c == ';' )
 		token.symbol(c);
 	else if( c == '(' || c == ')' || c == '{' || c == '}')
 		token.symbol(c);
-	else if(isalpha(c)) {  // an identifier?
+	else if(isalpha(c)) {  // an identifier or string?
 		// put c back into the stream so we can
 		// read the entire name in a function.
 		inStream.putback(c);
 		token.setName( readName() );
 	}
+	else if(c == '"')
+		token.setString( readString() );
 	else {
 		std::cout << "Unknown character in input. -> ";
 		std::cout << c << " <-" << std::endl;

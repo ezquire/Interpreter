@@ -21,7 +21,8 @@ ExprNode *&InfixExprNode::left() { return _left; }
 ExprNode *&InfixExprNode::right() { return _right; }
 
 TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
-    // Evaluates an infix expression using a post-order traversal of the expression tree.
+    // Evaluates an infix expression using a post-order
+	// Traversal of the expression tree.
     auto lValue = left()->evaluate(symTab);
     auto rValue = right()->evaluate(symTab);
 
@@ -124,7 +125,7 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			lDesc->value.doubleValue += rDesc->value.doubleValue;
 		else if(lType == TypeDescriptor::DOUBLE &&
 				rType == TypeDescriptor::INTEGER)
-			lDesc->value.doubleValue += rDesc->value.doubleValue;
+			lDesc->value.doubleValue += rDesc->value.intValue;
 		else if(lType == TypeDescriptor::DOUBLE &&
 				rType == TypeDescriptor::BOOLEAN)
 			lDesc->value.doubleValue += rDesc->value.boolValue;
@@ -132,8 +133,10 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 				rType == TypeDescriptor::INTEGER)
 			lDesc->value.intValue += rDesc->value.intValue;
 		else if(lType == TypeDescriptor::INTEGER &&
-				rType == TypeDescriptor::DOUBLE)
-			lDesc->value.intValue += rDesc->value.doubleValue;
+				rType == TypeDescriptor::DOUBLE) {
+			lDesc->type() = TypeDescriptor::DOUBLE;
+			lDesc->value.doubleValue += rDesc->value.intValue;
+		}
 		else if(lType == TypeDescriptor::INTEGER &&
 				rType == TypeDescriptor::BOOLEAN)
 			lDesc->value.intValue += rDesc->value.boolValue;

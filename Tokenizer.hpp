@@ -31,6 +31,7 @@ private:
 private:
     std::string readName();
 	std::string readOp();
+	std::string readString();
     void readNumber(Token &tok);
 };
 
