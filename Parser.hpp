@@ -21,16 +21,21 @@ public:
     AssignmentStatement *assignStatement();
 	PrintStatement *printStatement();
 	ForStatement *forStatement();
+	IfStatement *ifStatement();
 
-	ExprNode *testlist();
-    ExprNode *expr();
+	Statements *suite();
+	
+	std::vector<ExprNode *>testlist();
+	ExprNode *test();
+	ExprNode *and_test();
+	ExprNode *not_test();
+	ExprNode *comparison();
+    ExprNode *arith_expr();
     ExprNode *term();
-    ExprNode *primary();
+	ExprNode *factor();
+    ExprNode *atom();
 
-	ExprNode *rel_expr();
-	ExprNode *rel_term();
-
-    std::string id();
+    //std::string id();
 
 private:
     Tokenizer &tokenizer;

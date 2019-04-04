@@ -17,10 +17,9 @@ int main(int argc, char *argv[]) {
 
     inputStream.open(argv[1], std::ios::in);
     if( ! inputStream.is_open()) {
-        std::cout << "Unable top open " << argv[1] << ". Terminating...";
-        perror("Error when attempting to open the input file.");
+        std::cout << "Unable to open " << argv[1] << ". Terminating...\n";
         exit(2);
-		}
+	}
 
     Tokenizer tokenizer(inputStream);
 
@@ -31,7 +30,7 @@ int main(int argc, char *argv[]) {
 		tokenizer.printProcessedTokens();*/
 
 	
-	Parser parser(tokenizer);
+   	Parser parser(tokenizer);
 
     Statements *statements = parser.statements();
     SymTab symTab;

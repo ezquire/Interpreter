@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Range.hpp"
 #include "Expr.hpp"
 #include "SymTab.hpp"
 
@@ -65,36 +66,62 @@ private:
 class PrintStatement : public Statement {
 public:
 	PrintStatement();
-    PrintStatement(ExprNode *rhsExpr);
+    PrintStatement(std::vector<ExprNode *>rhsList);
 
-    ExprNode *&rhsExpression();
+	std::vector<ExprNode *>&rhsList();
 
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-    ExprNode *_rhsExpression;
+	std::vector<ExprNode *>_rhsList;
 };
 
 // ForStatement
 class ForStatement : public Statement {
 public:
 	ForStatement();
-    ForStatement(AssignmentStatement *firstAssign, ExprNode *midExpr, AssignmentStatement *secondAssign, Statements* stmnts);
+	ForStatement(std::string id, std::vector<ExprNode *> range,
+				 Statements *stmnts);
 
-	AssignmentStatement *&firstAssign();
-	AssignmentStatement *&secondAssign();
-    ExprNode *&midExpr();
 	Statements *&statements();
+	std::vector<ExprNode *> &getRange();
+	std::string &getId();
 
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-	AssignmentStatement *_firstAssign;
-	AssignmentStatement *_secondAssign;
-    ExprNode *_midExpr;
+	std::vector<ExprNode *> _range;
 	Statements *_statements;
+	std::string _id;
+};
+
+// IfStatement
+class IfStatement : public Statement {
+public:
+	IfStatement();
+	IfStatement(ExprNode *firstTest, Statements *firstSuite);
+ 	IfStatement(ExprNode *firstTest, Statements *firstSuite,
+				std::vector<ExprNode *> elifTests,
+				std::vector<Statements *> elifSuites,
+				Statements *elseSuite);
+
+	ExprNode *&firstTest();
+	Statements *&firstSuite();
+	std::vector<ExprNode *> &elifTests();
+	std::vector<Statements *> &elifSuites();
+	Statements *&elseSuite(); 
+	
+    virtual void evaluate(SymTab &symTab);
+    virtual void print();
+
+private:
+	ExprNode *_firstTest;
+	Statements *_firstSuite;
+	std::vector<ExprNode *>_elifTests;
+	std::vector<Statements *>_elifSuites;
+	Statements *_elseSuite;
 };
 
 

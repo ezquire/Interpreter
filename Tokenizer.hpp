@@ -23,8 +23,7 @@ private:
     Token lastToken;
     bool ungottenToken;
 	bool bol;
-	std::stack <int> stack;
-	std::stack <int> altstack;
+	std::stack<int> stack;
     std::ifstream &inStream;
     std::vector<Token> _tokens; 
 

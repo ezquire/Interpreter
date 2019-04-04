@@ -14,6 +14,7 @@ void Token::print() const {
 	else if( dedent() ) std::cout << "DEDENT";
 	else if( isOpenBrace() ) std::cout << " { ";
 	else if( isCloseBrace() ) std::cout << " } ";
+	else if( isComma() ) std::cout << " , ";
 	else if( isEqual() ) std::cout << " == ";
 	else if( isNotEqual() ) std::cout << " != ";
 	else if( isLessThan() ) std::cout << " < ";
@@ -23,7 +24,7 @@ void Token::print() const {
     else if( isOpenParen() )  std::cout << " ( " ;
     else if( isCloseParen() )  std::cout << " ) " ;
     else if( isAssignmentOperator() )  std::cout << " = " ;
-    else if( isSemiColon() )  std::cout << ";" ;
+    else if( isColon() )  std::cout << " : " ;
     else if( isMultiplicationOperator() )  std::cout << " * " ;
     else if( isAdditionOperator() )  std::cout << " + " ;
     else if( isSubtractionOperator() )  std::cout << " - " ;

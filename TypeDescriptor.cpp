@@ -64,3 +64,19 @@ bool isValidType(TypeDescriptor *lDesc, TypeDescriptor *rDesc) {
 		return true;
 	else return false;
 }
+
+bool evaluateBool(TypeDescriptor *desc) {
+	NumberDescriptor * numDesc = dynamic_cast<NumberDescriptor *>(desc);
+	if(numDesc == nullptr) {
+		std::cout << "Error: invalid cast to non-number type\n";
+		exit(1);
+	}
+
+	auto type = numDesc->type();
+
+	if(type != TypeDescriptor::BOOLEAN) {
+		std::cout << "Error:: cannot evaluate non boolean values";
+	} else {
+		return numDesc->value.boolValue;
+	}
+}

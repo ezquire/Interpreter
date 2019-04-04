@@ -20,6 +20,8 @@ public:
     bool &dedent()  { return _dedent; }
     bool indent() const { return _indent; }
     bool dedent() const  { return _dedent; }
+
+	bool isComma() const {return _symbol == ','; }
 	
     bool isOpenParen() const  { return _symbol == '('; }
     bool isCloseParen() const { return _symbol == ')'; }
@@ -28,6 +30,17 @@ public:
 
 	bool isPrintKeyword() { return _name == "print"; }
 	bool isForKeyword() { return _name == "for"; }
+
+	bool isIf() { return _name == "if"; }
+	bool isElif() { return _name == "elif"; }
+	bool isElse() { return _name == "else"; }
+
+	bool isInKeyword() { return _name == "in"; }
+	bool isRangeKeyword() { return _name == "range"; }
+
+	bool isOrKeyword() { return _name == "or"; }
+	bool isAndKeyword() { return _name == "and"; }
+	bool isNotKeyword() { return _name == "not"; }
 
 	bool isName() const { return _name.length() > 0; }
 
@@ -42,8 +55,8 @@ public:
 	bool &isBool() { return _isBool; }
     bool isBool() const { return _isBool; }
 
-    bool isSemiColon() const { return _symbol == ';'; }
-    bool isAssignmentOperator() const              { return _symbol == '='; }
+    bool isColon() const                  { return _symbol == ':'; }
+    bool isAssignmentOperator() const     { return _symbol == '='; }
     bool isMultiplicationOperator() const { return _symbol == '*'; }
     bool isAdditionOperator() const       { return _symbol == '+'; }
     bool isSubtractionOperator() const    { return _symbol == '-'; }

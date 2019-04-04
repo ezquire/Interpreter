@@ -45,4 +45,6 @@ void printValue (TypeDescriptor *desc);
 
 bool isValidType(TypeDescriptor *desc1, TypeDescriptor *desc2);
 
+bool evaluateBool(TypeDescriptor *desc);
+
 #endif //EXPRINTER_TYPEDESCRIPTOR_HPP	

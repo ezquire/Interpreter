@@ -12,9 +12,9 @@
 // Classes in this file define the internal representation of arithmetic expressions.
 
 
-// An ExprNode serves as the base class (super class) for arithmetic expression.
-// It forces the derived classes (subclasses) to implement two functions, print and
-// evaluate.
+// An ExprNode serves as the base class for expressions.
+// It forces the derived classes (subclasses) to implement two functions
+// Print and Evaluate.
 class ExprNode {
 public:
     ExprNode(Token token);
@@ -31,7 +31,6 @@ class InfixExprNode: public ExprNode {  // An expression tree node.
 
 public:
     InfixExprNode(Token tk);
-
     ExprNode *&left();
     ExprNode *&right();
     virtual void print();
@@ -39,6 +38,7 @@ public:
 private:
     ExprNode *_left, *_right;
 };
+
 
 // WholeNumber is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
@@ -50,6 +50,7 @@ public:
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
+
 // Float is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
 // syntax of arithmetic expressions.
@@ -60,6 +61,7 @@ public:
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
 
+
 // Variable is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
 // syntax of arithmetic expressions.
@@ -69,6 +71,7 @@ public:
     virtual void print();
 	virtual TypeDescriptor *evaluate(SymTab &symTab);
 };
+
 
 // String is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
