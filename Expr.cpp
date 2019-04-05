@@ -480,8 +480,24 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			} else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue += rDesc->value.boolValue;
+			else if(lType == TypeDescriptor::BOOLEAN &&
+					rType == TypeDescriptor::INTEGER){ 
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue + rDesc->value.intValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+					  rType == TypeDescriptor::DOUBLE) {
+				lDesc->type() = TypeDescriptor::DOUBLE;
+				lDesc->value.doubleValue =
+					lDesc->value.boolValue + rDesc->value.doubleValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+						rType == TypeDescriptor::BOOLEAN) {
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue + rDesc->value.boolValue;
+			}
 			return lDesc;
-		} else if(token().isSubtractionOperator() && right() != nullptr) {
+		} else if(token().isSubtractionOperator()) {
 			if(lType == TypeDescriptor::DOUBLE &&
 			   rType == TypeDescriptor::DOUBLE)
 				lDesc->value.doubleValue -= rDesc->value.doubleValue;
@@ -499,7 +515,23 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 				lDesc->value.intValue -= rDesc->value.doubleValue;
 			else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
-				lDesc->value.intValue -= rDesc->value.boolValue; 
+				lDesc->value.intValue -= rDesc->value.boolValue;
+			else if(lType == TypeDescriptor::BOOLEAN &&
+					rType == TypeDescriptor::INTEGER){ 
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue - rDesc->value.intValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+					  rType == TypeDescriptor::DOUBLE) {
+				lDesc->type() = TypeDescriptor::DOUBLE;
+				lDesc->value.doubleValue =
+					lDesc->value.boolValue - rDesc->value.doubleValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+						rType == TypeDescriptor::BOOLEAN) {
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue - rDesc->value.boolValue;
+			}
 			return lDesc;
 		} else if(token().isMultiplicationOperator()) {
 			if(lType == TypeDescriptor::DOUBLE &&
@@ -520,6 +552,22 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue *= rDesc->value.boolValue;
+			else if(lType == TypeDescriptor::BOOLEAN &&
+					rType == TypeDescriptor::INTEGER){ 
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue * rDesc->value.intValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+					  rType == TypeDescriptor::DOUBLE) {
+				lDesc->type() = TypeDescriptor::DOUBLE;
+				lDesc->value.doubleValue =
+					lDesc->value.boolValue * rDesc->value.doubleValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+						rType == TypeDescriptor::BOOLEAN) {
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue * rDesc->value.boolValue;
+			}
 			return lDesc;
 		} else if(token().isDivisionOperator()) {
 			if(lType == TypeDescriptor::DOUBLE &&
@@ -540,6 +588,22 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue /= rDesc->value.boolValue;
+			else if(lType == TypeDescriptor::BOOLEAN &&
+					rType == TypeDescriptor::INTEGER){ 
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue / rDesc->value.intValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+					  rType == TypeDescriptor::DOUBLE) {
+				lDesc->type() = TypeDescriptor::DOUBLE;
+				lDesc->value.doubleValue =
+					lDesc->value.boolValue / rDesc->value.doubleValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+						rType == TypeDescriptor::BOOLEAN) {
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue / rDesc->value.boolValue;
+			}
 			return lDesc;
 		} else if(token().isFloorDivision()) {
 			if(lType == TypeDescriptor::DOUBLE &&
@@ -567,6 +631,22 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue =
 					floor(lDesc->value.intValue / rDesc->value.boolValue);
+			else if(lType == TypeDescriptor::BOOLEAN &&
+					rType == TypeDescriptor::INTEGER){ 
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					floor(lDesc->value.boolValue / rDesc->value.intValue);
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+					  rType == TypeDescriptor::DOUBLE) {
+				lDesc->type() = TypeDescriptor::DOUBLE;
+				lDesc->value.doubleValue =
+					floor(lDesc->value.boolValue / rDesc->value.doubleValue);
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+						rType == TypeDescriptor::BOOLEAN) {
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					floor(lDesc->value.boolValue / rDesc->value.boolValue);
+			}
 			return lDesc;
 		} else if( token().isModuloOperator() ) {
 			if(lType == TypeDescriptor::DOUBLE &&
@@ -595,6 +675,22 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue %= rDesc->value.boolValue;
+			else if(lType == TypeDescriptor::BOOLEAN &&
+					rType == TypeDescriptor::INTEGER){ 
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue % rDesc->value.intValue;
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+					  rType == TypeDescriptor::DOUBLE) {
+				std::cout << "Invalid operands for operator %. ";
+				std::cout << "Types: boolean and double\n";
+				exit(2);
+			} else if(lType == TypeDescriptor::BOOLEAN &&
+						rType == TypeDescriptor::BOOLEAN) {
+				lDesc->type() = TypeDescriptor::INTEGER;
+				lDesc->value.intValue =
+					lDesc->value.boolValue % rDesc->value.boolValue;
+			}
 			return lDesc;
 		} else {
 			std::cout << "InfixExprNode::evaluate: don't know how to ";
