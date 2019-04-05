@@ -274,16 +274,10 @@ ExprNode *Parser::not_test() {
 	// not_test: 'not' not_test | comparison
 	Token tok = tokenizer.getToken();
 	if( tok.isNotKeyword() ) {
-		ExprNode *left = not_test();
-		while( tok.isNotKeyword() ) {
-			InfixExprNode *p = new InfixExprNode(tok);
-			p->left() = left;
-			p->right() = nullptr;
-			left = p;
-			tok = tokenizer.getToken();
-		}
-		tokenizer.ungetToken();
-		return left;
+		InfixExprNode *p = new InfixExprNode(tok);
+		p->left() = not_test();;
+		p->right() = nullptr;
+		return p;
 	} else {
 		tokenizer.ungetToken();
 		ExprNode *p = comparison();
@@ -351,16 +345,10 @@ ExprNode *Parser::factor() {
 	// factor: {-}* factor | atom
 	Token tok = tokenizer.getToken();
 	if( tok.isSubtractionOperator() ) {
-		ExprNode *left = factor();
-		while( tok.isSubtractionOperator() ) {
-			InfixExprNode *p = new InfixExprNode(tok);
-			p->left() = left;
-			p->right() = nullptr;
-			left = p;
-			tok = tokenizer.getToken();
-		}
-		tokenizer.ungetToken();
-		return left;
+		InfixExprNode *p = new InfixExprNode(tok);
+		p->left() = factor();
+		p->right() = nullptr;
+		return p;
 	} else {
 		tokenizer.ungetToken();
 		ExprNode *p = atom();

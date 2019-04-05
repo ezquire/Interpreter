@@ -499,7 +499,7 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 				lDesc->value.intValue -= rDesc->value.doubleValue;
 			else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
-				lDesc->value.intValue -= rDesc->value.boolValue;
+				lDesc->value.intValue -= rDesc->value.boolValue; 
 			return lDesc;
 		} else if(token().isMultiplicationOperator()) {
 			if(lType == TypeDescriptor::DOUBLE &&

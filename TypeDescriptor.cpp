@@ -74,9 +74,10 @@ bool evaluateBool(TypeDescriptor *desc) {
 
 	auto type = numDesc->type();
 
-	if(type != TypeDescriptor::BOOLEAN) {
-		std::cout << "Error:: cannot evaluate non boolean values";
-	} else {
+	if(type == TypeDescriptor::BOOLEAN) {
 		return numDesc->value.boolValue;
-	}
+	} else if(type == TypeDescriptor::DOUBLE) {
+		return numDesc->value.doubleValue != 0;
+	} else
+		return numDesc->value.intValue != 0;
 }
