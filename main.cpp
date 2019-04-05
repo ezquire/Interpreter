@@ -28,9 +28,9 @@ int main(int argc, char *argv[]) {
 		tok = tokenizer.getToken();
 
 		tokenizer.printProcessedTokens();*/
-
 	
-   	Parser parser(tokenizer);
+	
+	Parser parser(tokenizer);
 
     Statements *statements = parser.statements();
     SymTab symTab;

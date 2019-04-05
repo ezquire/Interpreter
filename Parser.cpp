@@ -1,5 +1,5 @@
-#include<vector>
-#include<iostream>
+#include <vector>
+#include <iostream>
 #include "Token.hpp"
 #include "Parser.hpp"
 #include "Statements.hpp"
@@ -20,7 +20,7 @@ Statements *Parser::statements() {
     // This function is called when we KNOW that we are about to parse
     // a series of statements.
 
-    Statements *stmts = new Statements();
+	Statements *stmts = new Statements();
     Token tok = tokenizer.getToken();
 
 	while( tok.eol() )
@@ -144,9 +144,9 @@ ForStatement *Parser::forStatement() {
     if ( !tok.isColon() )
 		die("Parser::forStatement", "Expected ':', instead got", tok);
 
-	Statements *statements = suite();
+	Statements *stmts = suite();
 
-	return new ForStatement(id.getName(), rangeList, statements);
+	return new ForStatement(id.getName(), rangeList, stmts);
 }
 
 
@@ -173,13 +173,11 @@ IfStatement *Parser::ifStatement() {
 	while( tok.isElif() ) {
 		ExprNode *_test = test();
 		elifTests.push_back(_test);
-
 		tok = tokenizer.getToken();
 		if( !tok.isColon() )
 			die("Parser::ifStatement", "Expected ':', instead got",tok);
 		Statements *_suite = suite();		
-		elifSuites.push_back(_suite);
-		
+		elifSuites.push_back(_suite);		
 		tok = tokenizer.getToken();
 	}
 	if( tok.isElse() ) {
@@ -189,11 +187,10 @@ IfStatement *Parser::ifStatement() {
 		elseSuite = suite();
 		return new IfStatement(firstTest, firstSuite, elifTests,
 							   elifSuites, elseSuite); 
-	} else {
-		tokenizer.ungetToken();
-		return new IfStatement(firstTest, firstSuite, elifTests,
-							   elifSuites, nullptr);
 	}
+	tokenizer.ungetToken();
+	return new IfStatement(firstTest, firstSuite, elifTests,
+						   elifSuites, nullptr);
 }
 
 Statements *Parser::suite() {
@@ -202,7 +199,8 @@ Statements *Parser::suite() {
  	Token tok = tokenizer.getToken();
 	if ( !tok.eol() )
 		die("Parser::suite", "Expected 'NEWLINE', instead got",tok);
-	
+
+	tok = tokenizer.getToken();
 	while( tok.eol() )
 		tok = tokenizer.getToken();
 
@@ -211,13 +209,14 @@ Statements *Parser::suite() {
 	
 	Statements *_suite = statements();
 
-	tok = tokenizer.getToken();
+	tok = tokenizer.getToken();	
 	while( tok.eol() )
 		tok = tokenizer.getToken();
 
-	if ( !tok.dedent() )
+	if( tok.eof() )
+		return _suite;	
+	else if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
-
 	return _suite;
 }
 
@@ -335,7 +334,8 @@ ExprNode *Parser::term() {
     ExprNode *left = factor();
     Token tok = tokenizer.getToken();
     while (tok.isMultiplicationOperator()
-		   || tok.isDivisionOperator() || tok.isModuloOperator()) {
+		   || tok.isDivisionOperator()
+		   || tok.isModuloOperator() || tok.isFloorDivision() ) {
         InfixExprNode *p = new InfixExprNode(tok);
         p->left() = left;
         p->right() = factor();
@@ -383,7 +383,7 @@ ExprNode *Parser::atom() {
 	else if( tok.isString() )
 		return new String(tok);
     else if (tok.isOpenParen()) {
-        ExprNode *p = comparison();
+        ExprNode *p = test();
         Token token = tokenizer.getToken();
         if (!token.isCloseParen())
             die("Parser::primary",

@@ -62,6 +62,7 @@ public:
     bool isSubtractionOperator() const    { return _symbol == '-'; }
     bool isModuloOperator() const         { return _symbol == '%'; }
     bool isDivisionOperator() const       { return _symbol == '/'; }
+	bool isFloorDivision() const          { return _relOp == "//"; }
     bool isArithmeticOperator() const {
         return isMultiplicationOperator() ||
                isAdditionOperator() ||
@@ -69,7 +70,6 @@ public:
                isModuloOperator() ||
                isDivisionOperator();
     }
-
 	bool isEqual() const { return _relOp == "=="; }
 	bool isNotEqual() const { return _relOp == "!=" || _relOp == "<>"; }
 	bool isLessThan() const { return _relOp == "<"; }

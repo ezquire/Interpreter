@@ -1,6 +1,7 @@
 // Created by Tyler Gearing 4/4/2019
 
-#include<iostream>
+#include <iostream>
+#include <cmath>
 #include "Expr.hpp"
 
 // Uncomment the line below to enable debugging
@@ -476,8 +477,7 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 					rType == TypeDescriptor::DOUBLE) {
 				lDesc->type() = TypeDescriptor::DOUBLE;
 				lDesc->value.doubleValue += rDesc->value.intValue;
-			}
-			else if(lType == TypeDescriptor::INTEGER &&
+			} else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue += rDesc->value.boolValue;
 			return lDesc;
@@ -540,6 +540,33 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			else if(lType == TypeDescriptor::INTEGER &&
 					rType == TypeDescriptor::BOOLEAN)
 				lDesc->value.intValue /= rDesc->value.boolValue;
+			return lDesc;
+		} else if(token().isFloorDivision()) {
+			if(lType == TypeDescriptor::DOUBLE &&
+			   rType == TypeDescriptor::DOUBLE)
+				lDesc->value.doubleValue =
+					floor(lDesc->value.doubleValue / rDesc->value.doubleValue);
+			else if(lType == TypeDescriptor::DOUBLE &&
+					rType == TypeDescriptor::INTEGER)
+				lDesc->value.doubleValue =
+					floor(lDesc->value.doubleValue / rDesc->value.intValue);
+ 			else if(lType == TypeDescriptor::DOUBLE &&
+					rType == TypeDescriptor::BOOLEAN)
+				lDesc->value.doubleValue =
+				floor(lDesc->value.doubleValue / rDesc->value.boolValue);
+			else if(lType == TypeDescriptor::INTEGER &&
+					rType == TypeDescriptor::INTEGER)
+				lDesc->value.intValue =
+					floor(lDesc->value.intValue / rDesc->value.intValue);
+			else if(lType == TypeDescriptor::INTEGER &&
+					rType == TypeDescriptor::DOUBLE) {
+				lDesc->type() = TypeDescriptor::DOUBLE;
+				lDesc->value.doubleValue =
+					floor(lDesc->value.intValue / rDesc->value.doubleValue);
+			} else if(lType == TypeDescriptor::INTEGER &&
+					rType == TypeDescriptor::BOOLEAN)
+				lDesc->value.intValue =
+					floor(lDesc->value.intValue / rDesc->value.boolValue);
 			return lDesc;
 		} else if( token().isModuloOperator() ) {
 			if(lType == TypeDescriptor::DOUBLE &&

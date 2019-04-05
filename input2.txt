@@ -1,7 +1,8 @@
+failCount = 0
 temp = failCount
 failCount = failCount + 1
 if 1 == 1:
  if 1 == 1:
   failCount = failCount - 1
 if failCount != temp:
- print "Nested if statements didn't work."  
+ print "Nested if statements didn't work."

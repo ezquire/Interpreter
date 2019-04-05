@@ -172,6 +172,6 @@ void IfStatement::print() {
     std::cout << std::endl;
 	//print vectors
 	//print vectors
-	_elseSuite->print();
-	std::cout << std::endl;
+	//_elseSuite->print();
+	//std::cout << std::endl;
 }

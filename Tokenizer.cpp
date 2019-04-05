@@ -6,8 +6,6 @@
 #include <string>
 #include "Tokenizer.hpp"
 
-#define TABSIZE 8
-
 Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, inStream{stream}, lastToken{}, stack{} { stack.push(0); }
 
 // This function is called when it is known that
@@ -35,7 +33,6 @@ std::string Tokenizer::readString() {
 	//	  inStream.putback(c);
     return _string;
 }
-
 
 // This function is called when it is known that
 // the first character in input is a digit or a '.'
@@ -126,11 +123,14 @@ Token Tokenizer::getToken() {
 				_tokens.push_back(token);
 				return lastToken = token; 
 			} else if ( col < stack.top() ) {
-				stack.pop();
-				token.dedent() = true;
-				_tokens.push_back(token);
-				return lastToken = token;
-			} else if( col != stack.top() ) {
+					stack.pop();
+					token.dedent() = true;
+					_tokens.push_back(token);
+					bol = true; // possibly more dedent tokens before input
+					return lastToken = token;
+			} else if( col == stack.top() )
+				;
+			else {
 				std::cout << "Error: inconsistent indentation.\n";
 				exit(1);
 			}
@@ -171,9 +171,16 @@ Token Tokenizer::getToken() {
 	} else if( c == '<' || c == '>' || c == '!') {
 		inStream.putback(c);
 		token.relOp( readOp() );
-	} else if( c == '+' || c == '*' || c == '/' || c == '%' || c == '-')
+	} else if( c == '+' || c == '*' || c == '%' || c == '-')
 		token.symbol(c);
-	else if( c == ':' )
+	else if( c == '/' ) {
+		inStream.get(c);
+		if(c != '/') { 
+			token.symbol('/');
+			inStream.putback(c); // we have read one too many characters
+		} else
+			token.relOp("//");
+	} else if( c == ':' )
 		token.symbol(c);
 	else if( c == '(' || c == ')' || c == '{' || c == '}' || c == ',')
 		token.symbol(c);
