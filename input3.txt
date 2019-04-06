@@ -1,3 +1,4 @@
-a = 1
-if a != 1:
- print "error"
+failCount = 0
+if "ab" > "b":
+ print "Line 238 evaluated to", "ab" > "b", ", but should have evaluated to 0"
+ failCount = failCount + 1

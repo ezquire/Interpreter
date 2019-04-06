@@ -20,7 +20,7 @@ StringDescriptor::StringDescriptor(types descType): TypeDescriptor(descType) {}
 
 // Print function
 void printValue(TypeDescriptor *desc) {	
-	StringDescriptor *sDesc = dynamic_cast<StringDescriptor *>(desc);;
+	StringDescriptor *sDesc = dynamic_cast<StringDescriptor *>(desc);
 	NumberDescriptor *nDesc = dynamic_cast<NumberDescriptor *>(desc);
 	// dynamic_cast will return a nullptr if
 	// desc is not of datatype NumberDescritpr.
@@ -66,7 +66,7 @@ bool isValidType(TypeDescriptor *lDesc, TypeDescriptor *rDesc) {
 }
 
 bool evaluateBool(TypeDescriptor *desc) {
-	NumberDescriptor * numDesc = dynamic_cast<NumberDescriptor *>(desc);
+	NumberDescriptor *numDesc = dynamic_cast<NumberDescriptor *>(desc);
 	if(numDesc == nullptr) {
 		std::cout << "Error: invalid cast to non-number type\n";
 		exit(1);

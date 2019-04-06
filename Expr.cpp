@@ -46,7 +46,7 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 				else lDesc->value.boolValue = 1;
 				return lDesc;
 			} else if (lDesc->type() == TypeDescriptor::INTEGER) {
-				lDesc->type() == TypeDescriptor::BOOLEAN;
+				lDesc->type() = TypeDescriptor::BOOLEAN;
 				if(lDesc->value.intValue == 0)
 					lDesc->value.boolValue = 1;
 				else lDesc->value.boolValue = 0;
@@ -58,6 +58,12 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 				else lDesc->value.boolValue = 0;
 				return lDesc;
 			}
+		} else {
+				std::cout << "InfixExprNode::evaluate: don't know how to ";
+				std:: cout << "evaluate this unary operator\n";
+				token().print();
+				std::cout << std::endl;
+				exit(2);
 		}
 	}
 
@@ -71,20 +77,55 @@ TypeDescriptor *InfixExprNode::evaluate(SymTab &symTab) {
 			lDesc->value += rDesc->value;
 			return lDesc;
 		} else if ( token().isEqual() ) {
-			NumberDescriptor * ret =
+			NumberDescriptor *ret =
 				new NumberDescriptor(TypeDescriptor::BOOLEAN);
 			if( lDesc->value == rDesc->value )
 				ret->value.boolValue = 1;
 			else ret->value.boolValue = 0;
 			return ret;
 		} else if ( token().isNotEqual() ) {
-			NumberDescriptor * ret =
+			NumberDescriptor *ret =
 				new NumberDescriptor(TypeDescriptor::BOOLEAN);
 			if( lDesc->value != rDesc->value )
 				ret->value.boolValue = 1;
 			else ret->value.boolValue = 0;
 			return ret;
-		}		
+		} else if ( token().isGreaterThan() ) {
+			NumberDescriptor *ret =
+				new NumberDescriptor(TypeDescriptor::BOOLEAN);
+			if( lDesc->value > rDesc->value )
+				ret->value.boolValue = 1;
+			else ret->value.boolValue = 0;
+			return ret;
+		}  else if ( token().isGreaterThanEqual() ) {
+			NumberDescriptor *ret =
+				new NumberDescriptor(TypeDescriptor::BOOLEAN);
+			if( lDesc->value >= rDesc->value )
+				ret->value.boolValue = 1;
+			else ret->value.boolValue = 0;
+			return ret;
+		}else if ( token().isLessThan() ) {
+			NumberDescriptor *ret =
+				new NumberDescriptor(TypeDescriptor::BOOLEAN);
+			if( lDesc->value < rDesc->value )
+				ret->value.boolValue = 1;
+			else ret->value.boolValue = 0;
+			return ret;
+		}  else if ( token().isLessThanEqual() ) {
+			NumberDescriptor *ret =
+				new NumberDescriptor(TypeDescriptor::BOOLEAN);
+			if( lDesc->value <= rDesc->value )
+				ret->value.boolValue = 1;
+			else ret->value.boolValue = 0;
+			return ret;
+		} else {
+			std::cout << "InfixExprNode::evaluate: don't know how to ";
+			std:: cout << "evaluate this operator with strings\n";
+			token().print();
+			std::cout << std::endl;
+			exit(2);
+		}  
+		
 	} else { // we have two numbers
 		NumberDescriptor *lDesc = dynamic_cast<NumberDescriptor *>(lValue);
 		NumberDescriptor *rDesc = dynamic_cast<NumberDescriptor *>(rValue);
