@@ -37,6 +37,9 @@ int main(int argc, char *argv[]) {
 
     //statements->print();
     statements->evaluate(symTab);
-    
+
+	delete statements;
+	statements = nullptr;
+	
     return 0;
 }

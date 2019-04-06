@@ -16,7 +16,7 @@ public:
 	TypeDescriptor(types type);
 	
 	types &type();
-
+ 
 	virtual ~TypeDescriptor() {}
 
 private:

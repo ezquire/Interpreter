@@ -21,6 +21,7 @@ public:
     Token token();
     virtual void print() = 0;
 	virtual TypeDescriptor *evaluate(SymTab &symTab) = 0;
+	 virtual ~ExprNode() {}
 private:
     Token _token;
 };

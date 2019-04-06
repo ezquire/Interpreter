@@ -21,8 +21,9 @@ void Statements::print() {
 }
 
 void Statements::evaluate(SymTab &symTab) {
-    for (auto s: _statements)
+    for (auto s: _statements) {
         s->evaluate(symTab);
+	}
 }
 
 
