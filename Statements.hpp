@@ -8,7 +8,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Expr.hpp"
+#include "ArithExpr.hpp"
 #include "SymTab.hpp"
 
 // The Statement (abstract) class serves as a super class for all statements that
@@ -62,43 +62,55 @@ private:
     ExprNode *_rhsExpression;
 };
 
-// PrintStatement
-
 class PrintStatement : public Statement {
 public:
-	PrintStatement();
-    PrintStatement(ExprNode *rhsExpr);
+    PrintStatement();
+    //PrintStatement(std::string rhsExpr, ExprNode* tok);
 
-    ExprNode *&rhsExpression();
+    //ExprNode* &exprValue();
 
+    PrintStatement(std::vector<ExprNode*> *list);
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-    ExprNode *_rhsExpression;
-};
+    //std::string _rhsID;
+    //ExprNode* _exprValue;
+    std::vector<ExprNode*> *exprNodes;
 
-// ForStatement
+};
 
 class ForStatement : public Statement {
 public:
-	ForStatement();
-    ForStatement(AssignmentStatement *firstAssign, ExprNode *midExpr, AssignmentStatement *secondAssign, Statements* stmnts);
 
-	AssignmentStatement *&firstAssign();
-	AssignmentStatement *&secondAssign();
-    ExprNode *&midExpr();
-	Statements *&statements();
+    ForStatement();
+    ForStatement(Range *range, Statements *stmts);
+//    ForStatement(AssignmentStatement* init, AssignmentStatement* Increment, ExprNode* Condition, Statements* Body);
 
-    virtual void evaluate(SymTab &symTab);
     virtual void print();
+    virtual void evaluate(SymTab &symTab);
+
+
 
 private:
-	AssignmentStatement *_firstAssign;
-	AssignmentStatement *_secondAssign;
-    ExprNode *_midExpr;
-	Statements *_statements;
+    Statements* _stmts;
+    Range* _range;
+//    AssignmentStatement* _inital;
+//    AssignmentStatement* _increment;
+//    ExprNode* _condition;
+//    Statements* _body;
 };
 
+class IfStatement : public Statement {
+public:
+    IfStatement();
+    IfStatement(std::vector<Statements*> *stmts, std::vector<ExprNode*> *nodes);
+    virtual void print();
+    virtual void evaluate(SymTab &symTab);
+
+private:
+    std::vector<Statements*> *_stmts;
+    std::vector<ExprNode*> *_nodes;
+};
 
 #endif //EXPRINTER_STATEMENTS_HPP

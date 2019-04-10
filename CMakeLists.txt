@@ -3,4 +3,4 @@ project(ExprInter)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(ExprInter main.cpp Token.cpp Token.hpp Tokenizer.cpp Tokenizer.hpp Parser.hpp Parser.cpp ArithExpr.cpp ArithExpr.hpp SymTab.cpp SymTab.hpp Statements.cpp Statements.hpp)
+add_executable(ExprInter main.cpp Token.cpp Token.hpp Tokenizer.cpp Tokenizer.hpp Parser.hpp Parser.cpp ArithExpr.cpp ArithExpr.hpp SymTab.cpp SymTab.hpp Statements.cpp Statements.hpp TypeDescriptor.cpp TypeDescriptor.hpp)

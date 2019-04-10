@@ -1,6 +1,7 @@
 #include <iostream>
 #include<vector>
 
+
 #include "Token.hpp"
 #include "Tokenizer.hpp"
 #include "Parser.hpp"
@@ -22,12 +23,11 @@ int main(int argc, char *argv[]) {
     }
 
     Tokenizer tokenizer(inputStream);
-
     Parser parser(tokenizer);
     Statements *statements = parser.statements();
     SymTab symTab;
 
-    //statements->print();
+    statements->print();
     statements->evaluate(symTab);
     
     return 0;

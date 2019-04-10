@@ -27,33 +27,403 @@ void Parser::die(std::string where, std::string message, Token &token) {
 
 Statements *Parser::statements() {
     // This function is called when we KNOW that we are about to parse
-    // a series of statements.
+    // a series of assignment statements.
+
 
     Statements *stmts = new Statements();
     Token tok = tokenizer.getToken();
-    while ( tok.isName() || tok.isSemiColon() ) {
-		if( tok.isSemiColon() ) // skip semicolons in input
-			tok = tokenizer.getToken();
-		if( tok.isPrintKeyword() ) {
-			tokenizer.ungetToken();
-			PrintStatement *printStmt = printStatement();
-			stmts->addStatement(printStmt);
-			tok = tokenizer.getToken();
-		} else if( tok.isForKeyword() ) {
-			tokenizer.ungetToken();
-			ForStatement *forStmt = forStatement();
-			stmts->addStatement(forStmt);
-			tok = tokenizer.getToken();
-		}
-		else {
-			tokenizer.ungetToken();
-			AssignmentStatement *assignStmt = assignStatement();
-			stmts->addStatement(assignStmt);
-			tok = tokenizer.getToken();
-		}
+    while (tok.isName() || tok.isKeyWord()) {
+
+        tokenizer.ungetToken();
+
+        if (tok.isKeyWord())
+        {
+            if (tok.isPrint())
+            {
+                PrintStatement *printStmt = printStatement(); // print <id>
+                stmts->addStatement(printStmt);
+            }
+            else if (tok.isFor() ){ //for statement
+                ForStatement *forStmt = forStatement();
+                stmts->addStatement(forStmt);
+            }
+            else
+            {
+                IfStatement *ifStmt = ifStatement();
+                stmts->addStatement(ifStmt);
+            }
+
+        }
+        else
+        { // Do Assignments
+            AssignmentStatement *assignStmt = assignStatement();
+            stmts->addStatement(assignStmt);
+        }
+
+        tok = tokenizer.getToken();
+
     }
-	tokenizer.ungetToken();
+
+
+    tokenizer.ungetToken();
     return stmts;
+}
+
+PrintStatement *Parser::printStatement() {
+
+    std::vector<ExprNode*> *list = new std::vector<ExprNode*>;
+
+    Token tok = tokenizer.getToken();
+
+    if (!tok.isPrint())
+        die("Parser::PrintStatement", "Expected print got -> ", tok);
+
+    list->push_back(rel_expr()); // gets the first value (i.e. print ?)
+
+    // ,
+    tok = tokenizer.getToken();
+    // Check to see if there is a comma, if so then more work
+    while (tok.isComma())
+    {
+        list->push_back(rel_expr()); // get the next value
+        tok = tokenizer.getToken();
+    }
+
+    if ( ! tok.eol() )
+        die("Parser::PrintStatement", "Expected EOL got -> ", tok);
+
+    return new PrintStatement(list);
+
+}
+
+// Exper. code
+// Thinking:
+//
+//                                  and, not, or, ...
+//                              /                       \
+//                             /                         \
+//                            /                           \
+//                           /                             \
+//              Relational Expression Node         Relational Expression Node
+//
+//std::vector<ExprNode*> Parser::testList()
+//{
+//
+//    std::vector<ExprNode*> list;
+//
+//    ExprNode *left = test(); // return exprNode either a str, int, or variable
+//
+//    list.push_back(left);
+//
+//    Token token = tokenizer.getToken();
+//
+//    while (token.isComma())
+//    {
+//        list.push_back(test());
+//        token = tokenizer.getToken();
+//
+//    }
+//
+//    tokenizer.ungetToken();
+//
+//    return list;
+//
+//}
+//
+//ExprNode *Parser::test()
+//{
+//
+//    return or_test();
+//
+//}
+//ExprNode *Parser::or_test()
+//{
+//
+//    ExprNode* left = and_test();
+//    Token token = tokenizer.getToken();
+//
+//    while (token.isOr())
+//    {
+//        InfixExprNode* p = new InfixExprNode(token);
+//        p->left() = left;
+//        p->right() = and_test();
+//        left = p;
+//        token = tokenizer.getToken();
+//    }
+//
+//    tokenizer.ungetToken();
+//
+//    return left;
+//
+//}
+//ExprNode *Parser::and_test()
+//{
+//
+//    ExprNode* left = not_test();
+//    Token token = tokenizer.getToken();
+//
+//    while (token.isAnd())
+//    {
+//        InfixExprNode* p = new InfixExprNode(token);
+//        p->left() = left;
+//        p->right() = not_test();
+//        left = p;
+//        token = tokenizer.getToken();
+//    }
+//
+//    tokenizer.ungetToken();
+//
+//    return left;
+//
+//}
+//ExprNode *Parser::not_test()
+//{
+//    ExprNode* left;
+//    Token token = tokenizer.getToken();
+//
+//    if (token.isNot())
+//        left = not_test();
+//    else {
+//        tokenizer.ungetToken();
+//        left = comparison();
+//    }
+//
+//    return left;
+//
+//}
+//ExprNode *Parser::comparison()
+//{
+//
+//    ExprNode* left = rel_expr();
+//
+//    Token token = tokenizer.getToken();
+//
+//    while (token.isRelationalOperator())
+//    {
+//        InfixExprNode *p = new InfixExprNode(token);
+//        p->left() = left;
+//        p->right() = rel_expr();
+//        left = p;
+//        token = tokenizer.getToken();
+//    }
+//
+//    tokenizer.ungetToken();
+//
+//    return left;
+//
+//}
+
+
+
+
+
+ForStatement *Parser::forStatement() {
+
+    // This function parses the grammar rule:
+    // <for-statement> -> for ( <assign-statement>; <rel-expr>; <assign-statement>) { <statements> }
+
+    /*
+     * for
+     * ?
+     * in
+     * range
+     * (
+     * testlist
+     * )
+     * :
+     * \n
+     * INDENT
+     * stmt(s)
+     * DEDENT
+     * */
+
+    Token tok = tokenizer.getToken();
+
+    // should pass this since it had to previously do to only 2 keywords presently
+    // For
+    if ( !tok.isFor() )
+        die("Parser::forStatement", "Expected a for, got -> ", tok);
+
+    // var, int...
+    Token i = tokenizer.getToken();
+
+    if ( ! i.isName() )
+        die("Parser::forStatement", "Expected an name got -> ", tok);
+
+    // Check for: in, range, (, ), :
+
+    // in
+    tok = tokenizer.getToken();
+    if (! tok.isIn() )
+        die("Parser::forStatement", "Expected 'in' got -> ", tok);
+
+    // range
+    tok = tokenizer.getToken();
+    if ( ! tok.isRange() )
+        die("Parser::forStatement", "Expected 'range' got -> ", tok);
+
+    // (
+    tok = tokenizer.getToken();
+    if ( ! tok.isOpenParen() )
+        die("Parser::forStatement", "Expected '(' got -> ", tok);
+
+    // need the iterators, can be 1-3 args, so vector it
+    std::vector<ExprNode*> *iterator = new std::vector<ExprNode*>;
+
+    // Does 1-3 args for range
+    for (int i = 0; i < 3; i++)
+    {
+        iterator->push_back(primary());
+        tok = tokenizer.getToken();
+        if ( !tok.isComma() )
+            break; // only get here once if there is no comma
+
+    } // still have next token in tok to utilize
+
+    // Save all the range parameters
+    Range *range = new Range(i, iterator); // storing the variable, int,...
+
+    // )
+    if ( ! tok.isCloseParen() )
+        die("Parser::forStatement", "Expected ')' got -> ", tok);
+
+    // :
+    tok = tokenizer.getToken();
+    if ( ! tok.isColon() )
+        die("Parser::forStatement", "Expected ':' got -> ", tok);
+
+    // \n
+    tok = tokenizer.getToken();
+    if ( ! tok.eol() )
+        die("Parser::forStatement", "Expected '\n' got -> ", tok);
+
+    // INDENT
+    tok = tokenizer.getToken();
+    if ( !tok.isIndent() )
+        die("Parser::forStatement", "Expected 'INDENT' got -> ", tok);
+
+
+    // Statements
+    Statements *bodyStmts = statements();
+
+
+    // DEDENT
+    tok = tokenizer.getToken();
+    if ( ! tok.isDedent() )
+        die("Parser::forStatement", "Expected 'DEDENT' got -> ", tok);
+
+//    // \n
+//    tok = tokenizer.getToken();
+//    if ( ! tok.eol() )
+//        die("Parser::forStatement", "Expected 'newline' got -> ", tok);
+
+
+    return new ForStatement(range, bodyStmts);
+
+
+}
+
+IfStatement *Parser::ifStatement() {
+
+    /* if
+     * test
+     * :
+     * \n
+     * INDENT
+     * statements
+     * DEDENT
+     * elif
+     * test
+     * :
+     * \n
+     * INDEDNT
+     * Ststements
+     * DEDENT
+     * else
+     * :
+     * INDENT
+     * Statements
+     * DEDENT
+     *
+     * */
+
+    // if
+    Token tok = tokenizer.getToken();
+    if ( !tok.isIf() )
+        die("Parser::IfStatement", "Expected 'if' got -> ", tok);
+
+    std::vector<Statements*> *stmts = new std::vector<Statements*>;
+    std::vector<ExprNode*> *test = new std::vector<ExprNode*>;
+
+    // gets the inside of the ()
+    test->push_back(rel_expr());
+
+    // :
+    tok = tokenizer.getToken();
+    if ( ! tok.isColon() )
+        die("Parser::IfStatement", "Expected ':' got -> ", tok);
+
+    // \n
+    tok = tokenizer.getToken();
+    if ( ! tok.eol() )
+        die("Parser::IfStatement", "Expected '\n' got -> ", tok);
+
+    // INDENT
+    tok = tokenizer.getToken();
+    if ( ! tok.isIndent() )
+        die("Parser::IfStatement", "Expected 'INDENT' got -> ", tok);
+
+    // statements
+    stmts->push_back(statements());
+
+    // DEDENT
+    tok = tokenizer.getToken();
+    if ( ! tok.isDedent() )
+        die("Parser::IfStatement", "Expected 'DEDENT' got -> ", tok);
+
+    // Check for elif and else
+    tok = tokenizer.getToken();
+    while ( tok.isElif() || tok.isElse() )
+    {
+
+        // Check for elif if so get the inside of ()
+        if ( tok.isElif() )
+            test->push_back(rel_expr());
+
+        // :
+        tok = tokenizer.getToken();
+        if ( ! tok.isColon() )
+            die("Parser::IfStatement", "Expected ':' got -> ", tok);
+
+        // \n
+        tok = tokenizer.getToken();
+        if ( ! tok.eol() )
+            die("Parser::IfStatement", "Expected '\n' got -> ", tok);
+
+        // INDENT
+        tok = tokenizer.getToken();
+        if ( ! tok.isIndent() )
+            die("Parser::IfStatement", "Expected 'INDENT' got -> ", tok);
+
+        // statements
+        stmts->push_back(statements());
+
+        // DEDENT
+        tok = tokenizer.getToken();
+        if ( ! tok.isDedent() )
+            die("Parser::IfStatement", "Expected 'DEDENT' got -> ", tok);
+
+        tok = tokenizer.getToken();
+
+    }
+
+    tokenizer.ungetToken();
+
+    return new IfStatement(stmts, test);
+
+
+
+
 }
 
 AssignmentStatement *Parser::assignStatement() {
@@ -61,103 +431,62 @@ AssignmentStatement *Parser::assignStatement() {
     if (!varName.isName())
         die("Parser::assignStatement", "Expected a name token, instead got", varName);
 
-    Token op = tokenizer.getToken();
-    if ( !op.isAssignmentOperator() )
-	  die("Parser::assignStatement", "Expected an assignment operator, instead got", op);
+    Token assignOp = tokenizer.getToken();
+    if (!assignOp.isAssignmentOperator())
+        die("Parser::assignStatement", "Expected an equal sign, instead got", assignOp);
 
     ExprNode *rightHandSideExpr = rel_expr();
+
+    Token tok = tokenizer.getToken();
+    if (!tok.eol())
+        die("Parser::assignStatement", "Expected a newline, instead got", tok);
 
     return new AssignmentStatement(varName.getName(), rightHandSideExpr);
 }
 
-// Print
-
-PrintStatement *Parser::printStatement() {
-    Token keyword = tokenizer.getToken();
-    if (!keyword.isPrintKeyword())
-        die("Parser::PrintStatement", "Expected print keyword, instead got", keyword);
-
-    ExprNode *rightHandSideExpr = rel_expr();
-
-    return new PrintStatement(rightHandSideExpr);
-}
-
-// For
-ForStatement *Parser::forStatement() {
-    Token keyword = tokenizer.getToken();
-    if (!keyword.isForKeyword())
-        die("Parser::forStatement", "Expected for keyword, instead got", keyword);
-
-	Token tok = tokenizer.getToken();
-    if (!tok.isOpenParen())
-        die("Parser::forStatement", "Expected a '(', instead got",tok);
-	
-	AssignmentStatement *firstAssign = assignStatement();
-
-    tok = tokenizer.getToken();
-    if (!tok.isSemiColon())
-        die("Parser::forStatement", "Expected a ';', instead got",tok);
-
-    ExprNode *midExpr = rel_expr();
-
-	tok = tokenizer.getToken();
-    if (!tok.isSemiColon())
-        die("Parser::forStatement", "Expected a ';', instead got",tok);
-
-	AssignmentStatement *secondAssign = assignStatement();
-
-	tok = tokenizer.getToken();
-    if (!tok.isCloseParen())
-        die("Parser::forStatement", "Expected a ')', instead got",tok);
-
-	tok = tokenizer.getToken();
-    if (!tok.isOpenBrace())
-        die("Parser::forStatement", "Expected a '{', instead got",tok);
-
-	Statements *stmts = statements();
-
-	tok = tokenizer.getToken();
-    if (!tok.isCloseBrace())
-        die("Parser::forStatement", "Expected a '}', instead got",tok);
-
-    return new ForStatement(firstAssign, midExpr, secondAssign, stmts);
-}
-
 ExprNode *Parser::rel_expr() {
-    // This function parses the grammar rules:
+    // This function parses the grammar rules
 
-    // <rel-expr> -> <rel-term> { (==, !=) <rel-term> }
-
-    ExprNode *left = rel_term();
-    Token tok = tokenizer.getToken();
-    while (tok.isEqual() || tok.isNotEqual()) {
-        InfixExprNode *p = new InfixExprNode(tok);
-        p->left() = left;
-        p->right() = rel_term();
-        left = p;
-        tok = tokenizer.getToken();
-    }
-    tokenizer.ungetToken();
-    return left;
-}
-
-ExprNode *Parser::rel_term() {
-    // This function parses the grammar rules:
-
-    // <rel-expr> -> <rel-primary> { (<, <=, >, >=) <rel-primary> }
+    // <rel-expr> -> <expr> { ( ==, !=, >, >=, <, <=) <expr> }
 
     ExprNode *left = expr();
     Token tok = tokenizer.getToken();
-    while (tok.isLessThan() || tok.isLessThanEqual()  || tok.isGreaterThan() || tok.isGreaterThanEqual() ) {
+
+    while (tok.isEqualtoOperator() || tok.isNotEqualOperator() || tok.isGreaterOperator() || tok.isGreatEqualOperator() || tok.isLessOperator() || tok.isLessEqualOperator()) {
         InfixExprNode *p = new InfixExprNode(tok);
         p->left() = left;
         p->right() = expr();
         left = p;
         tok = tokenizer.getToken();
     }
+
     tokenizer.ungetToken();
+
     return left;
 }
+/*
+ExprNode *Parser::rel_term() {
+
+    // This function parses the grammar rules
+    // <rel-term> -> <rel-primary> {(>, >=, <, <=) <rel-primary>}
+
+    ExprNode *left = expr();
+    Token tok = tokenizer.getToken();
+
+    while ( tok.isGreaterOperator() || tok.isGreatEqualOperator() || tok.isLessOperator() || tok.isLessEqualOperator() ) {
+        InfixExprNode *p = new InfixExprNode(tok);
+        p->left() = left;
+        p->right() = expr();
+        left = p;
+        tok = tokenizer.getToken();
+    }
+
+    tokenizer.ungetToken();
+
+    return left;
+
+}
+ */
 
 ExprNode *Parser::expr() {
     // This function parses the grammar rules:
@@ -185,13 +514,13 @@ ExprNode *Parser::term() {
     // This function parses the grammar rules:
 
     // <term> -> <primary> { <mult_op> <primary> }
-    // <mult_op> -> * | / | %
+    // <mult_op> -> * | / | % | //
 
     // However, the implementation makes the <mult-op> left associate.
     ExprNode *left = primary();
     Token tok = tokenizer.getToken();
 
-    while (tok.isMultiplicationOperator() || tok.isDivisionOperator() || tok.isModuloOperator()) {
+    while (tok.isMultiplicationOperator() || tok.isDivisionOperator() || tok.isModuloOperator() || tok.isIntDiv()) {
         InfixExprNode *p = new InfixExprNode(tok);
         p->left() = left;
         p->right() = primary();
@@ -215,8 +544,10 @@ ExprNode *Parser::primary() {
         return new WholeNumber(tok);
     else if( tok.isName() )
         return new Variable(tok);
+    else if ( tok.isStr() )
+        return new String(tok);
     else if (tok.isOpenParen()) {
-        ExprNode *p = expr();
+        ExprNode *p = rel_expr();
         Token token = tokenizer.getToken();
         if (!token.isCloseParen())
             die("Parser::primary", "Expected close-parenthesis, instead got", token);

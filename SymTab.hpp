@@ -7,6 +7,7 @@
 
 #include <string>
 #include <map>
+#include "TypeDescriptor.hpp"
 
 // This is a flat and integer-based symbol table. It allows for variables to be
 // initialized, determines if a give variable has been defined or not, and if
@@ -15,11 +16,14 @@
 class SymTab {
 public:
     void setValueFor(std::string vName, int value);
+    void setValueFor(std::string vName, std::string value);
     bool isDefined(std::string vName);
-    int getValueFor(std::string vName);
+    //int getValueFor(std::string vName);
+    TypeDescriptor* getValueFor(std::string vName);
 
 private:
-    std::map<std::string, int> symTab;
+    std::map<std::string, TypeDescriptor* > symTab;
+    //std::map<std::string, int> symTab;
 };
 
 #endif //EXPRINTER_SYMTAB_HPP
