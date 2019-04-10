@@ -1,0 +1,22 @@
+a = 100
+b = "how are you"
+
+#demonstrate the for statements
+for i in range(4):
+    print " hello world", b, a + 5
+ 
+c = 50
+if( a > c):
+   print "a is greater than c"
+
+if( a <c):
+   print "c is greater than a"
+
+
+if(a > c and a<101):
+   print "a is greater than c and a is less than 101"
+
+if(a<c or a > 101)
+   print " a is less than c or a is greater than 101"
+
+

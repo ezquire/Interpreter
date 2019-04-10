@@ -21,6 +21,63 @@ std::string Tokenizer::readName() {
     return name;
 }
 
+std::string Tokenizer::readString() {
+
+  std::string str;
+  char c;
+  while( inStream.get(c) && c != '"' ) {
+    str += c;
+  }
+ 
+  return str;
+}
+
+std::string Tokenizer::readEquiv() {
+
+  std::string relop;
+  char c;
+  while( inStream.get(c) && c == '=' ) {
+       relop += c;
+  }
+  if(inStream.good())
+    inStream.putback(c);
+  return relop;
+}
+
+std::string Tokenizer::readUnequiv() {
+  std::string relop;
+  char c;
+  while( inStream.get(c) && c =='!' || c == '=' ) {
+       relop += c;
+  }
+  if(inStream.good() )
+    inStream.putback(c);
+  return relop;
+}
+
+std::string Tokenizer::readGreater() {
+  std::string relop;
+  char c;
+  while( inStream.get(c) && c== '>' || c == '='){
+    relop +=c;
+  }
+  if(inStream.good() )
+    inStream.putback(c);
+  return relop;
+}
+
+std::string Tokenizer::readLess() {
+  std::string relop;
+  char c;
+  while( inStream.get(c) && c == '<' || c == '='){
+    relop += c;
+  }
+  if(inStream.good())
+    inStream.putback(c);
+  return relop;
+}
+    
+
 int Tokenizer::readInteger() {
     // This function is called when it is known that
     // the first character in input is a digit.
@@ -36,14 +93,6 @@ int Tokenizer::readInteger() {
     return intValue;
 }
 
-std::string Tokenizer::readOp() {
-    std::string op;
-    char c;
-	while(inStream.get(c) && (c == '<' || c == '>' || c == '=' || c == '!'))
-		op += c;
-	return op;
-}
-
 Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, inStream{stream}, lastToken{} {}
 
 Token Tokenizer::getToken() {
@@ -52,50 +101,147 @@ Token Tokenizer::getToken() {
         ungottenToken = false;
         return lastToken;
     }
-
+  
+    spaceCounter = 0;
     char c;
-    /*
-    while( inStream.get(c) && isspace(c) && c != '\n' )  // Skip spaces but not new-line chars.
-        ;
-    */
+    Token token;
 
-    while( inStream.get(c) && isspace(c) )  // Skip spaces including the new-line chars.
-        ;
+    //Handle indents and dedents
+    while( inStream.get(c) && isspace(c) && c != '\n')
+                spaceCounter+=1;
+
+     if(parssingANewLine&&_indent.empty() && c != '\n'){
+
+        token.indent() = true;
+        parssingANewLine = false;
+
+      }
+    else if(parssingANewLine && _indent.size() > 0 &&c != '\n'){
+
+          if(spaceCounter == _indent.top()){
+
+             parssingANewLine = false;
+          }
+          else if(spaceCounter > _indent.top()){
+
+            token.indent() = true;
+            parssingANewLine = false;
+          }
+          else if(spaceCounter < _indent.top()) {
+
+	    if(!_indent.empty()){    
+              _indent.pop();
+              token.dedent() = true;
+	    }
+          }
+
+    }
 
     if(inStream.bad()) {
         std::cout << "Error while reading the input stream in Tokenizer.\n";
         exit(1);
     }
 
-    //    std::cout << "c = " << c << std::endl;
 
-    Token token;
-    if( inStream.eof()) {
-        token.eof() = true;
-    } else if( c == '\n' ) {
+    if(token.dedent()){
+       if(spaceCounter == 0){
+	   if(inStream.good())
+     	       inStream.putback(c);
+	       } 
+       else{
+         for(int i = 0; i < spaceCounter; i++){
+            if(inStream.good())
+                  inStream.putback(c);
+         }
+      }
+    }
+    else if(token.indent()){
+      _indent.push(spaceCounter);
+      if(inStream.good())
+           inStream.putback(c);
+    }
+   else if( inStream.eof()) {
+     if(!_indent.empty()){
+       token.dedent() = true;
+       _indent.pop();
+       if(inStream.good())
+	 inStream.putback(c);
+     }
+     else{
+
+       token.eof() = true;
+     }
+	  
+   }
+    else if( c == '#'){
+      while(inStream.get(c) && c != '\n')
+        ;
+	    token.eol() = true;
+    }
+    else if( c == '\n' ) {
         token.eol() = true;
-    } else if( isdigit(c) ) { // a integer?
+        parssingANewLine = true;
+        
+    }
+    else if( isdigit(c) ) { // a integer?
         // put the digit back into the input stream so
         // we read the entire number in a function
         inStream.putback(c);
         token.setWholeNumber( readInteger() );
 
-    } else if( c == '=' ) {
-        inStream.get(c);
-		if(c != '=')
-			token.symbol('=');
-		else
-			token.relOp("==");
+    } else if( c == '=' ){
+        char b = inStream.peek();
+	if(b == '=') {
+	  inStream.putback(c);
+	  token.setEquiv( readEquiv() );
 	}
-	else if( c == '<' || c == '>' || c == '!') {
-		inStream.putback(c);
-		token.relOp( readOp() );
-	}
+	else
+	  token.symbol(c);
+    }
     else if( c == '+' || c == '-' || c == '*' || c == '/' || c == '%')
         token.symbol(c);
-    else if( c == ';' )
+    else if( c == '!' ){
+      char b = inStream.peek();
+      if( b == '=') {
+        inStream.putback(c);
+        token.setEquiv( readUnequiv() );
+      }
+    }
+    else if( c == '>'){
+      char b = inStream.peek();
+      if(b == '='){
+	inStream.putback(c);
+	token.setEquiv( readGreater() );
+      }
+      else{
+	token.symbol(c);
+      }
+    }
+    else if( c == '<' ){
+      char b = inStream.peek();
+      if( b == '=' ) {
+	inStream.putback(c);
+	token.setEquiv( readLess() );
+      }
+      else{
+	token.symbol(c);
+      }
+    }
+    else if( c == ',')
         token.symbol(c);
-    else if( c == '(' || c == ')' || c == '{' || c == '}')
+    else if( c == '{')
+        token.symbol(c);
+    else if( c == '}')
+        token.symbol(c);
+    else if( c == ';' )
+        token.symbol(c);\
+    else if( c == ':')
+      token.symbol(c);
+    else if( c == '"' ) {
+         
+      token.setString(readString());
+    }
+    else if( c == '(' || c == ')')
         token.symbol(c);
     else if(isalpha(c)) {  // an identifier?
         // put c back into the stream so we can read the entire name in a function.

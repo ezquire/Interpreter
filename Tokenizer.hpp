@@ -10,27 +10,34 @@
 #include <vector>
 #include <stack>
 #include "Token.hpp"
-
+#include "SymTab.hpp"
 class Tokenizer {
 
 public:
     Tokenizer(std::ifstream &inStream);
     Token getToken();
     void ungetToken();
-	void printProcessedTokens();
+    void printProcessedTokens();
+    int getIndentationLvl() {return _indent.size();}
 
 private:
     Token lastToken;
     bool ungottenToken;
-	std::stack <int> stack;
-	std::stack <int> altstack;
     std::ifstream &inStream;
-    std::vector<Token> _tokens; 
+    std::vector<Token> _tokens;
+    bool parssingANewLine = true;
+    std::stack<int> _indent; 
+    int spaceCounter = 0;
 
 private:
+    void readComment();
+    std::string readString();
     std::string readName();
-	std::string readOp();
     int readInteger();
+    std::string readEquiv();
+    std::string readUnequiv();
+    std::string readGreater();
+    std::string readLess();
 };
 
 #endif //EXPRINTER_TOKENIZER_HPP
