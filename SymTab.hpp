@@ -9,6 +9,7 @@
 #include "Token.hpp"
 #include <string>
 #include <map>
+#include <memory>
 
 // This is a flat symbol table. It allows for variables to be
 // initialized, determines if a give variable has been defined or not, and if
@@ -17,13 +18,13 @@
 class SymTab {
 public:
     //void setValueFor(std::string vName, Token tok);
-	void setValueFor(std::string vName, TypeDescriptor *rDesc);
+	void setValueFor(std::string vName, std::unique_ptr<TypeDescriptor>rDesc);
 	void increment(std::string vName, int increment);
     bool isDefined(std::string vName);
-    TypeDescriptor *getValueFor(std::string vName);
+	std::unique_ptr<TypeDescriptor>getValueFor(std::string vName);
 
 private:
-    std::map<std::string, TypeDescriptor *> symTab;
+    std::map<std::string, std::unique_ptr<TypeDescriptor>> symTab;
 };
 
 #endif //EXPRINTER_SYMTAB_HPP

@@ -8,12 +8,15 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
+
+#include "Token.hpp"
 
 class TypeDescriptor {
 public:
 	enum types { INTEGER, DOUBLE, BOOLEAN, STRING };
 
-	TypeDescriptor(types type);
+	TypeDescriptor(types type);	
 	
 	types &type();
  
@@ -26,7 +29,7 @@ private:
 class NumberDescriptor : public TypeDescriptor {
 public:
 	NumberDescriptor(types descType);
-
+	
 	union {
 		int intValue;
 		double doubleValue;
@@ -46,5 +49,17 @@ void printValue (TypeDescriptor *desc);
 bool isValidType(TypeDescriptor *desc1, TypeDescriptor *desc2);
 
 bool evaluateBool(TypeDescriptor *desc);
+
+void changeSign(TypeDescriptor *desc);
+
+std::unique_ptr<TypeDescriptor> negate(TypeDescriptor *desc);
+
+std::unique_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
+												 StringDescriptor *rValue,
+												 Token tok);
+
+std::unique_ptr<TypeDescriptor> numOperations(NumberDescriptor *lValue,
+												 NumberDescriptor *rValue,
+												 Token tok);
 
 #endif //EXPRINTER_TYPEDESCRIPTOR_HPP	

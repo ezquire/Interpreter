@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #include "Range.hpp"
 #include "Expr.hpp"
@@ -24,7 +25,6 @@ public:
 
     virtual void print() = 0;
     virtual void evaluate(SymTab &symTab) = 0;
-
 	virtual ~Statement() {}
 
 };
@@ -37,13 +37,13 @@ class Statements {
 public:
     Statements();
 
-    void addStatement(Statement *statement);
+    void addStatement(std::unique_ptr<Statement> statement);
     void evaluate(SymTab &symTab);
 
     void print();
 
 private:
-    std::vector<Statement *> _statements;
+    std::vector<std::unique_ptr<Statement>> _statements;
 };
 
 // AssignmentStatement represents the notion of an lValue having been assigned an rValue.
@@ -51,51 +51,51 @@ private:
 class AssignmentStatement : public Statement {
 public:
     AssignmentStatement();
-    AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr);
+    AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
 
     std::string &lhsVariable();
-    ExprNode *&rhsExpression();
+	std::unique_ptr<ExprNode> &rhsExpression();
 
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
     std::string _lhsVariable;
-    ExprNode *_rhsExpression;
+	std::unique_ptr<ExprNode> _rhsExpression;
 };
 
 // PrintStatement
 class PrintStatement : public Statement {
 public:
 	PrintStatement();
-    PrintStatement(std::vector<ExprNode *>rhsList);
+    PrintStatement(std::vector<std::unique_ptr<ExprNode>> rhsList);
 
-	std::vector<ExprNode *>&rhsList();
+	std::vector<std::unique_ptr<ExprNode>> &rhsList();
 
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-	std::vector<ExprNode *>_rhsList;
+	std::vector<std::unique_ptr<ExprNode>> _rhsList;
 };
 
 // ForStatement
 class ForStatement : public Statement {
 public:
 	ForStatement();
-	ForStatement(std::string id, std::vector<ExprNode *> range,
-				 Statements *stmnts);
+	ForStatement(std::string id, std::vector<std::unique_ptr<ExprNode>> range,
+				 std::unique_ptr<Statements> stmnts);
 
-	Statements *&statements();
-	std::vector<ExprNode *> &getRange();
+	std::unique_ptr<Statements> &statements();
+	std::vector<std::unique_ptr<ExprNode>> &getRange();
 	std::string &getId();
 
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-	std::vector<ExprNode *> _range;
-	Statements *_statements;
+	std::vector<std::unique_ptr<ExprNode>> _range;
+	std::unique_ptr<Statements> _statements;
 	std::string _id;
 };
 
@@ -103,27 +103,29 @@ private:
 class IfStatement : public Statement {
 public:
 	IfStatement();
-	IfStatement(ExprNode *firstTest, Statements *firstSuite);
- 	IfStatement(ExprNode *firstTest, Statements *firstSuite,
-				std::vector<ExprNode *> elifTests,
-				std::vector<Statements *> elifSuites,
-				Statements *elseSuite);
+	IfStatement(std::unique_ptr<ExprNode> firstTest,
+				std::unique_ptr<Statements> firstSuite);
+ 	IfStatement(std::unique_ptr<ExprNode> firstTest,
+				std::unique_ptr<Statements> firstSuite,
+				std::vector<std::unique_ptr<ExprNode>> elifTests,
+				std::vector<std::unique_ptr<Statements>> elifSuites,
+				std::unique_ptr<Statements> elseSuite);
 
-	ExprNode *&firstTest();
-	Statements *&firstSuite();
-	std::vector<ExprNode *> &elifTests();
-	std::vector<Statements *> &elifSuites();
-	Statements *&elseSuite(); 
+	std::unique_ptr<ExprNode> &firstTest();
+	std::unique_ptr<Statements> &firstSuite();
+	std::vector<std::unique_ptr<ExprNode>> &elifTests();
+	std::vector<std::unique_ptr<Statements>> &elifSuites();
+	std::unique_ptr<Statements> &elseSuite(); 
 	
     virtual void evaluate(SymTab &symTab);
     virtual void print();
 
 private:
-	ExprNode *_firstTest;
-	Statements *_firstSuite;
-	std::vector<ExprNode *>_elifTests;
-	std::vector<Statements *>_elifSuites;
-	Statements *_elseSuite;
+	std::unique_ptr<ExprNode> _firstTest;
+	std::unique_ptr<Statements> _firstSuite;
+	std::vector<std::unique_ptr<ExprNode>> _elifTests;
+	std::vector<std::unique_ptr<Statements>> _elifSuites;
+	std::unique_ptr<Statements> _elseSuite;
 };
 
 

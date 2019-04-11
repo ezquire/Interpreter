@@ -8,32 +8,33 @@
 #include "Expr.hpp"
 #include "Statements.hpp"
 
-#include<vector>
-#include<iostream>
-#include<map>
+#include <vector>
+#include <memory>
+#include <iostream>
+#include <map>
 
 
 class Parser {
 public:
     Parser(Tokenizer &tokenizer) : tokenizer{tokenizer} {}
 
-    Statements *statements();
-    AssignmentStatement *assignStatement();
-	PrintStatement *printStatement();
-	ForStatement *forStatement();
-	IfStatement *ifStatement();
+	std::unique_ptr<Statements> statements();
+	std::unique_ptr<AssignmentStatement> assignStatement();
+	std::unique_ptr<PrintStatement> printStatement();
+	std::unique_ptr<ForStatement> forStatement();
+	std::unique_ptr<IfStatement> ifStatement();
 
-	Statements *suite();
+	std::unique_ptr<Statements> suite();
 	
-	std::vector<ExprNode *>testlist();
-	ExprNode *test();
-	ExprNode *and_test();
-	ExprNode *not_test();
-	ExprNode *comparison();
-    ExprNode *arith_expr();
-    ExprNode *term();
-	ExprNode *factor();
-    ExprNode *atom();
+	std::vector< std::unique_ptr<ExprNode> >testlist();
+	std::unique_ptr<ExprNode> test();
+	std::unique_ptr<ExprNode> and_test();
+	std::unique_ptr<ExprNode> not_test();
+	std::unique_ptr<ExprNode> comparison();
+    std::unique_ptr<ExprNode> arith_expr();
+    std::unique_ptr<ExprNode> term();
+	std::unique_ptr<ExprNode> factor();
+    std::unique_ptr<ExprNode> atom();
 
     //std::string id();
 

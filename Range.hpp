@@ -11,8 +11,9 @@ class Range {
 public:
     Range();
 	Range(int start, int end, int step);
-	Range(std::string varName, std::vector<ExprNode *> rangeList,
-				 SymTab &symTab);
+	Range(std::string varName,
+		  std::vector<std::unique_ptr<ExprNode>> rangeList,
+		  SymTab &symTab);
 	int getNext();
 	bool atEnd();
 	int &start();

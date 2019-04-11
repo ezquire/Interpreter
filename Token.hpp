@@ -28,19 +28,24 @@ public:
 	bool isOpenBrace() const  { return _symbol == '{'; }
     bool isCloseBrace() const { return _symbol == '}'; }
 
-	bool isPrintKeyword() { return _name == "print"; }
-	bool isForKeyword() { return _name == "for"; }
+	bool isPrintKeyword() const { return _name == "print"; }
+	bool isForKeyword() const { return _name == "for"; }
 
-	bool isIf() { return _name == "if"; }
-	bool isElif() { return _name == "elif"; }
-	bool isElse() { return _name == "else"; }
+	bool isIf() const { return _name == "if"; }
+	bool isElif() const { return _name == "elif"; }
+	bool isElse() const { return _name == "else"; }
 
-	bool isInKeyword() { return _name == "in"; }
-	bool isRangeKeyword() { return _name == "range"; }
+	bool isInKeyword() const { return _name == "in"; }
+	bool isRangeKeyword() const { return _name == "range"; }
 
-	bool isOrKeyword() { return _name == "or"; }
-	bool isAndKeyword() { return _name == "and"; }
-	bool isNotKeyword() { return _name == "not"; }
+	bool isOrKeyword() const { return _name == "or"; }
+	bool isAndKeyword() const { return _name == "and"; }
+	bool isNotKeyword() const { return _name == "not"; }
+	bool isBooleanOperator() const {
+		return isOrKeyword() ||
+			isAndKeyword() ||
+			isNotKeyword();
+	}
 
 	bool isName() const { return _name.length() > 0; }
 
@@ -65,10 +70,11 @@ public:
 	bool isFloorDivision() const          { return _relOp == "//"; }
     bool isArithmeticOperator() const {
         return isMultiplicationOperator() ||
-               isAdditionOperator() ||
-               isSubtractionOperator() ||
-               isModuloOperator() ||
-               isDivisionOperator();
+			isAdditionOperator() ||
+			isSubtractionOperator() ||
+			isModuloOperator() ||
+			isDivisionOperator() ||
+			isFloorDivision();
     }
 	bool isEqual() const { return _relOp == "=="; }
 	bool isNotEqual() const { return _relOp == "!=" || _relOp == "<>"; }

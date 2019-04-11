@@ -16,11 +16,11 @@ void Parser::die(std::string where, std::string message, Token &token) {
     exit(1);
 }
 
-Statements *Parser::statements() {
+std::unique_ptr<Statements> Parser::statements() {
     // This function is called when we KNOW that we are about to parse
     // a series of statements.
 
-	Statements *stmts = new Statements();
+	std::unique_ptr<Statements> stmts (new Statements());
     Token tok = tokenizer.getToken();
 
 	while( tok.eol() )
@@ -32,8 +32,8 @@ Statements *Parser::statements() {
     while ( tok.isName() ) {
 		if( tok.isPrintKeyword() ) {
 			tokenizer.ungetToken();
-			PrintStatement *printStmt = printStatement();
-			stmts->addStatement(printStmt);
+			auto printStmt = printStatement();
+			stmts->addStatement(std::move(printStmt));
 			tok = tokenizer.getToken();
 			if( tok.indent() )
 				die("Parser::statements tok.isPrintKeyword()",
@@ -42,22 +42,22 @@ Statements *Parser::statements() {
 				tok = tokenizer.getToken();
 		} else if( tok.isForKeyword() ) {
 			tokenizer.ungetToken();
-			ForStatement *forStmt = forStatement();
-			stmts->addStatement(forStmt);
+			auto forStmt = forStatement();
+			stmts->addStatement(std::move(forStmt));
 			tok = tokenizer.getToken();
 			while( tok.eol() ) // eat newlines after ForStatement block
 				tok = tokenizer.getToken();
 		} else if( tok.isIf() ) {
 			tokenizer.ungetToken();
-			IfStatement *ifStmt = ifStatement();
-			stmts->addStatement(ifStmt);
+			auto ifStmt = ifStatement();
+			stmts->addStatement(std::move(ifStmt));
 			tok = tokenizer.getToken();
 			while( tok.eol() ) // eat newlines after IfStatement block
 				tok = tokenizer.getToken();
 		} else {
 			tokenizer.ungetToken();
-			AssignmentStatement *assignStmt = assignStatement();
-			stmts->addStatement(assignStmt);
+			auto assignStmt = assignStatement();
+			stmts->addStatement(std::move(assignStmt));
 			tok = tokenizer.getToken();
 			if( tok.indent() )
 				die("Parser::statements ",
@@ -72,7 +72,7 @@ Statements *Parser::statements() {
 
 
 // Assignment statement parser
-AssignmentStatement *Parser::assignStatement() {
+std::unique_ptr<AssignmentStatement> Parser::assignStatement() {
     Token varName = tokenizer.getToken();
 
     if (!varName.isName())
@@ -84,35 +84,36 @@ AssignmentStatement *Parser::assignStatement() {
 	  die("Parser::assignStatement",
 		  "Expected assignment operator, instead got", tok);
 
-    ExprNode *rightHandSideExpr = test();
+    auto rightHandSideExpr = test();
 
 	tok = tokenizer.getToken();
 	if( !tok.eol() )
 		die("Parser::assignStatement", "Expected 'NEWLINE', instead got", tok);
 	
-    return new AssignmentStatement(varName.getName(), rightHandSideExpr);
+    return std::make_unique<AssignmentStatement>(varName.getName(),
+												 std::move(rightHandSideExpr));
 }
 
 
 // Print statement parser
-PrintStatement *Parser::printStatement() {
+std::unique_ptr<PrintStatement> Parser::printStatement() {
     Token tok = tokenizer.getToken();
 	
     if ( !tok.isPrintKeyword() )
         die("Parser::PrintStatement", "Expected 'print', instead got", tok);
 	
-	std::vector<ExprNode *>rightHandSideExpr = testlist();
+	std::vector<std::unique_ptr<ExprNode>> rhsList = testlist();
 
 	tok = tokenizer.getToken();
 	if( !tok.eol() )
 		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
 	
-    return new PrintStatement(rightHandSideExpr);
+    return std::make_unique<PrintStatement>(std::move(rhsList));
 }
 
 
 // For statement parser
-ForStatement *Parser::forStatement() {
+std::unique_ptr<ForStatement> Parser::forStatement() {
     Token tok = tokenizer.getToken();
 	
     if ( !tok.isForKeyword() )
@@ -134,7 +135,7 @@ ForStatement *Parser::forStatement() {
     if ( !tok.isOpenParen() )
 		die("Parser::forStatement", "Expected '(', instead got", tok);
 
- 	std::vector<ExprNode *>rangeList = testlist();
+ 	std::vector<std::unique_ptr<ExprNode>> rangeList = testlist();
 
 	tok = tokenizer.getToken();
     if ( !tok.isCloseParen() )
@@ -144,56 +145,62 @@ ForStatement *Parser::forStatement() {
     if ( !tok.isColon() )
 		die("Parser::forStatement", "Expected ':', instead got", tok);
 
-	Statements *stmts = suite();
+	auto stmts = suite();
 
-	return new ForStatement(id.getName(), rangeList, stmts);
+	return std::make_unique<ForStatement>(id.getName(), std::move(rangeList),
+										  std::move(stmts));
 }
 
 
 // IfStatement Parser
-IfStatement *Parser::ifStatement() {
+std::unique_ptr<IfStatement> Parser::ifStatement() {
 	
 	Token tok = tokenizer.getToken();
 	if( !tok.isIf() )
 		die("Parser::ifStatement", "Expected 'if', instead got",tok);
 
-	std::vector<ExprNode *> elifTests;
-	std::vector<Statements *> elifSuites;
-	Statements *elseSuite;
+	std::vector<std::unique_ptr<ExprNode>> elifTests;
+	std::vector<std::unique_ptr<Statements>> elifSuites;
 	
-	ExprNode *firstTest = test();
+	auto firstTest = test();
 
 	tok = tokenizer.getToken();
 	if( !tok.isColon() )
 		die("Parser::ifStatement", "Expected ':', instead got",tok);
 
-	Statements *firstSuite = suite();
+	auto firstSuite = suite();
 
 	tok = tokenizer.getToken();
 	while( tok.isElif() ) {
-		ExprNode *_test = test();
-		elifTests.push_back(_test);
+		auto _test = test();
+		elifTests.push_back(std::move(_test));
 		tok = tokenizer.getToken();
 		if( !tok.isColon() )
 			die("Parser::ifStatement", "Expected ':', instead got",tok);
-		Statements *_suite = suite();		
-		elifSuites.push_back(_suite);		
+		auto _suite = suite();		
+		elifSuites.push_back(std::move(_suite));		
 		tok = tokenizer.getToken();
 	}
 	if( tok.isElse() ) {
 		tok = tokenizer.getToken();
 		if( !tok.isColon() )
 			die("Parser::ifStatement", "Expected ':', instead got",tok);
-		elseSuite = suite();
-		return new IfStatement(firstTest, firstSuite, elifTests,
-							   elifSuites, elseSuite); 
+		auto elseSuite = suite();
+		return std::make_unique<IfStatement>(std::move(firstTest),
+											 std::move(firstSuite),
+											 std::move(elifTests),
+											 std::move(elifSuites),
+											 std::move(elseSuite)); 
 	}
 	tokenizer.ungetToken();
-	return new IfStatement(firstTest, firstSuite, elifTests,
-						   elifSuites, nullptr);
+	return std::make_unique<IfStatement>(std::move(firstTest),
+										 std::move(firstSuite),
+										 std::move(elifTests),
+										 std::move(elifSuites),
+										 nullptr);
 }
 
-Statements *Parser::suite() {
+std::unique_ptr<Statements> Parser::suite() {
 	// This function parses the grammar rules:
 	// NEWLINE INDENT stmt+ DEDENT
  	Token tok = tokenizer.getToken();
@@ -207,7 +214,7 @@ Statements *Parser::suite() {
 	if ( !tok.indent() )
 		die("Parser::suite", "Expected 'INDENT', instead got",tok);
 	
-	Statements *_suite = statements();
+    auto _suite = statements();
 
 	tok = tokenizer.getToken();	
 	while( tok.eol() )
@@ -220,162 +227,162 @@ Statements *Parser::suite() {
 	return _suite;
 }
 
-std::vector<ExprNode *>Parser::testlist() {
+std::vector<std::unique_ptr<ExprNode>> Parser::testlist() {
     // This function parses the grammar rules:
     // testlist: test {',' test}*
-	std::vector<ExprNode *> list;
+	std::vector<std::unique_ptr<ExprNode>> list;
 	
-    ExprNode *first = test();
-	list.push_back(first);
+    auto first = test();
+	list.push_back(std::move(first));
     Token tok = tokenizer.getToken();
     while( tok.isComma() ) {
-		ExprNode *next = test();
-		list.push_back(next);
+		auto next = test();
+		list.push_back(std::move(next));
 		tok = tokenizer.getToken();
     }
     tokenizer.ungetToken();
     return list;
 }
 
-ExprNode *Parser::test() {
+std::unique_ptr<ExprNode> Parser::test() {
 	// This function parses the grammar rules:
 	// or_test: and_test {'or' and_test }*
-    ExprNode *andtest = and_test();
+    auto andtest = and_test();
 	Token tok = tokenizer.getToken();
 	while (tok.isOrKeyword()) {
-		InfixExprNode *p = new InfixExprNode(tok);
-		p->left() = andtest;
+		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		p->left() = std::move(andtest);
 		p->right() = and_test();
-		andtest = p;
+		andtest = std::move(p);
 		tok = tokenizer.getToken();
 	}
 	tokenizer.ungetToken();
 	return andtest;
 }
 
-ExprNode *Parser::and_test() {
+std::unique_ptr<ExprNode> Parser::and_test() {
 	// This function parses the grammar rules:
 	// and_test: not_test {'and' not_test}*
-	ExprNode *nottest = not_test();
+	auto nottest = not_test();
 	Token tok = tokenizer.getToken();
 	while (tok.isAndKeyword()) {
-		InfixExprNode *p = new InfixExprNode(tok);
-		p->left() = nottest;
+		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		p->left() = std::move(nottest);
 		p->right() = not_test();
-		nottest = p;
+		nottest = std::move(p);
 		tok = tokenizer.getToken();
 	}
 	tokenizer.ungetToken();
 	return nottest;
 }
 
-ExprNode *Parser::not_test() {
+std::unique_ptr<ExprNode> Parser::not_test() {
 	// This function parses the grammar rules:
 	// not_test: 'not' not_test | comparison
 	Token tok = tokenizer.getToken();
 	if( tok.isNotKeyword() ) {
-		InfixExprNode *p = new InfixExprNode(tok);
-		p->left() = not_test();;
+		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		p->left() = not_test();
 		p->right() = nullptr;
 		return p;
 	} else {
 		tokenizer.ungetToken();
-		ExprNode *p = comparison();
+		auto p = comparison();
 		return p;
 	}
 }
 
-ExprNode *Parser::comparison() {
+std::unique_ptr<ExprNode> Parser::comparison() {
     // This function parses the grammar rules:
     // comparison: arith_expr { comp_op  arith_expr }*
 	// comp_op: < | > | == | >= | <= | <> | !=
-    ExprNode *left = arith_expr();
+    std::unique_ptr<ExprNode>left = arith_expr();
     Token tok = tokenizer.getToken();
     while (tok.isLessThan() || tok.isGreaterThan()
 		   || tok.isEqual() || tok.isGreaterThanEqual()
 		   || tok.isLessThanEqual() || tok.isNotEqual() ) {
-        InfixExprNode *p = new InfixExprNode(tok);
-        p->left() = left;
+        std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+        p->left() = std::move(left);
         p->right() = arith_expr();
-        left = p;
+        left = std::move(p);
         tok = tokenizer.getToken();
     }
     tokenizer.ungetToken();
     return left;
 }
 
-ExprNode *Parser::arith_expr() {
+std::unique_ptr<ExprNode> Parser::arith_expr() {
     // This function parses the grammar rules:
 	// arith_expr: term {( + | - ) term}*
     // However, it makes the '+' left associative.
-    ExprNode *left = term();
+    auto left = term();
     Token tok = tokenizer.getToken();
     while (tok.isAdditionOperator() || tok.isSubtractionOperator()) {
-        InfixExprNode *p = new InfixExprNode(tok);
-        p->left() = left;
+        std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+        p->left() = std::move(left);
         p->right() = term();
-        left = p;
+        left = std::move(p);
         tok = tokenizer.getToken();
     }
     tokenizer.ungetToken();
     return left;
 }
 
-ExprNode *Parser::term() {
+std::unique_ptr<ExprNode> Parser::term() {
     // This function parses the grammar rules:
     // term: factor {(* | / | % | //) factor}*
     // However, the implementation makes the '*' left associate.
-    ExprNode *left = factor();
+    std::unique_ptr<ExprNode>left = factor();
     Token tok = tokenizer.getToken();
     while (tok.isMultiplicationOperator()
 		   || tok.isDivisionOperator()
 		   || tok.isModuloOperator() || tok.isFloorDivision() ) {
-        InfixExprNode *p = new InfixExprNode(tok);
-        p->left() = left;
+        std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+        p->left() = std::move(left);
         p->right() = factor();
-        left = p;
+        left = std::move(p);
         tok = tokenizer.getToken();
     }
     tokenizer.ungetToken();
     return left;
 }
 
-ExprNode *Parser::factor() {
+std::unique_ptr<ExprNode> Parser::factor() {
 	// This function parses the grammar rules:
 	// factor: {-}* factor | atom
 	Token tok = tokenizer.getToken();
 	if( tok.isSubtractionOperator() ) {
-		InfixExprNode *p = new InfixExprNode(tok);
+		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
 		p->left() = factor();
 		p->right() = nullptr;
 		return p;
 	} else {
 		tokenizer.ungetToken();
-		ExprNode *p = atom();
+		auto p = atom();
 		return p;
 	}
 }
 
-ExprNode *Parser::atom() {
+std::unique_ptr<ExprNode> Parser::atom() {
     // This function parses the grammar rules:
     // atom: ID | NUMBER | STRING | ( test )
 
     Token tok = tokenizer.getToken();
 
     if (tok.isWholeNumber() )
-        return new WholeNumber(tok);
+        return std::make_unique<WholeNumber>(tok);
 	else if( tok.isFloat() )
-		return new Float(tok);
+		return std::make_unique<Float>(tok);
     else if( tok.isName() )
-        return new Variable(tok);
+        return std::make_unique<Variable>(tok);
 	else if( tok.isString() )
-		return new String(tok);
+		return std::make_unique<String>(tok);
     else if (tok.isOpenParen()) {
-        ExprNode *p = test();
-        Token token = tokenizer.getToken();
-        if (!token.isCloseParen())
+        auto p = test();
+        tok = tokenizer.getToken();
+        if (!tok.isCloseParen())
             die("Parser::primary",
-				"Expected close-parenthesis, instead got", token);
+				"Expected close-parenthesis, instead got", tok);
         return p;
     }
 	

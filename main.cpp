@@ -1,5 +1,6 @@
 #include <iostream>
-#include<vector>
+#include <vector>
+#include <memory>
 
 #include "Token.hpp"
 #include "Tokenizer.hpp"
@@ -32,14 +33,11 @@ int main(int argc, char *argv[]) {
 	
 	Parser parser(tokenizer);
 
-    Statements *statements = parser.statements();
+	std::unique_ptr<Statements> statements = parser.statements();
     SymTab symTab;
 
     //statements->print();
     statements->evaluate(symTab);
-
-	delete statements;
-	statements = nullptr;
 	
     return 0;
 }

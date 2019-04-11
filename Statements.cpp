@@ -13,15 +13,16 @@ Statement::Statement() {}
 // Statements
 Statements::Statements() {}
 
-void Statements::addStatement(Statement *statement) { _statements.push_back(statement); }
+void Statements::addStatement(std::unique_ptr<Statement> statement)
+{ _statements.push_back(std::move(statement)); }
 
 void Statements::print() {
-    for (auto s: _statements)
+    for (auto &s: _statements)
         s->print();
 }
 
 void Statements::evaluate(SymTab &symTab) {
-    for (auto s: _statements) {
+    for (auto &s: _statements) {
         s->evaluate(symTab);
 	}
 }
@@ -30,8 +31,8 @@ void Statements::evaluate(SymTab &symTab) {
 // AssignmentStatement
 AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr} {}
 
-AssignmentStatement::AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr):
-        _lhsVariable{lhsVar}, _rhsExpression{rhsExpr} {}
+AssignmentStatement::AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode>rhsExpr):
+	_lhsVariable{lhsVar}, _rhsExpression{std::move(rhsExpr)} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
     symTab.setValueFor(lhsVariable(), rhsExpression()->evaluate(symTab) );
@@ -41,7 +42,7 @@ std::string &AssignmentStatement::lhsVariable() {
     return _lhsVariable;
 }
 
-ExprNode *&AssignmentStatement::rhsExpression() {
+std::unique_ptr<ExprNode>&AssignmentStatement::rhsExpression() {
     return _rhsExpression;
 }
 
@@ -53,26 +54,26 @@ void AssignmentStatement::print() {
 
 
 // PrintStatement
-PrintStatement::PrintStatement() : _rhsList{nullptr} {}
+PrintStatement::PrintStatement() : _rhsList{} {}
 
-PrintStatement::PrintStatement(std::vector<ExprNode *> exprList):
-        _rhsList{exprList} {}
+PrintStatement::PrintStatement(std::vector<std::unique_ptr<ExprNode>> exprList):
+	_rhsList{std::move(exprList)} {}
 
 void PrintStatement::evaluate(SymTab &symTab) {
-	for (auto l: _rhsList ) {
-        printValue( l->evaluate(symTab) );
+	for (auto &l: _rhsList ) {
+        printValue( l->evaluate(symTab).get() );
 		std::cout << ' ';
 	}
 	std::cout << std::endl;
 }
 
-std::vector<ExprNode *>&PrintStatement::rhsList() {
+std::vector<std::unique_ptr<ExprNode>>&PrintStatement::rhsList() {
     return _rhsList;
 }
 
 void PrintStatement::print() {
-	for (auto list: _rhsList) {
-		list->print();
+	for (auto &l: _rhsList) {
+		l->print();
 		std::cout << std::endl;
 	}
 }
@@ -81,25 +82,27 @@ void PrintStatement::print() {
 // ForStatement
 ForStatement::ForStatement() : _statements{nullptr}  {}
 
-ForStatement::ForStatement(std::string id, std::vector<ExprNode *>range, Statements* stmnts):
-	_id{id}, _range{range}, _statements{stmnts} {}
+ForStatement::ForStatement(std::string id,
+						   std::vector<std::unique_ptr<ExprNode>> range,
+						   std::unique_ptr<Statements> stmnts):
+	_id{id}, _range{std::move(range)}, _statements{std::move(stmnts)} {}
 
 void ForStatement::evaluate(SymTab &symTab) {
 	
-	Range *range = new Range(getId(), getRange(), symTab);
+	Range range = Range(getId(), std::move(getRange()), symTab);
 	
-	while( !range->atEnd() ) {
+	while( !range.atEnd() ) {
 		statements()->evaluate(symTab);
-		symTab.increment( getId(), range->step() );
-		range->getNext();
+		symTab.increment( getId(), range.step() );
+		range.getNext();
 	}    
 }
 
-Statements *&ForStatement::statements() {
+std::unique_ptr<Statements>&ForStatement::statements() {
 	return _statements;
 }
 
-std::vector<ExprNode *> &ForStatement::getRange() {
+std::vector<std::unique_ptr<ExprNode>> &ForStatement::getRange() {
 	return _range;
 }
 
@@ -117,26 +120,31 @@ void ForStatement::print() {
 IfStatement::IfStatement() : _firstTest{nullptr}, _firstSuite{nullptr},
 							 _elseSuite{nullptr}  {}
 
-IfStatement::IfStatement(ExprNode *firstTest, Statements *firstSuite):
-	_firstTest{firstTest}, _firstSuite{firstSuite} {}
+//IfStatement::IfStatement(std::unique_ptr<ExprNode>firstTest,
+//						 std::unique_ptr<Statements>firstSuite):
+//	_firstTest{firstTest}, _firstSuite{firstSuite} {}
 
-IfStatement::IfStatement(ExprNode *firstTest, Statements *firstSuite,
-						 std::vector<ExprNode *> elifTests,
-						 std::vector<Statements *> elifSuites,
-						 Statements *elseSuite):
-	_firstTest{firstTest}, _firstSuite{firstSuite}, _elifTests{elifTests},
-	_elifSuites{elifSuites}, _elseSuite{elseSuite} {}
+IfStatement::IfStatement(std::unique_ptr<ExprNode>firstTest,
+						 std::unique_ptr<Statements>firstSuite,
+						 std::vector<std::unique_ptr<ExprNode>> elifTests,
+						 std::vector<std::unique_ptr<Statements>> elifSuites,
+						 std::unique_ptr<Statements>elseSuite):
+	_firstTest{std::move(firstTest)},
+	_firstSuite{std::move(firstSuite)},
+	_elifTests{std::move(elifTests)},
+	_elifSuites{std::move(elifSuites)},
+	_elseSuite{std::move(elseSuite)} {}
 
 void IfStatement::evaluate(SymTab &symTab) {	
-	if( evaluateBool(firstTest()->evaluate(symTab) ) )
+	if( evaluateBool(firstTest()->evaluate(symTab).get() ) )
 		firstSuite()->evaluate(symTab);
 	if(_elifTests.size() != _elifSuites.size() ) {
 		std::cout << "IfStatement::evaluate mismatched elif and arguments\n";
 		exit(1);
 	} else if ( _elifTests.size() != 0 ) {
 		int i = 0;
-		for( auto t: _elifTests ) {
-			if( evaluateBool( t->evaluate(symTab) ) )
+		for( auto &t: _elifTests ) {
+			if( evaluateBool( t->evaluate(symTab).get() ) )
 				_elifSuites[i]->evaluate(symTab);
 			++i;
 		}
@@ -145,23 +153,23 @@ void IfStatement::evaluate(SymTab &symTab) {
 }
 
 
-ExprNode *&IfStatement::firstTest() {
+std::unique_ptr<ExprNode> &IfStatement::firstTest() {
 	return _firstTest;
 }
 
-Statements *&IfStatement::firstSuite() {
+std::unique_ptr<Statements> &IfStatement::firstSuite() {
 	return _firstSuite;
 }
 
-std::vector<ExprNode *> &IfStatement::elifTests() {
+std::vector<std::unique_ptr<ExprNode>> &IfStatement::elifTests() {
 	return _elifTests;
 }
 
-std::vector<Statements *> &IfStatement::elifSuites() {
+std::vector<std::unique_ptr<Statements>> &IfStatement::elifSuites() {
 	return _elifSuites;
 }
 
-Statements *&IfStatement::elseSuite() {
+std::unique_ptr<Statements> &IfStatement::elseSuite() {
 	return _elseSuite;
 }
 

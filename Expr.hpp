@@ -20,8 +20,8 @@ public:
     ExprNode(Token token);
     Token token();
     virtual void print() = 0;
-	virtual TypeDescriptor *evaluate(SymTab &symTab) = 0;
-	 virtual ~ExprNode() {}
+	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab) = 0;
+	virtual ~ExprNode() {}
 private:
     Token _token;
 };
@@ -32,12 +32,13 @@ class InfixExprNode: public ExprNode {  // An expression tree node.
 
 public:
     InfixExprNode(Token tk);
-    ExprNode *&left();
-    ExprNode *&right();
+	std::unique_ptr<ExprNode> &left();
+	std::unique_ptr<ExprNode> &right();
     virtual void print();
-	virtual TypeDescriptor *evaluate(SymTab &symTab);
+	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 private:
-    ExprNode *_left, *_right;
+	std::unique_ptr<ExprNode> _left;
+	std::unique_ptr<ExprNode> _right;
 };
 
 
@@ -48,7 +49,7 @@ class WholeNumber: public ExprNode {
 public:
     WholeNumber(Token token);
     virtual void print();
-	virtual TypeDescriptor *evaluate(SymTab &symTab);
+	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 
@@ -59,7 +60,7 @@ class Float: public ExprNode {
 public:
 	Float(Token token);
 	virtual void print();
-	virtual TypeDescriptor *evaluate(SymTab &symTab);
+	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 
@@ -70,7 +71,7 @@ class Variable: public ExprNode {
 public:
     Variable(Token token);
     virtual void print();
-	virtual TypeDescriptor *evaluate(SymTab &symTab);
+	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 
@@ -81,7 +82,7 @@ class String: public ExprNode {
 public:
     String(Token token);
     virtual void print();
-	virtual TypeDescriptor *evaluate(SymTab &symTab);
+	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 #endif //EXPRINTER_ARITHEXPR_HPP

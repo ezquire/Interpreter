@@ -10,19 +10,19 @@ Range::Range(): _start{0}, _end{0}, _step{0} {}
 Range::Range( int start, int end, int step ):
 	_start{start}, _end{end}, _step{step} {}
 
-Range::Range(std::string varName, std::vector<ExprNode *> rangeList,
+Range::Range(std::string varName,
+			 std::vector<std::unique_ptr<ExprNode>> rangeList,
 			 SymTab &symTab) {
 	if(rangeList.size() < 1 || rangeList.size() > 3) {
 		std::cout << "Error: Incorrect number of arguments to Range()\n";
 		exit(1);
 	} else if(rangeList.size() == 1) { // only have an end value
-
-		NumberDescriptor*start = new NumberDescriptor(TypeDescriptor::INTEGER);
+		std::unique_ptr<NumberDescriptor>start(new NumberDescriptor(TypeDescriptor::INTEGER));
 		start->value.intValue = 0; // set start to 0 by default
-		symTab.setValueFor( varName, start ); // set value of ID to start
+		symTab.setValueFor( varName, std::move(start) ); // set value of ID to start
 		
 		auto end = rangeList[0]->evaluate(symTab);
-		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end);
+		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end.get());
 
 		if( endVal == nullptr ) {
 			std::cout << "Range::Range error casting TypeDescriptor\n";
@@ -37,11 +37,11 @@ Range::Range(std::string varName, std::vector<ExprNode *> rangeList,
 		}
 	} else if(rangeList.size() == 2) { // start and end only, step is 1
 		auto start = rangeList[0]->evaluate(symTab);
-		symTab.setValueFor( varName, start ); // set value of ID to start
+		symTab.setValueFor( varName, std::move(start) ); // set value of ID to start
 		
 		auto end = rangeList[1]->evaluate(symTab);
-		NumberDescriptor *startVal = dynamic_cast<NumberDescriptor *>(start);
-		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end);
+		NumberDescriptor *startVal = dynamic_cast<NumberDescriptor *>(start.get());
+		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end.get());
 		if( startVal == nullptr || endVal == nullptr ) {
 			std::cout << "Range::Range error casting TypeDescriptor\n";
 			exit(1);
@@ -56,12 +56,12 @@ Range::Range(std::string varName, std::vector<ExprNode *> rangeList,
 		}
 	} else { // start, end, and step
 		auto start = rangeList[0]->evaluate(symTab);
-		symTab.setValueFor( varName, start ); // set value of ID to start
+		symTab.setValueFor( varName, std::move(start) ); // set value of ID to start
 		auto end = rangeList[1]->evaluate(symTab);
 		auto step = rangeList[2]->evaluate(symTab);
-		NumberDescriptor *startVal = dynamic_cast<NumberDescriptor *>(start);
-		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end);
-		NumberDescriptor *stepVal = dynamic_cast<NumberDescriptor *>(step);
+		NumberDescriptor *startVal = dynamic_cast<NumberDescriptor *>(start.get());
+		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end.get());
+		NumberDescriptor *stepVal = dynamic_cast<NumberDescriptor *>(step.get());
 		if( startVal == nullptr || endVal == nullptr || stepVal == nullptr) {
 			std::cout << "Range::Range error casting TypeDescriptor\n";
 			exit(1);
