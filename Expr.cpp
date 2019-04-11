@@ -42,35 +42,34 @@ std::unique_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab) {
 		}
 	} else {
 		auto rValue = right()->evaluate(symTab);
-		
+
 		StringDescriptor *lDesc =
-			dynamic_cast<StringDescriptor *>(lValue.get());
+			dynamic_cast<StringDescriptor *>(lValue);
 		StringDescriptor *rDesc =
-			dynamic_cast<StringDescriptor *>(rValue.get());
+			dynamic_cast<StringDescriptor *>(rValue);
+
+		NumberDescriptor *lDesc =
+			dynamic_cast<NumberDescriptor *>(lValue.get());
+		NumberDescriptor *rDesc =
+			dynamic_cast<NumberDescriptor *>(rValue.get());
 
 		if(lDesc != nullptr && rDesc != nullptr) // we have two strings
 			return stringOperations(lDesc, rDesc, token());
-
-		else {
-			
-			NumberDescriptor *lDesc =
-				dynamic_cast<NumberDescriptor *>(lValue.get());
-			NumberDescriptor *rDesc =
-				dynamic_cast<NumberDescriptor *>(rValue.get());
-
-			if(lDesc != nullptr && rDesc != nullptr) { // we have two numbers
-				if(token().isBooleanOperator())
-					;
-					//return boolOperations(lDesc, rDesc, token());
-				else if(token().isRelOp())
-					;
-					//return relOperations(lDesc, rDesc, token());
-				else if(token().isArithmeticOperator())
-					;
-					//return arithOperations(lDesc, rDesc, token());
-			}
+		else if(lDesc != nullptr && rDesc != nullptr) { // we have two numbers
+			if(token().isBooleanOperator())
+				return boolOperations(lDesc, rDesc, token());
+			else if(token().isRelOp())
+				;
+			//return relOperations(lDesc, rDesc, token());
+			else if(token().isArithmeticOperator())
+				;
+			//return arithOperations(lDesc, rDesc, token());
+		} else {
+			std::cout << "InfixExprNode::evaluate invalid cast\n";
+			exit(1);
 		}
 	}
+}
 
 // Boolean operators supporting short circuit logic
 		if( token().isAndKeyword() )

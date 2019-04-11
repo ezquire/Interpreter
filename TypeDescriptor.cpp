@@ -92,9 +92,16 @@ std::unique_ptr<TypeDescriptor> negate(TypeDescriptor *desc) {
 }
 
 // String Operations
-std::unique_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
-												 StringDescriptor *rValue,
+std::unique_ptr<TypeDescriptor> stringOperations(TypeDescriptor *lValue,
+												 TypeDescriptor *rValue,
 												 Token tok) {
+
+
+	if(lDesc == nullptr || rDesc == nullptr) {
+		std::cout << "stringOperations() invalid cast\n";
+		exit(1);
+	}
+	
 	if(tok.isAdditionOperator()) { // We have concatenation
 		std::unique_ptr<StringDescriptor> ret =
 			std::make_unique<StringDescriptor>(TypeDescriptor::STRING);
@@ -137,8 +144,8 @@ std::unique_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 	}
 }
 
-std::unique_ptr<TypeDescriptor> numberOperations (NumberDescriptor *lValue,
+std::unique_ptr<TypeDescriptor> boolOperations (NumberDescriptor *lValue,
 												  NumberDescriptor *rValue,
 												  Token tok) {
-	;
+	
 }
