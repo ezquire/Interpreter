@@ -1,6 +1,7 @@
-//
-// Created by Ali A. Kooshesh on 2/5/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #include "Range.hpp"
 #include "Statements.hpp"
@@ -8,7 +9,6 @@
 
 // Statement
 Statement::Statement() {}
-
 
 // Statements
 Statements::Statements() {}
@@ -27,15 +27,16 @@ void Statements::evaluate(SymTab &symTab) {
 	}
 }
 
-
 // AssignmentStatement
 AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr} {}
 
-AssignmentStatement::AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode>rhsExpr):
+AssignmentStatement::AssignmentStatement(std::string lhsVar,
+										 std::unique_ptr<ExprNode> rhsExpr):
 	_lhsVariable{lhsVar}, _rhsExpression{std::move(rhsExpr)} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
-    symTab.setValueFor(lhsVariable(), rhsExpression()->evaluate(symTab) );
+    symTab.setValueFor(lhsVariable(),
+					   rhsExpression()->evaluate(symTab));
 }
 
 std::string &AssignmentStatement::lhsVariable() {
@@ -56,8 +57,8 @@ void AssignmentStatement::print() {
 // PrintStatement
 PrintStatement::PrintStatement() : _rhsList{} {}
 
-PrintStatement::PrintStatement(std::vector<std::unique_ptr<ExprNode>> exprList):
-	_rhsList{std::move(exprList)} {}
+PrintStatement::PrintStatement(std::vector<std::shared_ptr<ExprNode>>exprList):
+	_rhsList{exprList} {}
 
 void PrintStatement::evaluate(SymTab &symTab) {
 	for (auto &l: _rhsList ) {
@@ -67,7 +68,7 @@ void PrintStatement::evaluate(SymTab &symTab) {
 	std::cout << std::endl;
 }
 
-std::vector<std::unique_ptr<ExprNode>>&PrintStatement::rhsList() {
+std::vector<std::shared_ptr<ExprNode>>&PrintStatement::rhsList() {
     return _rhsList;
 }
 
@@ -83,18 +84,17 @@ void PrintStatement::print() {
 ForStatement::ForStatement() : _statements{nullptr}  {}
 
 ForStatement::ForStatement(std::string id,
-						   std::vector<std::unique_ptr<ExprNode>> range,
+						   std::vector<std::shared_ptr<ExprNode>> range,
 						   std::unique_ptr<Statements> stmnts):
-	_id{id}, _range{std::move(range)}, _statements{std::move(stmnts)} {}
+	_id{id}, _range{range}, _statements{std::move(stmnts)} {}
 
 void ForStatement::evaluate(SymTab &symTab) {
-	
-	Range range = Range(getId(), std::move(getRange()), symTab);
-	
-	while( !range.atEnd() ) {
+	std::unique_ptr<Range> range =
+		std::make_unique<Range>(getId(), getRange(), symTab);
+	while( !range->atEnd() ) {
 		statements()->evaluate(symTab);
-		symTab.increment( getId(), range.step() );
-		range.getNext();
+		symTab.increment( getId(), range->step() );
+		range->getNext();
 	}    
 }
 
@@ -102,7 +102,7 @@ std::unique_ptr<Statements>&ForStatement::statements() {
 	return _statements;
 }
 
-std::vector<std::unique_ptr<ExprNode>> &ForStatement::getRange() {
+std::vector<std::shared_ptr<ExprNode>> &ForStatement::getRange() {
 	return _range;
 }
 
@@ -119,10 +119,6 @@ void ForStatement::print() {
 // IfStatement
 IfStatement::IfStatement() : _firstTest{nullptr}, _firstSuite{nullptr},
 							 _elseSuite{nullptr}  {}
-
-//IfStatement::IfStatement(std::unique_ptr<ExprNode>firstTest,
-//						 std::unique_ptr<Statements>firstSuite):
-//	_firstTest{firstTest}, _firstSuite{firstSuite} {}
 
 IfStatement::IfStatement(std::unique_ptr<ExprNode>firstTest,
 						 std::unique_ptr<Statements>firstSuite,

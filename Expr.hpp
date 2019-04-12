@@ -1,6 +1,7 @@
-//
-// Created by Ali A. Kooshesh on 2/5/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #ifndef EXPRINTER_ARITHEXPR_HPP
 #define EXPRINTER_ARITHEXPR_HPP
@@ -20,7 +21,7 @@ public:
     ExprNode(Token token);
     Token token();
     virtual void print() = 0;
-	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab) = 0;
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) = 0;
 	virtual ~ExprNode() {}
 private:
     Token _token;
@@ -35,7 +36,7 @@ public:
 	std::unique_ptr<ExprNode> &left();
 	std::unique_ptr<ExprNode> &right();
     virtual void print();
-	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 private:
 	std::unique_ptr<ExprNode> _left;
 	std::unique_ptr<ExprNode> _right;
@@ -49,7 +50,7 @@ class WholeNumber: public ExprNode {
 public:
     WholeNumber(Token token);
     virtual void print();
-	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 
@@ -60,7 +61,7 @@ class Float: public ExprNode {
 public:
 	Float(Token token);
 	virtual void print();
-	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 
@@ -71,7 +72,7 @@ class Variable: public ExprNode {
 public:
     Variable(Token token);
     virtual void print();
-	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 
@@ -82,7 +83,7 @@ class String: public ExprNode {
 public:
     String(Token token);
     virtual void print();
-	virtual std::unique_ptr<TypeDescriptor> evaluate(SymTab &symTab);
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab);
 };
 
 #endif //EXPRINTER_ARITHEXPR_HPP

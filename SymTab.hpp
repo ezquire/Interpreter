@@ -18,13 +18,13 @@
 class SymTab {
 public:
     //void setValueFor(std::string vName, Token tok);
-	void setValueFor(std::string vName, std::unique_ptr<TypeDescriptor>rDesc);
+	void setValueFor(std::string vName, std::shared_ptr<TypeDescriptor>rDesc);
 	void increment(std::string vName, int increment);
     bool isDefined(std::string vName);
-	std::unique_ptr<TypeDescriptor>getValueFor(std::string vName);
+	std::shared_ptr<TypeDescriptor> getValueFor(std::string vName);
 
 private:
-    std::map<std::string, std::unique_ptr<TypeDescriptor>> symTab;
+    std::map<std::string, std::shared_ptr<TypeDescriptor>> symTab;
 };
 
 #endif //EXPRINTER_SYMTAB_HPP

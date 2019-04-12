@@ -1,12 +1,17 @@
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
+
 #include <vector>
 #include <iostream>
+
 #include "Token.hpp"
 #include "Parser.hpp"
 #include "Statements.hpp"
 #include "Range.hpp"
 
 // Parser functions
-
 void Parser::die(std::string where, std::string message, Token &token) {
     std::cout << where << " " << message << " ";
     token.print();
@@ -70,7 +75,6 @@ std::unique_ptr<Statements> Parser::statements() {
     return stmts;
 }
 
-
 // Assignment statement parser
 std::unique_ptr<AssignmentStatement> Parser::assignStatement() {
     Token varName = tokenizer.getToken();
@@ -94,7 +98,6 @@ std::unique_ptr<AssignmentStatement> Parser::assignStatement() {
 												 std::move(rightHandSideExpr));
 }
 
-
 // Print statement parser
 std::unique_ptr<PrintStatement> Parser::printStatement() {
     Token tok = tokenizer.getToken();
@@ -102,18 +105,18 @@ std::unique_ptr<PrintStatement> Parser::printStatement() {
     if ( !tok.isPrintKeyword() )
         die("Parser::PrintStatement", "Expected 'print', instead got", tok);
 	
-	std::vector<std::unique_ptr<ExprNode>> rhsList = testlist();
+	std::vector<std::shared_ptr<ExprNode>> rhsList = testlist();
 
 	tok = tokenizer.getToken();
 	if( !tok.eol() )
 		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
 	
-    return std::make_unique<PrintStatement>(std::move(rhsList));
+    return std::make_unique<PrintStatement>(rhsList);
 }
-
 
 // For statement parser
 std::unique_ptr<ForStatement> Parser::forStatement() {
+	
     Token tok = tokenizer.getToken();
 	
     if ( !tok.isForKeyword() )
@@ -135,7 +138,7 @@ std::unique_ptr<ForStatement> Parser::forStatement() {
     if ( !tok.isOpenParen() )
 		die("Parser::forStatement", "Expected '(', instead got", tok);
 
- 	std::vector<std::unique_ptr<ExprNode>> rangeList = testlist();
+ 	std::vector<std::shared_ptr<ExprNode>> rangeList = testlist();
 
 	tok = tokenizer.getToken();
     if ( !tok.isCloseParen() )
@@ -213,7 +216,7 @@ std::unique_ptr<Statements> Parser::suite() {
 
 	if ( !tok.indent() )
 		die("Parser::suite", "Expected 'INDENT', instead got",tok);
-	
+
     auto _suite = statements();
 
 	tok = tokenizer.getToken();	
@@ -221,17 +224,17 @@ std::unique_ptr<Statements> Parser::suite() {
 		tok = tokenizer.getToken();
 
 	if( tok.eof() )
-		return _suite;	
+		return _suite;
 	else if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
 	return _suite;
 }
 
-std::vector<std::unique_ptr<ExprNode>> Parser::testlist() {
+std::vector<std::shared_ptr<ExprNode>> Parser::testlist() {
     // This function parses the grammar rules:
     // testlist: test {',' test}*
-	std::vector<std::unique_ptr<ExprNode>> list;
-	
+	std::vector<std::shared_ptr<ExprNode>> list;
+
     auto first = test();
 	list.push_back(std::move(first));
     Token tok = tokenizer.getToken();
@@ -242,7 +245,7 @@ std::vector<std::unique_ptr<ExprNode>> Parser::testlist() {
     }
     tokenizer.ungetToken();
     return list;
-}
+} 
 
 std::unique_ptr<ExprNode> Parser::test() {
 	// This function parses the grammar rules:
@@ -250,7 +253,8 @@ std::unique_ptr<ExprNode> Parser::test() {
     auto andtest = and_test();
 	Token tok = tokenizer.getToken();
 	while (tok.isOrKeyword()) {
-		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
 		p->left() = std::move(andtest);
 		p->right() = and_test();
 		andtest = std::move(p);
@@ -266,7 +270,8 @@ std::unique_ptr<ExprNode> Parser::and_test() {
 	auto nottest = not_test();
 	Token tok = tokenizer.getToken();
 	while (tok.isAndKeyword()) {
-		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
 		p->left() = std::move(nottest);
 		p->right() = not_test();
 		nottest = std::move(p);
@@ -281,7 +286,8 @@ std::unique_ptr<ExprNode> Parser::not_test() {
 	// not_test: 'not' not_test | comparison
 	Token tok = tokenizer.getToken();
 	if( tok.isNotKeyword() ) {
-		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
 		p->left() = not_test();
 		p->right() = nullptr;
 		return p;
@@ -296,12 +302,13 @@ std::unique_ptr<ExprNode> Parser::comparison() {
     // This function parses the grammar rules:
     // comparison: arith_expr { comp_op  arith_expr }*
 	// comp_op: < | > | == | >= | <= | <> | !=
-    std::unique_ptr<ExprNode>left = arith_expr();
+    auto left = arith_expr();
     Token tok = tokenizer.getToken();
     while (tok.isLessThan() || tok.isGreaterThan()
 		   || tok.isEqual() || tok.isGreaterThanEqual()
 		   || tok.isLessThanEqual() || tok.isNotEqual() ) {
-        std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
         p->left() = std::move(left);
         p->right() = arith_expr();
         left = std::move(p);
@@ -318,7 +325,8 @@ std::unique_ptr<ExprNode> Parser::arith_expr() {
     auto left = term();
     Token tok = tokenizer.getToken();
     while (tok.isAdditionOperator() || tok.isSubtractionOperator()) {
-        std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
         p->left() = std::move(left);
         p->right() = term();
         left = std::move(p);
@@ -332,12 +340,13 @@ std::unique_ptr<ExprNode> Parser::term() {
     // This function parses the grammar rules:
     // term: factor {(* | / | % | //) factor}*
     // However, the implementation makes the '*' left associate.
-    std::unique_ptr<ExprNode>left = factor();
+    auto left = factor();
     Token tok = tokenizer.getToken();
     while (tok.isMultiplicationOperator()
 		   || tok.isDivisionOperator()
 		   || tok.isModuloOperator() || tok.isFloorDivision() ) {
-        std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
         p->left() = std::move(left);
         p->right() = factor();
         left = std::move(p);
@@ -352,7 +361,8 @@ std::unique_ptr<ExprNode> Parser::factor() {
 	// factor: {-}* factor | atom
 	Token tok = tokenizer.getToken();
 	if( tok.isSubtractionOperator() ) {
-		std::unique_ptr<InfixExprNode> p(new InfixExprNode(tok));
+		std::unique_ptr<InfixExprNode> p =
+			std::make_unique<InfixExprNode>(tok);
 		p->left() = factor();
 		p->right() = nullptr;
 		return p;

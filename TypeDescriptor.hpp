@@ -1,5 +1,5 @@
 /*
- * Created by Tyler Gearing on 3/14/2019
+ * Created by Tyler Gearing 3/14/19
  *
  */
 
@@ -16,11 +16,10 @@ class TypeDescriptor {
 public:
 	enum types { INTEGER, DOUBLE, BOOLEAN, STRING };
 
-	TypeDescriptor(types type);	
+	TypeDescriptor(types type);
+	virtual ~TypeDescriptor() {}
 	
 	types &type();
- 
-	virtual ~TypeDescriptor() {}
 
 private:
 	types _type;	
@@ -52,14 +51,18 @@ bool evaluateBool(TypeDescriptor *desc);
 
 void changeSign(TypeDescriptor *desc);
 
-std::unique_ptr<TypeDescriptor> negate(TypeDescriptor *desc);
+std::shared_ptr<TypeDescriptor> negate(TypeDescriptor *desc);
 
-std::unique_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
+std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 												 StringDescriptor *rValue,
 												 Token tok);
 
-std::unique_ptr<TypeDescriptor> numOperations(NumberDescriptor *lValue,
-												 NumberDescriptor *rValue,
-												 Token tok);
+std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
+											  NumberDescriptor *rDesc,
+											  Token tok);
+
+std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
+												NumberDescriptor *rDesc,
+												Token tok);
 
 #endif //EXPRINTER_TYPEDESCRIPTOR_HPP	

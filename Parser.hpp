@@ -1,18 +1,21 @@
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #ifndef __PARSER_HPP
 #define __PARSER_HPP
-
-#include "Token.hpp"
-#include "Tokenizer.hpp"
-#include "SymTab.hpp"
-#include "Expr.hpp"
-#include "Statements.hpp"
 
 #include <vector>
 #include <memory>
 #include <iostream>
 #include <map>
 
+#include "Token.hpp"
+#include "Tokenizer.hpp"
+#include "SymTab.hpp"
+#include "Expr.hpp"
+#include "Statements.hpp"
 
 class Parser {
 public:
@@ -26,7 +29,7 @@ public:
 
 	std::unique_ptr<Statements> suite();
 	
-	std::vector< std::unique_ptr<ExprNode> >testlist();
+	std::vector< std::shared_ptr<ExprNode> >testlist();
 	std::unique_ptr<ExprNode> test();
 	std::unique_ptr<ExprNode> and_test();
 	std::unique_ptr<ExprNode> not_test();
@@ -46,4 +49,3 @@ private:
 };
 
 #endif
-

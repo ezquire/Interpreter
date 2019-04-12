@@ -12,7 +12,7 @@ public:
     Range();
 	Range(int start, int end, int step);
 	Range(std::string varName,
-		  std::vector<std::unique_ptr<ExprNode>> rangeList,
+		  std::vector<std::shared_ptr<ExprNode>> rangeList,
 		  SymTab &symTab);
 	int getNext();
 	bool atEnd();
