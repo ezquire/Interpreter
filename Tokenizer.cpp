@@ -117,7 +117,9 @@ Token Tokenizer::getToken() {
 			inStream.putback(c); // Put one back
 		
 		if( !blankline ) {
-			if ( col > stack.top() ) {
+			if( col == stack.top() )
+				;
+			else if ( col > stack.top() ) {
 				stack.push(col);
 				token.indent() = true;
 				_tokens.push_back(token);
@@ -128,9 +130,7 @@ Token Tokenizer::getToken() {
 					_tokens.push_back(token);
 					bol = true; // possibly more dedent tokens before input
 					return lastToken = token;
-			} else if( col == stack.top() )
-				;
-			else {
+			} else {
 				std::cout << "Error: inconsistent indentation.\n";
 				exit(1);
 			}

@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
     Tokenizer tokenizer(inputStream);
 
-	/*Token tok = tokenizer.getToken();
+	  /*Token tok = tokenizer.getToken();
 	while( !tok.eof() )
 		tok = tokenizer.getToken();
 

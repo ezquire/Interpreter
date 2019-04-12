@@ -99,7 +99,7 @@ for i in range(5):
     b = b - 1
 if a != 6:
  print "For loop on line 94 didn't execute properly. a should be 6, but it is,", a
- failCount = failCount + 1
+ failCount = failCount + 1 
  
 a = 0
 for i in range(100):

@@ -64,9 +64,9 @@ std::unique_ptr<Statements> Parser::statements() {
 			auto assignStmt = assignStatement();
 			stmts->addStatement(std::move(assignStmt));
 			tok = tokenizer.getToken();
-			if( tok.indent() )
-				die("Parser::statements ",
-					"Expected no indentation, instead got", tok);
+			//if( tok.indent() && !tokenizer.getBol() )
+			//	die("Parser::statements ",
+			//		"Expected no indentation, instead got", tok);
 			while( tok.eol() ) // eat newlines after AssignmentStatements
 				tok = tokenizer.getToken();
 		}

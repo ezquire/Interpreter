@@ -17,8 +17,8 @@ public:
     Tokenizer(std::ifstream &inStream);
     Token getToken();
     void ungetToken();
-	void printProcessedTokens();	
-
+	void printProcessedTokens();
+	bool getBol() const { return bol; }
 private:
     Token lastToken;
     bool ungottenToken;

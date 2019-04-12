@@ -132,16 +132,19 @@ IfStatement::IfStatement(std::unique_ptr<ExprNode>firstTest,
 	_elseSuite{std::move(elseSuite)} {}
 
 void IfStatement::evaluate(SymTab &symTab) {	
-	if( evaluateBool(firstTest()->evaluate(symTab).get() ) )
+	if(evaluateBool(firstTest()->evaluate(symTab).get())) {
 		firstSuite()->evaluate(symTab);
-	if(_elifTests.size() != _elifSuites.size() ) {
+		return;
+	} else if(_elifTests.size() != _elifSuites.size() ) {
 		std::cout << "IfStatement::evaluate mismatched elif and arguments\n";
 		exit(1);
 	} else if ( _elifTests.size() != 0 ) {
 		int i = 0;
 		for( auto &t: _elifTests ) {
-			if( evaluateBool( t->evaluate(symTab).get() ) )
+			if( evaluateBool( t->evaluate(symTab).get() ) ) {
 				_elifSuites[i]->evaluate(symTab);
+				return;
+			}
 			++i;
 		}
 	} else if( _elseSuite != nullptr )
