@@ -25,7 +25,7 @@ void printValue(TypeDescriptor *desc) {
 	auto sDesc = dynamic_cast<StringDescriptor *>(desc);
 	auto nDesc = dynamic_cast<NumberDescriptor *>(desc);
 	// dynamic_cast will return a nullptr if
-	// desc is not of datatype NumberDescritpr.
+	// desc is not of datatype NumberDescriptor.
 	if( nDesc != nullptr ) { // We have a number
 		// desc must have been of type NumberDescriptor
 		if( nDesc->type() == TypeDescriptor::INTEGER )
@@ -45,7 +45,7 @@ void printValue(TypeDescriptor *desc) {
 
 // Bool Function
 bool evaluateBool(TypeDescriptor *desc) {
-	NumberDescriptor *numDesc = dynamic_cast<NumberDescriptor *>(desc);
+	auto numDesc = dynamic_cast<NumberDescriptor *>(desc);
 	if(numDesc == nullptr) {
 		std::cout << "evaluateBool() invalid cast.\n";
 		exit(1);
@@ -80,13 +80,13 @@ std::shared_ptr<TypeDescriptor> negate(TypeDescriptor *desc) {
 		std::shared_ptr<NumberDescriptor> ret =
 			std::make_shared<NumberDescriptor>(TypeDescriptor::BOOLEAN);
 		if(nDesc->type() == TypeDescriptor::INTEGER) {
-			ret->value.boolValue = nDesc->value.intValue == 0 ? true:false;
+			ret->value.boolValue = nDesc->value.intValue == 0;
 			return ret;
 		} else if(nDesc->type() == TypeDescriptor::DOUBLE) {
-			ret->value.boolValue = nDesc->value.doubleValue == 0 ? true:false;
+			ret->value.boolValue = nDesc->value.doubleValue == 0;
 			return ret;
 		} else {
-			ret->value.boolValue = nDesc->value.boolValue == 0 ? true:false;
+			ret->value.boolValue = nDesc->value.boolValue == 0;
 			return ret;
 		}
 	}
@@ -95,7 +95,7 @@ std::shared_ptr<TypeDescriptor> negate(TypeDescriptor *desc) {
 // String Operations
 std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 												 StringDescriptor *rValue,
-												 Token tok) {	
+												 Token const &tok) {
 	if(tok.isAdditionOperator()) { // We have concatenation
 		std::shared_ptr<StringDescriptor> ret =
 			std::make_shared<StringDescriptor>(TypeDescriptor::STRING);
@@ -105,28 +105,22 @@ std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 		std::shared_ptr<NumberDescriptor> ret =
 			std::make_shared<NumberDescriptor>(TypeDescriptor::BOOLEAN);
 		if (tok.isEqual()) {
-			ret->value.boolValue =
-				lValue->value == rValue->value ? true:false;
+			ret->value.boolValue = lValue->value == rValue->value;
 			return ret;
 		} else if (tok.isNotEqual()) {
-			ret->value.boolValue =
-				lValue->value != rValue->value ? true:false;
+			ret->value.boolValue = lValue->value != rValue->value;
 			return ret;
 		} else if (tok.isGreaterThan()) {
-			ret->value.boolValue =
-				lValue->value > rValue->value ? true:false;
+			ret->value.boolValue = lValue->value > rValue->value;
 			return ret;
 		} else if (tok.isGreaterThanEqual()) {
-			ret->value.boolValue =
-				lValue->value >= rValue->value ? true:false;
+			ret->value.boolValue = lValue->value >= rValue->value;
 			return ret;
 		} else if (tok.isLessThan()) {
-			ret->value.boolValue =
-				lValue->value < rValue->value ? true:false;
+			ret->value.boolValue = lValue->value < rValue->value;
 			return ret;
 		} else if (tok.isLessThanEqual()) {
-			ret->value.boolValue =
-				lValue->value <= rValue->value ? true:false;
+			ret->value.boolValue = lValue->value <= rValue->value;
 			return ret;
 		} else {
 			std::cout << "InfixExprNode::evaluate: don't know how to ";
@@ -140,7 +134,7 @@ std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 
 std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 											  NumberDescriptor *rDesc,
-											  Token tok) {	
+											  Token const &tok) {
 	std::shared_ptr<NumberDescriptor> ret =
 		std::make_shared<NumberDescriptor>(TypeDescriptor::BOOLEAN);
 
@@ -152,147 +146,149 @@ std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 		exit(1);
 	}
 
-	if( tok.isEqual() ) {
+	else if( tok.isEqual() ) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.intValue == rDesc->value.intValue ? true:false;
+				lDesc->value.intValue == rDesc->value.intValue;
 			return ret;
 		} else if(lType == TypeDescriptor::INTEGER &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.intValue == rDesc->value.boolValue ? true:false;
+				lDesc->value.intValue == rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue == rDesc->value.boolValue ? true:false;
+				lDesc->value.boolValue == rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue == rDesc->value.intValue ? true:false;
+				lDesc->value.boolValue == rDesc->value.intValue;
 			return ret;
 		}
 	} else if( tok.isNotEqual() ) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.intValue != rDesc->value.intValue ? true:false;
+				lDesc->value.intValue != rDesc->value.intValue;
 			return ret;
 		} else if(lType == TypeDescriptor::INTEGER &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.intValue != rDesc->value.boolValue ? true:false;
+				lDesc->value.intValue != rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue != rDesc->value.boolValue ? true:false;
+				lDesc->value.boolValue != rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue != rDesc->value.intValue ? true:false;
+				lDesc->value.boolValue != rDesc->value.intValue;
 			return ret;
 		}
 	} else if( tok.isLessThan() ) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.intValue < rDesc->value.intValue ? true:false;
+				lDesc->value.intValue < rDesc->value.intValue;
 			return ret;
 		} else if(lType == TypeDescriptor::INTEGER &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.intValue < rDesc->value.boolValue ? true:false;
+				lDesc->value.intValue < rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue < rDesc->value.boolValue ? true:false;
+				lDesc->value.boolValue < rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue < rDesc->value.intValue ? true:false;
+				lDesc->value.boolValue < rDesc->value.intValue;
 			return ret;
 		}
 	} else if( tok.isLessThanEqual() ) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.intValue <= rDesc->value.intValue ? true:false;
+				lDesc->value.intValue <= rDesc->value.intValue;
 			return ret;
 		} else if(lType == TypeDescriptor::INTEGER &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.intValue <= rDesc->value.boolValue ? true:false;
+				lDesc->value.intValue <= rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue <= rDesc->value.boolValue ? true:false;
+				lDesc->value.boolValue <= rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue <= rDesc->value.intValue ? true:false;
+				lDesc->value.boolValue <= rDesc->value.intValue;
 			return ret;
 		}
 	} else if( tok.isGreaterThan() ) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.intValue > rDesc->value.intValue ? true:false;
+				lDesc->value.intValue > rDesc->value.intValue;
 			return ret;
 		} else if(lType == TypeDescriptor::INTEGER &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.intValue > rDesc->value.boolValue ? true:false;
+				lDesc->value.intValue > rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue > rDesc->value.boolValue ? true:false;
+				lDesc->value.boolValue > rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue > rDesc->value.intValue ? true:false;
+				lDesc->value.boolValue > rDesc->value.intValue;
 			return ret;
 		}
 	} else if( tok.isGreaterThanEqual() ) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.intValue >= rDesc->value.intValue ? true:false;
+				lDesc->value.intValue >= rDesc->value.intValue;
 			return ret;
 		} else if(lType == TypeDescriptor::INTEGER &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.intValue >= rDesc->value.boolValue ? true:false;
+				lDesc->value.intValue >= rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::BOOLEAN) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue >= rDesc->value.boolValue ? true:false;
+				lDesc->value.boolValue >= rDesc->value.boolValue;
 			return ret;
 		} else if(lType == TypeDescriptor::BOOLEAN &&
 				  rType == TypeDescriptor::INTEGER) {
 			ret->value.boolValue = 
-				lDesc->value.boolValue >= rDesc->value.intValue ? true:false;
+				lDesc->value.boolValue >= rDesc->value.intValue;
 			return ret;
 		}
 	} else {
 		std::cout << "relOperations() not a valid operator";
 		exit(1);
 	}
+
+	return nullptr;
 }
 
 std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 												NumberDescriptor *rDesc,
-												Token tok) {
+												Token const &tok) {
 	std::shared_ptr<NumberDescriptor> ret =
 		std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
 
@@ -304,7 +300,7 @@ std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 		exit(1);
 	}
 
-	if(tok.isAdditionOperator()) {
+	else if(tok.isAdditionOperator()) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.intValue =
@@ -500,4 +496,5 @@ std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 		std::cout << "arithOperations() not a valid operator";
 		exit(1);
 	}
+	return nullptr;
 }

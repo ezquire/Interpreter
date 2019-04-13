@@ -14,12 +14,12 @@
 // #define DEBUG 1
 
 // ExprNode
-ExprNode::ExprNode(Token token): _token{token} {}
+ExprNode::ExprNode(Token token): _token{std::move(token)} {}
 
 Token ExprNode::token() { return _token; }
 
 // InfixExprNode
-InfixExprNode::InfixExprNode(Token tk) : ExprNode{tk}, _left(nullptr), _right(nullptr) {}
+InfixExprNode::InfixExprNode(Token tk) : ExprNode{std::move(tk)}, _left(nullptr), _right(nullptr) {}
 
 std::unique_ptr<ExprNode> &InfixExprNode::left() { return _left; }
 
@@ -45,16 +45,10 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab) {
 		}
 	} else { // We have a left() and a right()
 		auto rValue = right()->evaluate(symTab);
-		
-		StringDescriptor *slDesc =
-			dynamic_cast<StringDescriptor *>(lValue.get());
-		StringDescriptor *srDesc =
-			dynamic_cast<StringDescriptor *>(rValue.get());
-
-		NumberDescriptor *lDesc =
-			dynamic_cast<NumberDescriptor *>(lValue.get());
-		NumberDescriptor *rDesc =
-			dynamic_cast<NumberDescriptor *>(rValue.get());
+		auto slDesc = dynamic_cast<StringDescriptor *>(lValue.get());
+		auto srDesc = dynamic_cast<StringDescriptor *>(rValue.get());
+		auto lDesc = dynamic_cast<NumberDescriptor *>(lValue.get());
+		auto rDesc = dynamic_cast<NumberDescriptor *>(rValue.get());
 
 		if(slDesc != nullptr && srDesc != nullptr) // we have two strings
 			return stringOperations(slDesc, srDesc, token());
@@ -106,6 +100,7 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab) {
 			exit(1);
 		}
 	}
+	return nullptr; // Should never hit here
 }
 
 void InfixExprNode::print() {
@@ -114,9 +109,8 @@ void InfixExprNode::print() {
     _right->print();
 }
 
-
 // WholeNumber
-WholeNumber::WholeNumber(Token token): ExprNode{token} {}
+WholeNumber::WholeNumber(Token token): ExprNode{std::move(token)} {}
 
 void WholeNumber::print() {
     token().print();
@@ -134,7 +128,7 @@ std::shared_ptr<TypeDescriptor> WholeNumber::evaluate(SymTab &symTab) {
 }
 
 // Float
-Float::Float(Token token): ExprNode{token} {}
+Float::Float(Token token): ExprNode{std::move(token)} {}
 
 void Float::print() {
 	token().print();
@@ -152,7 +146,7 @@ std::shared_ptr<TypeDescriptor> Float::evaluate(SymTab &symTab) {
 }
 
 // Variable
-Variable::Variable(Token token): ExprNode{token} {}
+Variable::Variable(Token token): ExprNode{std::move(token)} {}
 
 void Variable::print() {
     token().print();
@@ -173,7 +167,7 @@ std::shared_ptr<TypeDescriptor> Variable::evaluate(SymTab &symTab) {
 }
 
 //String
-String::String(Token token): ExprNode{token} {}
+String::String(Token token): ExprNode{std::move(token)} {}
 
 void String::print() {
 	token().print();

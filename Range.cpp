@@ -1,3 +1,8 @@
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
+
 #include "Range.hpp"
 #include "Expr.hpp"
 #include "Statements.hpp"
@@ -10,10 +15,10 @@ Range::Range(): _start{0}, _end{0}, _step{0} {}
 Range::Range( int start, int end, int step ):
 	_start{start}, _end{end}, _step{step} {}
 
-Range::Range(std::string varName,
+Range::Range(std::string const &varName,
 			 std::vector<std::shared_ptr<ExprNode>> rangeList,
 			 SymTab &symTab) {
-	if(rangeList.size() < 1 || rangeList.size() > 3) {
+	if(rangeList.empty() || rangeList.size() > 3) {
 		std::cout << "Error: Incorrect number of arguments to Range()\n";
 		exit(1);
 	} else if(rangeList.size() == 1) { // only have an end value
@@ -21,10 +26,9 @@ Range::Range(std::string varName,
 			std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
 		start->value.intValue = 0; // set start to 0 by default
 		symTab.setValueFor( varName, start ); // set value of ID to start
-		
-		auto end = rangeList[0]->evaluate(symTab);
 
-		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end.get());
+		auto end = rangeList[0]->evaluate(symTab);
+		auto endVal = dynamic_cast<NumberDescriptor *>(end.get());
 
 		if( endVal == nullptr ) {
 			std::cout << "Range::Range error casting TypeDescriptor\n";
@@ -41,13 +45,12 @@ Range::Range(std::string varName,
 		auto start = rangeList[0]->evaluate(symTab);
 		symTab.setValueFor(varName, start); // set value of ID to start
 		auto end = rangeList[1]->evaluate(symTab);
-		NumberDescriptor *startVal =
-			dynamic_cast<NumberDescriptor *>(start.get());
+		auto startVal = dynamic_cast<NumberDescriptor *>(start.get());
 		if(startVal == nullptr) {
 			std::cout << "startVal error casting TypeDescriptor\n";
 			exit(1);
 		}
-		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end.get());
+		auto endVal = dynamic_cast<NumberDescriptor *>(end.get());
 		if(endVal == nullptr) {
 			std::cout << "endVal error casting TypeDescriptor\n";
 			exit(1);
@@ -66,11 +69,9 @@ Range::Range(std::string varName,
 		symTab.setValueFor(varName, start); // set value of ID to start
 		auto end = rangeList[1]->evaluate(symTab);
 		auto step = rangeList[2]->evaluate(symTab);
-		NumberDescriptor *startVal =
-			dynamic_cast<NumberDescriptor *>(start.get());
-		NumberDescriptor *endVal = dynamic_cast<NumberDescriptor *>(end.get());
-		NumberDescriptor *stepVal =
-			dynamic_cast<NumberDescriptor *>(step.get());
+		auto startVal = dynamic_cast<NumberDescriptor *>(start.get());
+		auto endVal = dynamic_cast<NumberDescriptor *>(end.get());
+		auto stepVal = dynamic_cast<NumberDescriptor *>(step.get());
 		if( startVal == nullptr || endVal == nullptr || stepVal == nullptr) {
 			std::cout << "Range::Range error casting TypeDescriptor\n";
 			exit(1);

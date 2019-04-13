@@ -1,3 +1,8 @@
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
+
 #ifndef __RANGE_HPP
 #define __RANGE_HPP
 
@@ -11,7 +16,7 @@ class Range {
 public:
     Range();
 	Range(int start, int end, int step);
-	Range(std::string varName,
+	Range(std::string const &varName,
 		  std::vector<std::shared_ptr<ExprNode>> rangeList,
 		  SymTab &symTab);
 	int getNext();

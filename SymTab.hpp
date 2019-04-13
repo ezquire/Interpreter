@@ -1,6 +1,7 @@
-//
-// Created by Ali A. Kooshesh on 2/5/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #ifndef EXPRINTER_SYMTAB_HPP
 #define EXPRINTER_SYMTAB_HPP
@@ -18,10 +19,10 @@
 class SymTab {
 public:
     //void setValueFor(std::string vName, Token tok);
-	void setValueFor(std::string vName, std::shared_ptr<TypeDescriptor>rDesc);
-	void increment(std::string vName, int increment);
-    bool isDefined(std::string vName);
-	std::shared_ptr<TypeDescriptor> getValueFor(std::string vName);
+	void setValueFor(std::string const &vName, std::shared_ptr<TypeDescriptor>rDesc);
+	void increment(std::string const &vName, int increment);
+    bool isDefined(std::string const &vName);
+	std::shared_ptr<TypeDescriptor> getValueFor(std::string const &vName);
 
 private:
     std::map<std::string, std::shared_ptr<TypeDescriptor>> symTab;

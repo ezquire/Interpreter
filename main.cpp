@@ -1,3 +1,8 @@
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
+
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -24,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     Tokenizer tokenizer(inputStream);
 
-	  /*Token tok = tokenizer.getToken();
+    /*Token tok = tokenizer.getToken();
 	while( !tok.eof() )
 		tok = tokenizer.getToken();
 
@@ -33,7 +38,7 @@ int main(int argc, char *argv[]) {
 	
 	Parser parser(tokenizer);
 
-	std::unique_ptr<Statements> statements = parser.statements();
+	auto statements = parser.statements();
     SymTab symTab;
 
     //statements->print();

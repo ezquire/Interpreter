@@ -1,7 +1,0 @@
-a = 100
-c = 50
-if( a > c):
-   print "a is greater than c"
-
-if( a < c):
-   print "c is greater than a"

@@ -1,10 +1,12 @@
-//
-// Created by Ali A. Kooshesh on 1/30/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #ifndef EXPRINTER_TOKEN_HPP
 #define EXPRINTER_TOKEN_HPP
-#include<string>
+#include <string>
+#include <memory>
 
 class Token {
 
@@ -94,13 +96,13 @@ public:
 	void symbol(char c) { _symbol = c; }
     char symbol() { return _symbol; }
 	
-	void relOp(std::string op) { _relOp = op; }
+	void relOp(std::string op) { _relOp = std::move(op); }
 	std::string relOp() { return _relOp; }
 
-    void setName(std::string n) { _name = n; }
+    void setName(std::string n) { _name = std::move(n); }
 	std::string getName() const { return _name; }
 
-	void setString(std::string n) { _string = n; }
+	void setString(std::string n) { _string = std::move(n); }
 	std::string getString() const { return _string; }
 
     void setWholeNumber(int n) {

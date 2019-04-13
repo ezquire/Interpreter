@@ -24,7 +24,7 @@ public:
     Statement();
     virtual void print() = 0;
     virtual void evaluate(SymTab &symTab) = 0;
-	virtual ~Statement() {}
+    virtual ~Statement() = default;
 };
 
 // Statements is a collection of Statement. For example, all statements in a
@@ -47,8 +47,8 @@ public:
     AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
     std::string &lhsVariable();
 	std::unique_ptr<ExprNode> &rhsExpression();
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
+    void evaluate (SymTab &symTab) override;
+    void print() override;
 private:
     std::string _lhsVariable;
 	std::unique_ptr<ExprNode> _rhsExpression;
@@ -58,10 +58,10 @@ private:
 class PrintStatement : public Statement {
 public:
 	PrintStatement();
-    PrintStatement(std::vector<std::shared_ptr<ExprNode>> rhsList);
+    explicit PrintStatement(std::vector<std::shared_ptr<ExprNode>> rhsList);
 	std::vector<std::shared_ptr<ExprNode>> &rhsList();
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
+    void evaluate(SymTab &symTab) override;
+    void print() override;
 private:
 	std::vector<std::shared_ptr<ExprNode>> _rhsList;
 };
@@ -75,8 +75,8 @@ public:
 	std::unique_ptr<Statements> &statements();
 	std::vector<std::shared_ptr<ExprNode>> &getRange();
 	std::string &getId();
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
+    void evaluate(SymTab &symTab) override;
+    void print() override;
 private:
 	std::vector<std::shared_ptr<ExprNode>> _range;
 	std::unique_ptr<Statements> _statements;
@@ -87,8 +87,6 @@ private:
 class IfStatement : public Statement {
 public:
 	IfStatement();
-	IfStatement(std::unique_ptr<ExprNode> firstTest,
-				std::unique_ptr<Statements> firstSuite);
  	IfStatement(std::unique_ptr<ExprNode> firstTest,
 				std::unique_ptr<Statements> firstSuite,
 				std::vector<std::unique_ptr<ExprNode>> elifTests,
@@ -99,8 +97,8 @@ public:
 	std::vector<std::unique_ptr<ExprNode>> &elifTests();
 	std::vector<std::unique_ptr<Statements>> &elifSuites();
 	std::unique_ptr<Statements> &elseSuite(); 
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
+    void evaluate(SymTab &symTab) override;
+    void print() override;
 private:
 	std::unique_ptr<ExprNode> _firstTest;
 	std::unique_ptr<Statements> _firstSuite;
@@ -108,6 +106,5 @@ private:
 	std::vector<std::unique_ptr<Statements>> _elifSuites;
 	std::unique_ptr<Statements> _elseSuite;
 };
-
 
 #endif //EXPRINTER_STATEMENTS_HPP

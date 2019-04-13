@@ -19,16 +19,14 @@
 
 class Parser {
 public:
-    Parser(Tokenizer &tokenizer) : tokenizer{tokenizer} {}
+    explicit Parser(Tokenizer &tokenizer) : tokenizer{tokenizer} {}
 
 	std::unique_ptr<Statements> statements();
 	std::unique_ptr<AssignmentStatement> assignStatement();
 	std::unique_ptr<PrintStatement> printStatement();
 	std::unique_ptr<ForStatement> forStatement();
 	std::unique_ptr<IfStatement> ifStatement();
-
 	std::unique_ptr<Statements> suite();
-	
 	std::vector< std::shared_ptr<ExprNode> >testlist();
 	std::unique_ptr<ExprNode> test();
 	std::unique_ptr<ExprNode> and_test();
@@ -39,13 +37,9 @@ public:
 	std::unique_ptr<ExprNode> factor();
     std::unique_ptr<ExprNode> atom();
 
-    //std::string id();
-
 private:
     Tokenizer &tokenizer;
-
-    void die(std::string where, std::string message, Token &token);
-
+    void die(std::string const &where, std::string const &message, Token &token);
 };
 
 #endif

@@ -16,8 +16,8 @@ class TypeDescriptor {
 public:
 	enum types { INTEGER, DOUBLE, BOOLEAN, STRING };
 
-	TypeDescriptor(types type);
-	virtual ~TypeDescriptor() {}
+	explicit TypeDescriptor(types type);
+	virtual ~TypeDescriptor() = default;
 	
 	types &type();
 
@@ -27,8 +27,7 @@ private:
 
 class NumberDescriptor : public TypeDescriptor {
 public:
-	NumberDescriptor(types descType);
-	
+	explicit NumberDescriptor(types descType);
 	union {
 		int intValue;
 		double doubleValue;
@@ -38,14 +37,11 @@ public:
 
 class StringDescriptor : public TypeDescriptor {
 public:
-	StringDescriptor(types descType);
-
+	explicit StringDescriptor(types descType);
 	std::string value;
 };
 
 void printValue (TypeDescriptor *desc);
-
-bool isValidType(TypeDescriptor *desc1, TypeDescriptor *desc2);
 
 bool evaluateBool(TypeDescriptor *desc);
 
@@ -55,14 +51,14 @@ std::shared_ptr<TypeDescriptor> negate(TypeDescriptor *desc);
 
 std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 												 StringDescriptor *rValue,
-												 Token tok);
+												 Token const &tok);
 
 std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 											  NumberDescriptor *rDesc,
-											  Token tok);
+											  Token const &tok);
 
 std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 												NumberDescriptor *rDesc,
-												Token tok);
+												Token const &tok);
 
 #endif //EXPRINTER_TYPEDESCRIPTOR_HPP	

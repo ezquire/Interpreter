@@ -12,7 +12,7 @@
 #include "Range.hpp"
 
 // Parser functions
-void Parser::die(std::string where, std::string message, Token &token) {
+void Parser::die(std::string const &where, std::string const &message, Token &token) {
     std::cout << where << " " << message << " ";
     token.print();
     std::cout << std::endl;
@@ -134,11 +134,11 @@ std::unique_ptr<ForStatement> Parser::forStatement() {
 	if ( !tok.isRangeKeyword() )
 		die("Parser::forStatement", "Expected 'range', instead got",tok);
 
- 	tok = tokenizer.getToken();
+	tok = tokenizer.getToken();
     if ( !tok.isOpenParen() )
 		die("Parser::forStatement", "Expected '(', instead got", tok);
 
- 	std::vector<std::shared_ptr<ExprNode>> rangeList = testlist();
+    auto rangeList = testlist();
 
 	tok = tokenizer.getToken();
     if ( !tok.isCloseParen() )
@@ -227,6 +227,7 @@ std::unique_ptr<Statements> Parser::suite() {
 		return _suite;
 	else if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
+
 	return _suite;
 }
 
@@ -381,11 +382,11 @@ std::unique_ptr<ExprNode> Parser::atom() {
 
     if (tok.isWholeNumber() )
         return std::make_unique<WholeNumber>(tok);
-	else if( tok.isFloat() )
+    else if( tok.isFloat() )
 		return std::make_unique<Float>(tok);
     else if( tok.isName() )
         return std::make_unique<Variable>(tok);
-	else if( tok.isString() )
+    else if( tok.isString() )
 		return std::make_unique<String>(tok);
     else if (tok.isOpenParen()) {
         auto p = test();

@@ -1,12 +1,13 @@
-//
-// Created by Ali A. Kooshesh on 1/30/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #include <iostream>
 #include <string>
 #include "Tokenizer.hpp"
 
-Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, inStream{stream}, lastToken{}, stack{} { stack.push(0); }
+Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, col{0}, inStream{stream}, lastToken{}, stack{} { stack.push(0); }
 
 // This function is called when it is known that
 // the first character in input is an alphabetic character.
@@ -39,18 +40,16 @@ std::string Tokenizer::readString() {
 // The function reads and sets the appropriate number with the
 // appropriate type.
 void Tokenizer::readNumber(Token &tok) {
-
 	char c;
-	std::string input = ""; // This string collects input
-	bool isFloat = 0; // set if we encounter a period character
+	std::string input; // This string collects input
+	bool isFloat = false; // set if we encounter a period character
 	
 	while( inStream.get(c) && ( isdigit(c) || c == '.' ) ) {
 		if(c == '.' && isFloat) {
 			std::cout << "Unexpected character in input. -> ";
 			std::cout << c << " <-" << std::endl;
 			exit(1);
-		}
-		else if( c == '.' )
+		} else if( c == '.' )
 			isFloat = true;
 		input += c;
 	}
@@ -63,7 +62,6 @@ void Tokenizer::readNumber(Token &tok) {
 	else
 		tok.setWholeNumber( stoi(input) );
 }
-
 
 // This function is called when it is known that
 // the first character in input is a an operator.
@@ -78,32 +76,33 @@ std::string Tokenizer::readOp() {
 	return op;
 }
 
-
 // This function gets a token for the parser
 // It determines the scoping by parsing whitespace
 // and generating appropriate indent and dedent tokens
 Token Tokenizer::getToken() {
 
+    bool blankline = false;
+    char c;
+    Token token;
+
     if(ungottenToken) {
-		ungottenToken = false;
-		return lastToken;
-	}
-
-	bool blankline = 0;
-	char c;
-	Token token;
-
-	if(bol) {
+        ungottenToken = false;
+        return lastToken;
+    }
+    if(lastToken.dedent() && col < stack.top() ) {
+        stack.pop();
+        token.dedent() = true;
+        _tokens.push_back(token);
+        return lastToken = token;
+    } else if(bol) {
 		// read tabs and spaces to determine indent/dedent tokens
 		// blank lines and comment lines
-		int col = 0;
 		bol = false;
-
+		col = 0;
 		while( inStream.get(c) && c == ' ' && c != '\t' )
 			col++;
-		
 		if( c == '\t') {
-			blankline = 1;
+			blankline = true;
 			while( inStream.get(c) && isspace(c) && c != '\n' )
 				;
 			if( c != '\n' && c != '#' ) {
@@ -111,11 +110,10 @@ Token Tokenizer::getToken() {
 				exit(1);
 			}
 		} else if( c == '\n' || c == '#' )
-			blankline = 1;
+			blankline = true;
 		
 		if(inStream.good()) // Read one too many chars
 			inStream.putback(c); // Put one back
-		
 		if( !blankline ) {
 			if( col == stack.top() )
 				;
@@ -125,31 +123,29 @@ Token Tokenizer::getToken() {
 				_tokens.push_back(token);
 				return lastToken = token; 
 			} else if ( col < stack.top() ) {
-					stack.pop();
-					token.dedent() = true;
-					_tokens.push_back(token);
-					bol = true; // possibly more dedent tokens before input
-					return lastToken = token;
+			   //while( col < stack.top() ) {
+                    stack.pop();
+                    token.dedent() = true;
+                    _tokens.push_back(token);
+                    //bol = true;
+			    //}
+                return lastToken = token;
 			} else {
 				std::cout << "Error: inconsistent indentation.\n";
 				exit(1);
 			}
 		}
 	}
-	
 	if(inStream.bad()) {
 		std::cout << "Error reading the input stream in Tokenizer.\n";
 		exit(1);
 	}
-
 	// Skip spaces but not new-line chars.
 	while( inStream.get(c) && isspace(c) && c != '\n' )
 		 ;
-
 	if( c == '#' ) // eat any characters followed by #
 		while( inStream.get(c) && c != EOF && c != '\n' )
 			;
-	
 	if( inStream.eof() )
 		token.eof() = true; 
 	else if( c == '\n') {
@@ -205,8 +201,8 @@ void Tokenizer::ungetToken() {
 }
 
 void Tokenizer::printProcessedTokens() {
-    for(auto iter = _tokens.begin(); iter != _tokens.end(); ++iter) {
-        iter->print();
+    for(auto const &t: _tokens) {
+        t.print();
         std::cout << std::endl;
     }
 }

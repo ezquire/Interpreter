@@ -8,10 +8,10 @@
 #include "TypeDescriptor.hpp"
 
 // Statement
-Statement::Statement() {}
+Statement::Statement() = default;
 
 // Statements
-Statements::Statements() {}
+Statements::Statements() = default;
 
 void Statements::addStatement(std::unique_ptr<Statement> statement)
 { _statements.push_back(std::move(statement)); }
@@ -32,7 +32,7 @@ AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nul
 
 AssignmentStatement::AssignmentStatement(std::string lhsVar,
 										 std::unique_ptr<ExprNode> rhsExpr):
-	_lhsVariable{lhsVar}, _rhsExpression{std::move(rhsExpr)} {}
+	_lhsVariable{std::move(lhsVar)}, _rhsExpression{std::move(rhsExpr)} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
     symTab.setValueFor(lhsVariable(),
@@ -53,12 +53,11 @@ void AssignmentStatement::print() {
 	std::cout << std::endl;
 }
 
-
 // PrintStatement
 PrintStatement::PrintStatement() : _rhsList{} {}
 
 PrintStatement::PrintStatement(std::vector<std::shared_ptr<ExprNode>>exprList):
-	_rhsList{exprList} {}
+	_rhsList{std::move(exprList)} {}
 
 void PrintStatement::evaluate(SymTab &symTab) {
 	for (auto &l: _rhsList ) {
@@ -79,14 +78,13 @@ void PrintStatement::print() {
 	}
 }
 
-
 // ForStatement
 ForStatement::ForStatement() : _statements{nullptr}  {}
 
 ForStatement::ForStatement(std::string id,
 						   std::vector<std::shared_ptr<ExprNode>> range,
 						   std::unique_ptr<Statements> stmnts):
-	_id{id}, _range{range}, _statements{std::move(stmnts)} {}
+	_id{std::move(id)}, _range{std::move(range)}, _statements{std::move(stmnts)} {}
 
 void ForStatement::evaluate(SymTab &symTab) {
 	std::unique_ptr<Range> range =
@@ -115,7 +113,6 @@ void ForStatement::print() {
     std::cout << std::endl;
 }
 
-
 // IfStatement
 IfStatement::IfStatement() : _firstTest{nullptr}, _firstSuite{nullptr},
 							 _elseSuite{nullptr}  {}
@@ -138,7 +135,7 @@ void IfStatement::evaluate(SymTab &symTab) {
 	} else if(_elifTests.size() != _elifSuites.size() ) {
 		std::cout << "IfStatement::evaluate mismatched elif and arguments\n";
 		exit(1);
-	} else if ( _elifTests.size() != 0 ) {
+	} else if ( !_elifTests.empty() ) {
 		int i = 0;
 		for( auto &t: _elifTests ) {
 			if( evaluateBool( t->evaluate(symTab).get() ) ) {
@@ -150,7 +147,6 @@ void IfStatement::evaluate(SymTab &symTab) {
 	} else if( _elseSuite != nullptr )
 		_elseSuite->evaluate(symTab);
 }
-
 
 std::unique_ptr<ExprNode> &IfStatement::firstTest() {
 	return _firstTest;
@@ -171,7 +167,6 @@ std::vector<std::unique_ptr<Statements>> &IfStatement::elifSuites() {
 std::unique_ptr<Statements> &IfStatement::elseSuite() {
 	return _elseSuite;
 }
-
 
 void IfStatement::print() {
 	_firstTest->print();

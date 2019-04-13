@@ -1,6 +1,7 @@
-//
-// Created by Ali A. Kooshesh on 2/5/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #include <iostream>
 #include <memory>
@@ -11,15 +12,15 @@
 // Uncomment the line below to enable debugging
 // #define DEBUG 1
 
-void SymTab::setValueFor(std::string vName,
+void SymTab::setValueFor(std::string const &vName,
 						 std::shared_ptr<TypeDescriptor> rDesc) {
     // Define a variable by setting its initial value.
-	symTab[vName] = rDesc;
+	symTab[vName] = std::move(rDesc);
 }
 
-void SymTab::increment(std::string vName, int increment) {
+void SymTab::increment(std::string const &vName, int increment) {
     // Define a variable by setting its initial value.
-	NumberDescriptor * rDesc = dynamic_cast<NumberDescriptor *>
+	auto rDesc = dynamic_cast<NumberDescriptor *>
 		( getValueFor(vName).get() );
 	if( rDesc == nullptr ) {
 		std::cout << "SymTab::increment error casting TypeDescriptor\n";
@@ -28,17 +29,15 @@ void SymTab::increment(std::string vName, int increment) {
 	if( rDesc->type() != TypeDescriptor::INTEGER) {
 		std::cout << "SymTab::increment only supports integers\n";
 		exit(1);
-	} else {
-		rDesc->value.intValue += increment;
-		//symTab[vName] = rDesc;
-	}
+	} else
+	    rDesc->value.intValue += increment;
 }
 
-bool SymTab::isDefined(std::string vName) {
+bool SymTab::isDefined(std::string const &vName) {
     return symTab.find(vName) != symTab.end();
 }
 
-std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string vName) {
+std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string const &vName) {
     if( !isDefined(vName) ) {
         std::cout << "SymTab::getValueFor: " << vName;
 		std::cout << " has not been defined.\n";
