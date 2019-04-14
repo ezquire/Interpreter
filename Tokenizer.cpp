@@ -94,7 +94,11 @@ Token Tokenizer::getToken() {
         token.dedent() = true;
         _tokens.push_back(token);
         return lastToken = token;
-    } else if(bol) {
+    } else if(lastToken.dedent() && col > stack.top() ) {
+		std::cout << "Indentation error\n";
+		exit(1);
+	}
+	if(bol) {
 		// read tabs and spaces to determine indent/dedent tokens
 		// blank lines and comment lines
 		bol = false;

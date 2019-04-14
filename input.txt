@@ -82,9 +82,9 @@ if a != 4:
 a = 0
 for i in range(5):
     for j in range(3):
-     a = a + 1
-     
-  #print "Illegal dedent. Should produce an error"
+        a = a + 1
+      
+      #print "Illegal dedent. Should produce an error"
 if a != 15:
  print "For loop on line 83 didn't execute properly"
  failCount = failCount + 1
