@@ -20,6 +20,9 @@ NumberDescriptor::NumberDescriptor(types descType): TypeDescriptor(descType) {}
 // String Descriptor
 StringDescriptor::StringDescriptor(types descType): TypeDescriptor(descType) {}
 
+// Array Descriptor
+StringArray::StringArray(types descType): TypeDescriptor(descType) {}
+
 // Print function
 void printValue(TypeDescriptor *desc) {	
 	auto sDesc = dynamic_cast<StringDescriptor *>(desc);

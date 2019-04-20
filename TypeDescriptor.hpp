@@ -9,12 +9,13 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "Token.hpp"
 
 class TypeDescriptor {
 public:
-	enum types { INTEGER, DOUBLE, BOOLEAN, STRING };
+	enum types { INTEGER, DOUBLE, BOOLEAN, STRING, ARRAY };
 
 	explicit TypeDescriptor(types type);
 	virtual ~TypeDescriptor() = default;
@@ -39,6 +40,12 @@ class StringDescriptor : public TypeDescriptor {
 public:
 	explicit StringDescriptor(types descType);
 	std::string value;
+};
+
+class StringArray : public TypeDescriptor {
+public:
+    explicit StringArray(types descType);
+	std::vector<std::string> stringArray;
 };
 
 void printValue (TypeDescriptor *desc);

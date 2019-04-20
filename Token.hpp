@@ -13,57 +13,72 @@ class Token {
 public:
     Token();
 
-    bool &eof()  { return _eof; }
-    bool &eol()  { return _eol; }
-    bool eof() const { return _eof; }
-    bool eol() const  { return _eol; }
-
-	bool &indent()  { return _indent; }
-    bool &dedent()  { return _dedent; }
+	// Special Tokens
+    bool &eof()         { return _eof;    }
+    bool eof() const    { return _eof;    }
+	bool &eol()         { return _eol;    }
+    bool eol() const    { return _eol;    }
+	bool &indent()      { return _indent; }
     bool indent() const { return _indent; }
-    bool dedent() const  { return _dedent; }
+	bool &dedent()      { return _dedent; }
+    bool dedent() const { return _dedent; }
 
-	bool isComma() const {return _symbol == ','; }
-	
-    bool isOpenParen() const  { return _symbol == '('; }
-    bool isCloseParen() const { return _symbol == ')'; }
-	bool isOpenBrace() const  { return _symbol == '{'; }
-    bool isCloseBrace() const { return _symbol == '}'; }
+	// Special Keywords
+	bool isPrintKeyword() const  { return _keyword == "print";  }
+	bool isForKeyword() const    { return _keyword == "for";    }
+	bool isInKeyword() const     { return _keyword == "in";     }
+	bool isRangeKeyword() const  { return _keyword == "range";  }
+	bool isReturnKeyword() const { return _keyword == "return"; }
+	bool isDefKeyword() const    { return _keyword == "def";    }
+	bool isLenKeyword() const    { return _keyword == "len";    }
 
-	bool isPrintKeyword() const { return _name == "print"; }
-	bool isForKeyword() const { return _name == "for"; }
-
-	bool isIf() const { return _name == "if"; }
-	bool isElif() const { return _name == "elif"; }
-	bool isElse() const { return _name == "else"; }
-
-	bool isInKeyword() const { return _name == "in"; }
-	bool isRangeKeyword() const { return _name == "range"; }
-
-	bool isOrKeyword() const { return _name == "or"; }
-	bool isAndKeyword() const { return _name == "and"; }
-	bool isNotKeyword() const { return _name == "not"; }
+	// Boolean Keywords
+	bool isOrKeyword() const  { return _keyword == "or";  }
+	bool isAndKeyword() const { return _keyword == "and"; }
+	bool isNotKeyword() const { return _keyword == "not"; }
 	bool isBooleanOperator() const {
 		return isOrKeyword() ||
 			isAndKeyword() ||
 			isNotKeyword();
 	}
+	// Control Flow
+	bool isIf() const   { return _keyword == "if";   }
+	bool isElif() const { return _keyword == "elif"; }
+	bool isElse() const { return _keyword == "else"; }
 
-	bool isName() const { return _name.length() > 0; }
-
-	bool isString() const { return _string.length() > 0; }
-
-	bool &isWholeNumber() { return _isWholeNumber; }
-    bool isWholeNumber() const { return _isWholeNumber; }
+	// Statements
+	bool isSimpleStatement() const {
+		return isPrintKeyword() ||
+			isName() ||
+			isReturnKeyword();
+	}
+	bool isCompoundStatement() const {
+		return isForKeyword() ||
+			isIf() ||
+			isDefKeyword();
+	}
 	
-	bool &isFloat() { return _isFloat; }
-    bool isFloat() const { return _isFloat; }
+	// Types
+	bool isString() const      { return _string.length() > 0; }
+	bool &isWholeNumber()      { return _isWholeNumber;       }
+    bool isWholeNumber() const { return _isWholeNumber;       }
+	bool &isFloat()            { return _isFloat;             }
+    bool isFloat() const       { return _isFloat;             }
+	bool isName() const        { return _name.length() > 0;   }
+	bool isKeyword() const     { return _keyword.length() > 0;}
 
-	bool &isBool() { return _isBool; }
-    bool isBool() const { return _isBool; }
+	// Assignment Operator
+	bool isAssignmentOperator() const { return _symbol == '='; }
 
-    bool isColon() const                  { return _symbol == ':'; }
-    bool isAssignmentOperator() const     { return _symbol == '='; }
+	// Sentinal Characters
+    bool isColon() const      { return _symbol == ':'; }
+	bool isComma() const      { return _symbol == ','; }
+    bool isOpenParen() const  { return _symbol == '('; }
+    bool isCloseParen() const { return _symbol == ')'; }
+	bool isOpenBrace() const  { return _symbol == '{'; }
+    bool isCloseBrace() const { return _symbol == '}'; }
+
+	// Arithmetic Operators
     bool isMultiplicationOperator() const { return _symbol == '*'; }
     bool isAdditionOperator() const       { return _symbol == '+'; }
     bool isSubtractionOperator() const    { return _symbol == '-'; }
@@ -78,11 +93,13 @@ public:
 			isDivisionOperator() ||
 			isFloorDivision();
     }
-	bool isEqual() const { return _relOp == "=="; }
-	bool isNotEqual() const { return _relOp == "!=" || _relOp == "<>"; }
-	bool isLessThan() const { return _relOp == "<"; }
-	bool isGreaterThan() const { return _relOp == ">"; }
-	bool isLessThanEqual() const { return _relOp == "<="; }
+	
+	// Relational Operators
+	bool isEqual() const            { return _relOp == "=="; }
+	bool isNotEqual() const         { return _relOp == "!=" || _relOp == "<>";}
+	bool isLessThan() const         { return _relOp == "<";  }
+	bool isGreaterThan() const      { return _relOp == ">";  }
+	bool isLessThanEqual() const    { return _relOp == "<="; }
 	bool isGreaterThanEqual() const { return _relOp == ">="; }
 	bool isRelOp() const {
 		return isEqual() ||
@@ -93,6 +110,7 @@ public:
 			isGreaterThanEqual();
 	}
 
+	// Set and Get Functions
 	void symbol(char c) { _symbol = c; }
     char symbol() { return _symbol; }
 	
@@ -101,6 +119,9 @@ public:
 
     void setName(std::string n) { _name = std::move(n); }
 	std::string getName() const { return _name; }
+
+	void setKeyword(std::string k) { _keyword = std::move(k); }
+	std::string getKeyword() const { return _keyword; }
 
 	void setString(std::string n) { _string = std::move(n); }
 	std::string getString() const { return _string; }
@@ -117,17 +138,18 @@ public:
 	}
 	double getFloat() const { return _float; }
 
+	// Print Function
     void print() const;
 
 private:
     std::string _name;
 	std::string _string;
 	std::string _relOp;
+	std::string _keyword;
     bool _eof, _eol;
 	bool _indent, _dedent;
 	bool _isWholeNumber;
 	bool _isFloat;
-	bool _isBool;
     char _symbol;
     int _wholeNumber;
 	double _float;

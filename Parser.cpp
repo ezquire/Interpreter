@@ -16,106 +16,113 @@ void Parser::die(std::string const &where, std::string const &message, Token &to
     std::cout << where << " " << message << " ";
     token.print();
     std::cout << std::endl;
-    std::cout << "\nThe following is a list of tokens that have been identified up to this point.\n";
+    std::cout << "\nThe following is a list of tokens that have been";
+	std::cout << "identified up to this point.\n";
     tokenizer.printProcessedTokens();
     exit(1);
 }
 
-std::unique_ptr<Statements> Parser::statements() {
-    // This function is called when we KNOW that we are about to parse
-    // a series of statements.
-
-	std::unique_ptr<Statements> stmts (new Statements());
-    Token tok = tokenizer.getToken();
-
-	while( tok.eol() )
-		tok = tokenizer.getToken();
-
-	if( tok.indent() )
-		die("Parser::statements", "Expected no indentation, instead got", tok);
-
-    while ( tok.isName() ) {
-		if( tok.isPrintKeyword() ) {
-			tokenizer.ungetToken();
-			auto printStmt = printStatement();
-			stmts->addStatement(std::move(printStmt));
+std::unique_ptr<Statements> Parser::file_input() {
+	std::unique_ptr<Statements> stmts = std::make_unique<Statements>();
+	Token tok = tokenizer.getToken();
+	while( !tok.eof() ) {
+		if ( tok.eol() )
 			tok = tokenizer.getToken();
-			if( tok.indent() )
-				die("Parser::statements tok.isPrintKeyword()",
-					"Expected no indentation, instead got", tok);
-			while( tok.eol() ) // eat newlines after PrintStatement
-				tok = tokenizer.getToken();
-		} else if( tok.isForKeyword() ) {
+		else {
 			tokenizer.ungetToken();
-			auto forStmt = forStatement();
-			stmts->addStatement(std::move(forStmt));
-			tok = tokenizer.getToken();
-			while( tok.eol() ) // eat newlines after ForStatement block
-				tok = tokenizer.getToken();
-		} else if( tok.isIf() ) {
-			tokenizer.ungetToken();
-			auto ifStmt = ifStatement();
-			stmts->addStatement(std::move(ifStmt));
-			tok = tokenizer.getToken();
-			while( tok.eol() ) // eat newlines after IfStatement block
-				tok = tokenizer.getToken();
-		} else {
-			tokenizer.ungetToken();
-			auto assignStmt = assignStatement();
-			stmts->addStatement(std::move(assignStmt));
-			tok = tokenizer.getToken();
-			if( tok.indent() && !tokenizer.getBol() )
-				die("Parser::statements ",
-					"Expected no indentation, instead got", tok);
-			while( tok.eol() ) // eat newlines after AssignmentStatements
-				tok = tokenizer.getToken();
+			auto statement = stmt();
+			stmts->addStatement(std::move(statement));
 		}
-    }
-	tokenizer.ungetToken();
-    return stmts;
+		tok = tokenizer.getToken();
+	}
+	return stmts;
+}
+
+std::unique_ptr<Statement> Parser::stmt() {
+	Token tok = tokenizer.getToken();
+	if( tok.isSimpleStatement() ) {
+		tokenizer.ungetToken();
+		return std::move( simple_stmt() );
+	} else if ( tok.isCompoundStatement() ) {
+		tokenizer.ungetToken();
+		return std::move( compound_stmt() );
+	}
+	return nullptr; // should never reach here
+}
+
+std::unique_ptr<Statement> Parser::simple_stmt() {
+    Token tok = tokenizer.getToken();
+	if( tok.isPrintKeyword() ) {
+		tokenizer.ungetToken();
+		auto print = print_stmt();
+		tok = tokenizer.getToken();
+		if(!tok.eol())
+			die("Parser::simple_stmt", "Expected 'NEWLINE', instead got", tok);
+		tokenizer.ungetToken();
+		return std::move(print);
+	} else if ( tok.isName() ) { // assign_stmt, array_ops, call_stmt
+		tokenizer.ungetToken();
+		auto assign = assign_stmt();
+		tok = tokenizer.getToken();
+		if(!tok.eol())
+			die("Parser::simple_stmt", "Expected 'NEWLINE', instead got", tok);
+		tokenizer.ungetToken();
+		return std::move(assign);
+	} else
+		die("Parser::stmt", "Expected simple statement, instead got", tok);
+	return nullptr; // should never reach here
+}
+
+std::unique_ptr<Statement> Parser::compound_stmt() {
+	Token tok = tokenizer.getToken();
+	if( tok.isForKeyword() ) {
+		tokenizer.ungetToken();
+		return std::move( for_stmt() );
+	} else if( tok.isIf() ) {
+		tokenizer.ungetToken();
+		return std::move( if_stmt() );
+	} else if( tok.isDefKeyword() ) {
+		std::cout << "functions not implemented yet";
+		exit(1);
+	} else
+		die("Parser::compound_stmt", "Expected compound, instead got", tok);
+	return nullptr; // should never reach here
 }
 
 // Assignment statement parser
-std::unique_ptr<AssignmentStatement> Parser::assignStatement() {
+std::unique_ptr<AssignmentStatement> Parser::assign_stmt() {
     Token varName = tokenizer.getToken();
-
     if (!varName.isName())
-        die("Parser::assignStatement",
-			"Expected name token, instead got", varName);
+        die("Parser::assign_stmt", "Expected name, instead got", varName);
 
     Token tok = tokenizer.getToken();
     if ( !tok.isAssignmentOperator() )
-	  die("Parser::assignStatement",
-		  "Expected assignment operator, instead got", tok);
+	  die("Parser::assign_stmt", "Expected '=', instead got", tok);
 
-    auto rightHandSideExpr = test();
+    auto expr = test();
 
-	tok = tokenizer.getToken();
-	if( !tok.eol() )
-		die("Parser::assignStatement", "Expected 'NEWLINE', instead got", tok);
+	std::cout << "tok: ";
+	tok.print();
+	std::cout << std::endl;
 	
     return std::make_unique<AssignmentStatement>(varName.getName(),
-												 std::move(rightHandSideExpr));
+												 std::move(expr));
 }
 
 // Print statement parser
-std::unique_ptr<PrintStatement> Parser::printStatement() {
+std::unique_ptr<PrintStatement> Parser::print_stmt() {
     Token tok = tokenizer.getToken();
 	
     if ( !tok.isPrintKeyword() )
-        die("Parser::PrintStatement", "Expected 'print', instead got", tok);
+        die("Parser::print_stmt", "Expected 'print', instead got", tok);
 	
 	std::vector<std::shared_ptr<ExprNode>> rhsList = testlist();
 
-	tok = tokenizer.getToken();
-	if( !tok.eol() )
-		die("Parser::PrintStatement", "Expected 'NEWLINE', instead got", tok);
-	
     return std::make_unique<PrintStatement>(rhsList);
 }
 
 // For statement parser
-std::unique_ptr<ForStatement> Parser::forStatement() {
+std::unique_ptr<ForStatement> Parser::for_stmt() {
 	
     Token tok = tokenizer.getToken();
 	
@@ -154,9 +161,8 @@ std::unique_ptr<ForStatement> Parser::forStatement() {
 										  std::move(stmts));
 }
 
-
 // IfStatement Parser
-std::unique_ptr<IfStatement> Parser::ifStatement() {
+std::unique_ptr<IfStatement> Parser::if_stmt() {
 	
 	Token tok = tokenizer.getToken();
 	if( !tok.isIf() )
@@ -194,13 +200,14 @@ std::unique_ptr<IfStatement> Parser::ifStatement() {
 											 std::move(elifTests),
 											 std::move(elifSuites),
 											 std::move(elseSuite)); 
+	} else {
+		tokenizer.ungetToken();
+		return std::make_unique<IfStatement>(std::move(firstTest),
+											 std::move(firstSuite),
+											 std::move(elifTests),
+											 std::move(elifSuites),
+											 nullptr);
 	}
-	tokenizer.ungetToken();
-	return std::make_unique<IfStatement>(std::move(firstTest),
-										 std::move(firstSuite),
-										 std::move(elifTests),
-										 std::move(elifSuites),
-										 nullptr);
 }
 
 std::unique_ptr<Statements> Parser::suite() {
@@ -211,22 +218,28 @@ std::unique_ptr<Statements> Parser::suite() {
 		die("Parser::suite", "Expected 'NEWLINE', instead got",tok);
 
 	tok = tokenizer.getToken();
-	while( tok.eol() )
-		tok = tokenizer.getToken();
-
+	while(tok.eol())
+		tokenizer.getToken();
+	
 	if ( !tok.indent() )
 		die("Parser::suite", "Expected 'INDENT', instead got",tok);
 
-    auto _suite = statements();
+    auto _suite = file_input();
 
-	tok = tokenizer.getToken();	
-	while( tok.eol() )
-		tok = tokenizer.getToken();
+	tok = tokenizer.getToken();
+	while(tok.eol())
+		tokenizer.getToken();
 
-	if( tok.eof() )
-		return _suite;
-	else if ( !tok.dedent() )
+	std::cout << "tok: " << std::endl;
+	tok.print();
+	std::cout << std::endl;
+	
+	if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
+
+	std::cout << "tok: " << std::endl;
+	tok.print();
+	std::cout << std::endl;
 
 	return _suite;
 }

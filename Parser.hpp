@@ -21,11 +21,14 @@ class Parser {
 public:
     explicit Parser(Tokenizer &tokenizer) : tokenizer{tokenizer} {}
 
-	std::unique_ptr<Statements> statements();
-	std::unique_ptr<AssignmentStatement> assignStatement();
-	std::unique_ptr<PrintStatement> printStatement();
-	std::unique_ptr<ForStatement> forStatement();
-	std::unique_ptr<IfStatement> ifStatement();
+	std::unique_ptr<Statements> file_input();
+	std::unique_ptr<Statement> stmt();
+	std::unique_ptr<Statement> simple_stmt();
+	std::unique_ptr<Statement> compound_stmt();
+	std::unique_ptr<AssignmentStatement> assign_stmt();
+	std::unique_ptr<PrintStatement> print_stmt();
+	std::unique_ptr<ForStatement> for_stmt();
+	std::unique_ptr<IfStatement> if_stmt();
 	std::unique_ptr<Statements> suite();
 	std::vector< std::shared_ptr<ExprNode> >testlist();
 	std::unique_ptr<ExprNode> test();

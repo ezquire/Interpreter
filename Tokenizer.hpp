@@ -28,6 +28,7 @@ private:
     std::ifstream &inStream;
     std::vector<Token> _tokens;
 private:
+	bool isKeyword(std::string str);
     std::string readName();
 	std::string readOp();
 	std::string readString();

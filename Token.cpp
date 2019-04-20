@@ -6,15 +6,21 @@
 #include <iostream>
 #include "Token.hpp"
 
-Token::Token(): _name{""}, _string{""}, _eof{false}, _eol{false},
-                _indent{false}, _dedent{false},
-                _isWholeNumber{false}, _isFloat{false},
-                _isBool{false}, _symbol{'\0'},
-                _wholeNumber{0}, _float{0.0} {}
+Token::Token(): _name{""},
+				_string{""},
+				_eof{false},
+				_eol{false},
+                _indent{false},
+				_dedent{false},
+                _isWholeNumber{false},
+				_isFloat{false},
+                _symbol{'\0'},
+                _wholeNumber{0},
+				_float{0.0} {}
 
 void Token::print() const {
     if( eol() ) std::cout << "NEWLINE" ;
-    else if( eof() ) std::cout << "EOF" ;
+    else if( eof() ) std::cout << "ENDMARKER" ;
     else if( indent() ) std::cout << "INDENT";
     else if( dedent() ) std::cout << "DEDENT";
     else if( isOpenBrace() ) std::cout << " { ";
@@ -37,6 +43,7 @@ void Token::print() const {
     else if( isDivisionOperator() )  std::cout << " / ";
     else if( isFloorDivision() ) std::cout << " // ";
     else if( isName() )  std::cout << getName();
+	else if( isKeyword() ) std::cout << getKeyword();
     else if( isWholeNumber() ) std::cout << getWholeNumber();
     else if( isFloat() ) std::cout << getFloat();
     else if( isString() ) std::cout << getString();

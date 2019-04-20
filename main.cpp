@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 	tokenizer.printProcessedTokens();*/
 		
 	Parser parser(tokenizer);
-	auto statements = parser.statements();
+	auto statements = parser.file_input();
     SymTab symTab;
     statements->evaluate(symTab);
 	

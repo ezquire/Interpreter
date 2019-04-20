@@ -76,6 +76,13 @@ std::string Tokenizer::readOp() {
 	return op;
 }
 
+bool Tokenizer::isKeyword(std::string str) {
+	return (str == "print" || str == "for" || str == "in" || str == "range" ||
+			str == "if" || str == "elif" || str == "else" || str == "not" ||
+			str == "and" || str == "or" || str == "len" || str == "def" ||
+			str == "return");
+}
+
 // This function gets a token for the parser
 // It determines the scoping by parsing whitespace
 // and generating appropriate indent and dedent tokens
@@ -127,13 +134,10 @@ Token Tokenizer::getToken() {
 				_tokens.push_back(token);
 				return lastToken = token; 
 			} else if ( col < stack.top() ) {
-			   //while( col < stack.top() ) {
-                    stack.pop();
-                    token.dedent() = true;
-                    _tokens.push_back(token);
-                    //bol = true;
-			    //}
-                return lastToken = token;
+				stack.pop();
+				token.dedent() = true;
+				_tokens.push_back(token);
+				return lastToken = token;
 			} else {
 				std::cout << "Error: inconsistent indentation.\n";
 				exit(1);
@@ -155,42 +159,38 @@ Token Tokenizer::getToken() {
 	else if( c == '\n') {
 		token.eol() = true;
 		bol = true;
-	} else if( isdigit(c) || c == '.') {		
-			// signed/unsigned integer, or double
-			// put the digit back into the input stream so
-			// we read the entire number in a function
-			inStream.putback(c);
-			readNumber(token);
-	} else if( c == '=' ) {
-		inStream.get(c);
-		if(c != '=') { 
-			token.symbol('=');
-			inStream.putback(c); // we have read one too many characters
-		} else
-			token.relOp("==");
-	} else if( c == '<' || c == '>' || c == '!') {
+	} else if( isdigit(c) || c == '.') { // we have a number
+		inStream.putback(c);
+		readNumber(token);
+	} else if(isalpha(c)) { // we have a name or a keyword
+		inStream.putback(c);
+		std::string name = readName();
+		if( isKeyword(name) )
+			token.setKeyword( name );
+		else
+			token.setName( name );
+	} else if(c == '"') // we have a string
+		token.setString( readString() );
+	else if( c == '<' || c == '>' || c == '!') {
 		inStream.putback(c);
 		token.relOp( readOp() );
-	} else if( c == '+' || c == '*' || c == '%' || c == '-')
-		token.symbol(c);
-	else if( c == '/' ) {
+	} else if( c == '=' ) {
+		inStream.get(c);
+		if(c != '=') {
+			token.symbol('=');
+			inStream.putback(c);
+		} else
+			token.relOp("==");
+ 	} else if( c == '/' ) {
 		inStream.get(c);
 		if(c != '/') { 
 			token.symbol('/');
 			inStream.putback(c); // we have read one too many characters
 		} else
 			token.relOp("//");
-	} else if( c == ':' )
+	} else if( c == '+' || c == '*' || c == '%' || c == '-' || c == ':' ||
+			   c == '(' || c == ')' || c == '{' || c == '}' || c == ',')
 		token.symbol(c);
-	else if( c == '(' || c == ')' || c == '{' || c == '}' || c == ',')
-		token.symbol(c);
-	else if(isalpha(c)) {  // an identifier or string?
-		// put c back into the stream so we can
-		// read the entire name in a function.
-		inStream.putback(c);
-		token.setName( readName() );
-	} else if(c == '"')
-		token.setString( readString() );
 	else {
 		std::cout << "Unknown character in input. -> ";
 		std::cout << c << " <-" << std::endl;
