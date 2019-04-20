@@ -16,7 +16,7 @@ void Parser::die(std::string const &where, std::string const &message, Token &to
     std::cout << where << " " << message << " ";
     token.print();
     std::cout << std::endl;
-    std::cout << "\nThe following is a list of tokens that have been";
+    std::cout << "\nThe following is a list of tokens that have been ";
 	std::cout << "identified up to this point.\n";
     tokenizer.printProcessedTokens();
     exit(1);
@@ -28,13 +28,17 @@ std::unique_ptr<Statements> Parser::file_input() {
 	while( !tok.eof() ) {
 		if ( tok.eol() )
 			tok = tokenizer.getToken();
-		else {
-			tokenizer.ungetToken();
-			auto statement = stmt();
-			stmts->addStatement(std::move(statement));
-		}
-		tok = tokenizer.getToken();
+		else if( tok.isSimpleStatement() || tok.isCompoundStatement() ) {
+            tokenizer.ungetToken();
+            auto statement = stmt();
+            stmts->addStatement(std::move(statement));
+            tok = tokenizer.getToken();
+        } else {
+            tokenizer.ungetToken();
+            return stmts;
+        }
 	}
+	tokenizer.ungetToken();
 	return stmts;
 }
 
@@ -58,7 +62,6 @@ std::unique_ptr<Statement> Parser::simple_stmt() {
 		tok = tokenizer.getToken();
 		if(!tok.eol())
 			die("Parser::simple_stmt", "Expected 'NEWLINE', instead got", tok);
-		tokenizer.ungetToken();
 		return std::move(print);
 	} else if ( tok.isName() ) { // assign_stmt, array_ops, call_stmt
 		tokenizer.ungetToken();
@@ -66,7 +69,6 @@ std::unique_ptr<Statement> Parser::simple_stmt() {
 		tok = tokenizer.getToken();
 		if(!tok.eol())
 			die("Parser::simple_stmt", "Expected 'NEWLINE', instead got", tok);
-		tokenizer.ungetToken();
 		return std::move(assign);
 	} else
 		die("Parser::stmt", "Expected simple statement, instead got", tok);
@@ -100,10 +102,6 @@ std::unique_ptr<AssignmentStatement> Parser::assign_stmt() {
 	  die("Parser::assign_stmt", "Expected '=', instead got", tok);
 
     auto expr = test();
-
-	std::cout << "tok: ";
-	tok.print();
-	std::cout << std::endl;
 	
     return std::make_unique<AssignmentStatement>(varName.getName(),
 												 std::move(expr));
@@ -130,7 +128,7 @@ std::unique_ptr<ForStatement> Parser::for_stmt() {
         die("Parser::forStatement", "Expected 'for', instead got", tok);
 
 	Token id = tokenizer.getToken();
-    if ( !tok.isName() )
+    if ( !id.isName() )
 		die("Parser::forStatement", "Expected ID, instead got", tok);
 		
 	tok = tokenizer.getToken();
@@ -185,7 +183,7 @@ std::unique_ptr<IfStatement> Parser::if_stmt() {
 		elifTests.push_back(std::move(_test));
 		tok = tokenizer.getToken();
 		if( !tok.isColon() )
-			die("Parser::ifStatement", "Expected ':', instead got",tok);
+			die("Parser::ifStatement - elif", "Expected ':', instead got",tok);
 		auto _suite = suite();		
 		elifSuites.push_back(std::move(_suite));		
 		tok = tokenizer.getToken();
@@ -193,7 +191,7 @@ std::unique_ptr<IfStatement> Parser::if_stmt() {
 	if( tok.isElse() ) {
 		tok = tokenizer.getToken();
 		if( !tok.isColon() )
-			die("Parser::ifStatement", "Expected ':', instead got",tok);
+			die("Parser::ifStatement - else", "Expected ':', instead got",tok);
 		auto elseSuite = suite();
 		return std::make_unique<IfStatement>(std::move(firstTest),
 											 std::move(firstSuite),
@@ -201,7 +199,7 @@ std::unique_ptr<IfStatement> Parser::if_stmt() {
 											 std::move(elifSuites),
 											 std::move(elseSuite)); 
 	} else {
-		tokenizer.ungetToken();
+	    tokenizer.ungetToken();
 		return std::make_unique<IfStatement>(std::move(firstTest),
 											 std::move(firstSuite),
 											 std::move(elifTests),
@@ -219,7 +217,7 @@ std::unique_ptr<Statements> Parser::suite() {
 
 	tok = tokenizer.getToken();
 	while(tok.eol())
-		tokenizer.getToken();
+		tok = tokenizer.getToken();
 	
 	if ( !tok.indent() )
 		die("Parser::suite", "Expected 'INDENT', instead got",tok);
@@ -228,18 +226,12 @@ std::unique_ptr<Statements> Parser::suite() {
 
 	tok = tokenizer.getToken();
 	while(tok.eol())
-		tokenizer.getToken();
+		tok = tokenizer.getToken();
 
-	std::cout << "tok: " << std::endl;
-	tok.print();
-	std::cout << std::endl;
-	
-	if ( !tok.dedent() )
+	if( tok.eof() )
+	   return _suite;
+	else if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
-
-	std::cout << "tok: " << std::endl;
-	tok.print();
-	std::cout << std::endl;
 
 	return _suite;
 }

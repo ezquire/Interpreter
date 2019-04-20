@@ -1,7 +1,7 @@
-a = 0
-for i in range(5):
-  for j in range(3):
-    a = a + 1
-   print "Illegal dedent. Should produce an error"
-if a != 15:
- print "For loop on line 83 didn't execute properly"
+failCount = 0
+
+for i in range(0):
+ print "This for loop has a range of 0, so it should never execute its statements."
+ failCount = failCount + 1
+
+print failCount
