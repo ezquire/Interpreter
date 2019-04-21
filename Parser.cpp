@@ -53,7 +53,8 @@ std::unique_ptr<Statement> Parser::stmt() {
 	} else if ( tok.isCompoundStatement() ) {
 		tokenizer.ungetToken();
 		return std::move( compound_stmt() );
-	}
+	} else
+		die("Parser::stmt", "Expected statement, instead got", tok);
 	return nullptr; // should never reach here
 }
 
@@ -74,7 +75,7 @@ std::unique_ptr<Statement> Parser::simple_stmt() {
 			die("Parser::simple_stmt", "Expected 'NEWLINE', instead got", tok);
 		return std::move(assign);
 	} else
-		die("Parser::stmt", "Expected simple statement, instead got", tok);
+		die("Parser::simple_stmt", "Expected simple, instead got", tok);
 	return nullptr; // should never reach here
 }
 
@@ -97,10 +98,10 @@ std::unique_ptr<Statement> Parser::compound_stmt() {
 // Assignment statement parser
 std::unique_ptr<AssignmentStatement> Parser::assign_stmt() {
     Token varName = tokenizer.getToken();
-    if (!varName.isName())
+	if (!varName.isName())
         die("Parser::assign_stmt", "Expected name, instead got", varName);
 
-    Token tok = tokenizer.getToken();
+	Token tok = tokenizer.getToken();
 	if ( !tok.isAssignmentOperator() )
 		die("Parser::assign_stmt", "Expected '=', instead got", tok);
 
@@ -125,7 +126,6 @@ std::unique_ptr<PrintStatement> Parser::print_stmt() {
 // For statement parser
 std::unique_ptr<ForStatement> Parser::for_stmt() {
     Token tok = tokenizer.getToken();
-
     if ( !tok.isForKeyword() )
         die("Parser::forStatement", "Expected 'for', instead got", tok);
 
