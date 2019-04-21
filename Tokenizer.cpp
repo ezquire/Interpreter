@@ -9,15 +9,14 @@
 
 Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, col{0}, inStream{stream}, lastToken{}, stack{} { stack.push(0); }
 
+// This function is called when it is known that
+// the first character in input is an alphabetic character.
+// The function reads and returns all characters of the name.
 std::string Tokenizer::readName() {
-    // This function is called when it is known that
-    // the first character in input is an alphabetic character.
-    // The function reads and returns all characters of the name.
     std::string name;
     char c;
-    while( inStream.get(c) && isalnum(c) ) {
+    while( inStream.get(c) && isalnum(c))
         name += c;
-    }
     if(inStream.good())  // In the loop, we have read one char too many.
         inStream.putback(c);
     return name;
@@ -31,8 +30,6 @@ std::string Tokenizer::readString() {
     char c;
     while( inStream.get(c) && c != '"')
         _string += c; 
-    //if(inStream.good())  // In the loop, we have read one char too many.
-	//	  inStream.putback(c);
     return _string;
 }
 
@@ -64,11 +61,16 @@ void Tokenizer::readNumber(Token &tok) {
 		tok.setWholeNumber( stoi(input) );
 }
 
+// This function is called when it is known that
+// the first character in input is a an operator.
+// The function reads and returns the full operator.
 std::string Tokenizer::readOp() {
     std::string op;
     char c;
 	while(inStream.get(c) && (c == '<' || c == '>' || c == '=' || c == '!'))
 		op += c;
+	if(inStream.good())  // In the loop, we have read one char too many.
+        inStream.putback(c);
 	return op;
 }
 
@@ -79,6 +81,9 @@ bool Tokenizer::isKeyword(std::string str) {
 			str == "return");
 }
 
+// This function gets a token for the parser
+// It determines the scoping by parsing whitespace
+// and generating appropriate indent and dedent tokens
 Token Tokenizer::getToken() {
 
     bool blankline = false;

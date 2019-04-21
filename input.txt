@@ -239,7 +239,7 @@ if "ab" > "ba":
  failCount = failCount + 1
  
 if 1 <> 1:
- print "1 <> 1 evaluated to,", 1<>1, ", but should have evaluated to 0"
+ print "1 <> 1 evaluated to,", 1 <> 1, ", but should have evaluated to 0"
  failCount = failCount + 1
  
 a = 1
