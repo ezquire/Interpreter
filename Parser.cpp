@@ -1,6 +1,6 @@
 /*
  * Created by Tyler Gearing 3/14/19
- *
+ * Adding this for git purposes
  */
 
 #include <vector>
@@ -397,12 +397,12 @@ std::unique_ptr<ExprNode> Parser::atom() {
         auto p = test();
         tok = tokenizer.getToken();
         if (!tok.isCloseParen())
-            die("Parser::primary",
+            die("Parser::atom",
 				"Expected close-parenthesis, instead got", tok);
         return p;
     }
 	
-	die("Parser::primary", "Unexpected token", tok);
+	die("Parser::atom", "Unexpected token", tok);
 
     return nullptr;  // Will not reach this statement!
 }
