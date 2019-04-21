@@ -101,18 +101,18 @@ std::unique_ptr<AssignmentStatement> Parser::assign_stmt() {
         die("Parser::assign_stmt", "Expected name, instead got", varName);
 
     Token tok = tokenizer.getToken();
-    if ( !tok.isAssignmentOperator() )
-	  die("Parser::assign_stmt", "Expected '=', instead got", tok);
+	if ( !tok.isAssignmentOperator() )
+		die("Parser::assign_stmt", "Expected '=', instead got", tok);
 
-    auto expr = test();
-	
-    return std::make_unique<AssignmentStatement>(varName.getName(),
+	auto expr = test();
+
+	return std::make_unique<AssignmentStatement>(varName.getName(),
 												 std::move(expr));
 }
 
 // Print statement parser
 std::unique_ptr<PrintStatement> Parser::print_stmt() {
-    Token tok = tokenizer.getToken();
+	Token tok = tokenizer.getToken();
 	
     if ( !tok.isPrintKeyword() )
         die("Parser::print_stmt", "Expected 'print', instead got", tok);
@@ -124,16 +124,15 @@ std::unique_ptr<PrintStatement> Parser::print_stmt() {
 
 // For statement parser
 std::unique_ptr<ForStatement> Parser::for_stmt() {
-	
     Token tok = tokenizer.getToken();
-	
+
     if ( !tok.isForKeyword() )
         die("Parser::forStatement", "Expected 'for', instead got", tok);
 
 	Token id = tokenizer.getToken();
     if ( !id.isName() )
 		die("Parser::forStatement", "Expected ID, instead got", tok);
-		
+
 	tok = tokenizer.getToken();
 	if ( !tok.isInKeyword() )
 		die("Parser::forStatement", "Expected 'in', instead got",tok);
@@ -164,14 +163,14 @@ std::unique_ptr<ForStatement> Parser::for_stmt() {
 
 // IfStatement Parser
 std::unique_ptr<IfStatement> Parser::if_stmt() {
-	
+
 	Token tok = tokenizer.getToken();
 	if( !tok.isIf() )
 		die("Parser::ifStatement", "Expected 'if', instead got",tok);
 
 	std::vector<std::unique_ptr<ExprNode>> elifTests;
 	std::vector<std::unique_ptr<Statements>> elifSuites;
-	
+
 	auto firstTest = test();
 
 	tok = tokenizer.getToken();
@@ -221,7 +220,7 @@ std::unique_ptr<Statements> Parser::suite() {
 	tok = tokenizer.getToken();
 	while(tok.eol())
 		tok = tokenizer.getToken();
-	
+
 	if ( !tok.indent() )
 		die("Parser::suite", "Expected 'INDENT', instead got",tok);
 
@@ -254,7 +253,7 @@ std::vector<std::shared_ptr<ExprNode>> Parser::testlist() {
     }
     tokenizer.ungetToken();
     return list;
-} 
+}
 
 std::unique_ptr<ExprNode> Parser::test() {
 	// This function parses the grammar rules:

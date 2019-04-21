@@ -7,7 +7,7 @@
 # Note that for checking errors I use if statements and bool/rel expressions. If something reports an error when you think it shouldn't,
 # it's possible it was your handling of if statements or bool/rel expressions that actually caused the error.
 
-   print "Unexpected indentation. This should be an error!"
+   #print "Unexpected indentation. This should be an error!"
 
 failCount=0 #if this is 0 at the end of the program then your program passed every test
 
