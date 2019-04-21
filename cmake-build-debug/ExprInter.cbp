@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="ExprInter"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ExprInter">
+				<Option output="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/ExprInter" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 ExprInter"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ExprInter/fast">
+				<Option output="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/ExprInter" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Rachel/CLionProjects/interpreter/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/10.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 ExprInter/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/Rachel/CLionProjects/interpreter/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Expr.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Expr.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Parser.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Parser.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Range.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Range.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Statements.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Statements.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/SymTab.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/SymTab.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Token.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Token.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Tokenizer.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/Tokenizer.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/TypeDescriptor.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/TypeDescriptor.hpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/main.cpp">
+			<Option target="ExprInter"/>
+		</Unit>
+		<Unit filename="/Users/Rachel/CLionProjects/interpreter/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
