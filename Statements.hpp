@@ -1,104 +1,110 @@
-//
-// Created by Ali A. Kooshesh on 2/5/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
 #ifndef EXPRINTER_STATEMENTS_HPP
 #define EXPRINTER_STATEMENTS_HPP
 
 #include <iostream>
 #include <vector>
+#include <memory>
 
+#include "Range.hpp"
 #include "Expr.hpp"
 #include "SymTab.hpp"
 
-// The Statement (abstract) class serves as a super class for all statements that
-// are defined in the language. Ultimately, statements have to be evaluated.
+// The Statement (abstract) class serves as a super class for all statements
+// defined in the language. Ultimately, statements have to be evaluated.
 // Therefore, this class defines evaluate, a pure-virtual function to make
 // sure that all subclasses of Statement provide an implementation for this
 // function.
-
 class Statement {
 public:
     Statement();
-
     virtual void print() = 0;
     virtual void evaluate(SymTab &symTab) = 0;
-
+    virtual ~Statement() = default;
 };
 
-
-// Statements is a collection of Statement. For example, all statements in a function
-// can be represented by an instance of Statements.
-
+// Statements is a collection of Statement. For example, all statements in a
+// function can be represented by an instance of Statements.
 class Statements {
 public:
     Statements();
-
-    void addStatement(Statement *statement);
+    void addStatement(std::unique_ptr<Statement> statement);
     void evaluate(SymTab &symTab);
-
     void print();
-
 private:
-    std::vector<Statement *> _statements;
+    std::vector<std::unique_ptr<Statement>> _statements;
 };
 
-// AssignmentStatement represents the notion of an lValue having been assigned an rValue.
-// The rValue is an expression.
-
+// AssignmentStatement represents the notion of an lValue having been assigned
+// an rValue. The rValue is an expression.
 class AssignmentStatement : public Statement {
 public:
     AssignmentStatement();
-    AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr);
-
+    AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
     std::string &lhsVariable();
-    ExprNode *&rhsExpression();
-
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
-
+	std::unique_ptr<ExprNode> &rhsExpression();
+    void evaluate (SymTab &symTab) override;
+    void print() override;
 private:
     std::string _lhsVariable;
-    ExprNode *_rhsExpression;
+	std::unique_ptr<ExprNode> _rhsExpression;
 };
 
 // PrintStatement
-
 class PrintStatement : public Statement {
 public:
 	PrintStatement();
-    PrintStatement(ExprNode *rhsExpr);
-
-    ExprNode *&rhsExpression();
-
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
-
+    explicit PrintStatement(std::vector<std::shared_ptr<ExprNode>> rhsList);
+	std::vector<std::shared_ptr<ExprNode>> &rhsList();
+    void evaluate(SymTab &symTab) override;
+    void print() override;
 private:
-    ExprNode *_rhsExpression;
+	std::vector<std::shared_ptr<ExprNode>> _rhsList;
 };
 
 // ForStatement
-
 class ForStatement : public Statement {
 public:
 	ForStatement();
-    ForStatement(AssignmentStatement *firstAssign, ExprNode *midExpr, AssignmentStatement *secondAssign, Statements* stmnts);
-
-	AssignmentStatement *&firstAssign();
-	AssignmentStatement *&secondAssign();
-    ExprNode *&midExpr();
-	Statements *&statements();
-
-    virtual void evaluate(SymTab &symTab);
-    virtual void print();
-
+	ForStatement(std::string id, std::vector<std::shared_ptr<ExprNode>> range,
+				 std::unique_ptr<Statements> stmnts);
+	std::unique_ptr<Statements> &statements();
+	std::vector<std::shared_ptr<ExprNode>> &getRange();
+	std::string &getId();
+    void evaluate(SymTab &symTab) override;
+    void print() override;
 private:
-	AssignmentStatement *_firstAssign;
-	AssignmentStatement *_secondAssign;
-    ExprNode *_midExpr;
-	Statements *_statements;
+	std::vector<std::shared_ptr<ExprNode>> _range;
+	std::unique_ptr<Statements> _statements;
+	std::string _id;
 };
 
+// IfStatement
+class IfStatement : public Statement {
+public:
+	IfStatement();
+ 	IfStatement(std::unique_ptr<ExprNode> firstTest,
+				std::unique_ptr<Statements> firstSuite,
+				std::vector<std::unique_ptr<ExprNode>> elifTests,
+				std::vector<std::unique_ptr<Statements>> elifSuites,
+				std::unique_ptr<Statements> elseSuite);
+	std::unique_ptr<ExprNode> &firstTest();
+	std::unique_ptr<Statements> &firstSuite();
+	std::vector<std::unique_ptr<ExprNode>> &elifTests();
+	std::vector<std::unique_ptr<Statements>> &elifSuites();
+	std::unique_ptr<Statements> &elseSuite(); 
+    void evaluate(SymTab &symTab) override;
+    void print() override;
+private:
+	std::unique_ptr<ExprNode> _firstTest;
+	std::unique_ptr<Statements> _firstSuite;
+	std::vector<std::unique_ptr<ExprNode>> _elifTests;
+	std::vector<std::unique_ptr<Statements>> _elifSuites;
+	std::unique_ptr<Statements> _elseSuite;
+};
 
 #endif //EXPRINTER_STATEMENTS_HPP

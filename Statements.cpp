@@ -1,112 +1,180 @@
-//
-// Created by Ali A. Kooshesh on 2/5/19.
-//
+/*
+ * Created by Tyler Gearing 3/14/19
+ *
+ */
 
+#include "Range.hpp"
 #include "Statements.hpp"
+#include "TypeDescriptor.hpp"
 
 // Statement
-Statement::Statement() {}
+Statement::Statement() = default;
 
 // Statements
+Statements::Statements() = default;
 
-Statements::Statements() {}
-void Statements::addStatement(Statement *statement) { _statements.push_back(statement); }
+void Statements::addStatement(std::unique_ptr<Statement> statement)
+{ _statements.push_back(std::move(statement)); }
 
 void Statements::print() {
-    for (auto s: _statements)
+    for (auto &s: _statements)
         s->print();
 }
 
 void Statements::evaluate(SymTab &symTab) {
-    for (auto s: _statements)
+    for (auto &s: _statements) {
         s->evaluate(symTab);
+	}
 }
 
 // AssignmentStatement
+AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr} {}
 
-AssignmentStatement::AssignmentStatement() : _lhsVariable{""}, _rhsExpression{nullptr} {}
-
-AssignmentStatement::AssignmentStatement(std::string lhsVar, ExprNode *rhsExpr):
-        _lhsVariable{lhsVar}, _rhsExpression{rhsExpr} {}
+AssignmentStatement::AssignmentStatement(std::string lhsVar,
+										 std::unique_ptr<ExprNode> rhsExpr):
+	_lhsVariable{std::move(lhsVar)}, _rhsExpression{std::move(rhsExpr)} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab) {
-    int rhs = rhsExpression()->evaluate(symTab);
-    symTab.setValueFor(lhsVariable(), rhs);
+    symTab.setValueFor(lhsVariable(),
+					   rhsExpression()->evaluate(symTab));
 }
 
 std::string &AssignmentStatement::lhsVariable() {
     return _lhsVariable;
 }
 
-ExprNode *&AssignmentStatement::rhsExpression() {
+std::unique_ptr<ExprNode>&AssignmentStatement::rhsExpression() {
     return _rhsExpression;
 }
 
 void AssignmentStatement::print() {
     std::cout << _lhsVariable << " = ";
     _rhsExpression->print();
-    std::cout << std::endl;
+	std::cout << std::endl;
 }
 
 // PrintStatement
+PrintStatement::PrintStatement() : _rhsList{} {}
 
-PrintStatement::PrintStatement() : _rhsExpression{nullptr} {}
-
-PrintStatement::PrintStatement(ExprNode *rhsExpr):
-        _rhsExpression{rhsExpr} {}
+PrintStatement::PrintStatement(std::vector<std::shared_ptr<ExprNode>>exprList):
+	_rhsList{std::move(exprList)} {}
 
 void PrintStatement::evaluate(SymTab &symTab) {
-	std::cout << rhsExpression()->evaluate(symTab) << std::endl;
+	for (auto &l: _rhsList ) {
+        printValue( l->evaluate(symTab).get() );
+		std::cout << ' ';
+	}
+	std::cout << std::endl;
 }
 
-ExprNode *&PrintStatement::rhsExpression() {
-    return _rhsExpression;
+std::vector<std::shared_ptr<ExprNode>>&PrintStatement::rhsList() {
+    return _rhsList;
 }
 
 void PrintStatement::print() {
-    _rhsExpression->print();
-    std::cout << std::endl;
-}
-
-
-// ForStatement
-
-ForStatement::ForStatement() : _firstAssign{nullptr}, _midExpr{nullptr}, _secondAssign{nullptr}, _statements{nullptr}  {}
-
-ForStatement::ForStatement(AssignmentStatement *firstAssign, ExprNode *midExpr, AssignmentStatement *secondAssign, Statements* stmts):
-	_firstAssign{firstAssign}, _midExpr{midExpr}, _secondAssign{secondAssign}, _statements{stmts} {}
-
-void ForStatement::evaluate(SymTab &symTab) {
-	firstAssign()->evaluate(symTab); 
-    while( midExpr()->evaluate(symTab) ) {
-		statements()->evaluate(symTab);
-		secondAssign()->evaluate(symTab);
+	for (auto &l: _rhsList) {
+		l->print();
+		std::cout << std::endl;
 	}
 }
 
-AssignmentStatement *&ForStatement::firstAssign() {
-    return _firstAssign;
+// ForStatement
+ForStatement::ForStatement() : _statements{nullptr}  {}
+
+ForStatement::ForStatement(std::string id,
+						   std::vector<std::shared_ptr<ExprNode>> range,
+						   std::unique_ptr<Statements> stmnts):
+	_id{std::move(id)}, _range{std::move(range)}, _statements{std::move(stmnts)} {}
+
+void ForStatement::evaluate(SymTab &symTab) {
+	std::unique_ptr<Range> range =
+		std::make_unique<Range>(getId(), getRange(), symTab);
+	while( !range->atEnd() ) {
+		statements()->evaluate(symTab);
+		symTab.increment( getId(), range->step() );
+		range->getNext();
+	}    
 }
 
-AssignmentStatement *&ForStatement::secondAssign() {
-    return _secondAssign;
-}
-
-ExprNode *&ForStatement::midExpr() {
-    return _midExpr;
-}
-
-Statements *&ForStatement::statements() {
+std::unique_ptr<Statements>&ForStatement::statements() {
 	return _statements;
 }
 
+std::vector<std::shared_ptr<ExprNode>> &ForStatement::getRange() {
+	return _range;
+}
+
+std::string &ForStatement::getId() {
+	return _id;
+}
+
 void ForStatement::print() {
-	_firstAssign->print();
+ 	_statements->print();
     std::cout << std::endl;
-    _midExpr->print();
+}
+
+// IfStatement
+IfStatement::IfStatement() : _firstTest{nullptr}, _firstSuite{nullptr},
+							 _elseSuite{nullptr}  {}
+
+IfStatement::IfStatement(std::unique_ptr<ExprNode>firstTest,
+						 std::unique_ptr<Statements>firstSuite,
+						 std::vector<std::unique_ptr<ExprNode>> elifTests,
+						 std::vector<std::unique_ptr<Statements>> elifSuites,
+						 std::unique_ptr<Statements>elseSuite):
+	_firstTest{std::move(firstTest)},
+	_firstSuite{std::move(firstSuite)},
+	_elifTests{std::move(elifTests)},
+	_elifSuites{std::move(elifSuites)},
+	_elseSuite{std::move(elseSuite)} {}
+
+void IfStatement::evaluate(SymTab &symTab) {	
+	if(evaluateBool(firstTest()->evaluate(symTab).get())) {
+		firstSuite()->evaluate(symTab);
+		return;
+	} else if(_elifTests.size() != _elifSuites.size() ) {
+		std::cout << "IfStatement::evaluate mismatched elif and arguments\n";
+		exit(1);
+	} else if ( !_elifTests.empty() ) {
+		int i = 0;
+		for( auto &t: _elifTests ) {
+			if( evaluateBool( t->evaluate(symTab).get() ) ) {
+				_elifSuites[i]->evaluate(symTab);
+				return;
+			}
+			++i;
+		}
+	} else if( _elseSuite != nullptr )
+		_elseSuite->evaluate(symTab);
+}
+
+std::unique_ptr<ExprNode> &IfStatement::firstTest() {
+	return _firstTest;
+}
+
+std::unique_ptr<Statements> &IfStatement::firstSuite() {
+	return _firstSuite;
+}
+
+std::vector<std::unique_ptr<ExprNode>> &IfStatement::elifTests() {
+	return _elifTests;
+}
+
+std::vector<std::unique_ptr<Statements>> &IfStatement::elifSuites() {
+	return _elifSuites;
+}
+
+std::unique_ptr<Statements> &IfStatement::elseSuite() {
+	return _elseSuite;
+}
+
+void IfStatement::print() {
+	_firstTest->print();
+	std::cout << std::endl;
+	_firstSuite->print();
     std::cout << std::endl;
-	_secondAssign->print();
-    std::cout << std::endl;
-	_statements->print();
-    std::cout << std::endl;
+	//print vectors
+	//print vectors
+	//_elseSuite->print();
+	//std::cout << std::endl;
 }

@@ -1,0 +1,7 @@
+failCount = 0
+
+for i in range(0):
+ print "This for loop has a range of 0, so it should never execute its statements."
+ failCount = failCount + 1
+
+print failCount
