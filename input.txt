@@ -263,7 +263,7 @@ if -(5-2) != -3:
 
 
 if failCount == 0:
- print "All tests passed successfuly!"
+ print "All tests passed successfully!"
 else:
  print "Failed", failCount, "/ 46 tests."
 

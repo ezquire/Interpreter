@@ -33,7 +33,10 @@ std::unique_ptr<Statements> Parser::file_input() {
             auto statement = stmt();
             stmts->addStatement(std::move(statement));
             tok = tokenizer.getToken();
-        } else {
+        } else if( tok.indent() ) {
+			std::cout << "Parser::file_input unexpected indent";
+			exit(1);
+		} else {
             tokenizer.ungetToken();
             return stmts;
         }

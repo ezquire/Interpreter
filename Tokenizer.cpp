@@ -100,7 +100,7 @@ Token Tokenizer::getToken() {
         _tokens.push_back(token);
         return lastToken = token;
     } else if(lastToken.dedent() && col > stack.top() ) {
-		std::cout << "Indentation error\n";
+		std::cout << "Tokenizer::getToken unexpected DEDENT token\n";
 		exit(1);
 	}
 	if(bol) {
