@@ -1,7 +1,7 @@
 .SUFFIXES: .o .cpp .x
 
 CFLAGS = -ggdb -std=c++17
-objects =  Range.o Token.o Tokenizer.o Parser.o Expr.o SymTab.o Statements.o TypeDescriptor.o main.o
+objects =  Functions.o Range.o Token.o Tokenizer.o Parser.o Expr.o SymTab.o Statements.o TypeDescriptor.o main.o
 
 all: statement.x
 
@@ -10,6 +10,7 @@ statement.x: $(objects)
 
 .cpp.o:
 	g++ $(CFLAGS) -c $< -o $@
+Functions.o: Functions.cpp Functions.hpp
 Range.o: Range.cpp Range.hpp
 Token.o:  Token.cpp Token.hpp
 Tokenizer.o: Tokenizer.cpp Tokenizer.hpp

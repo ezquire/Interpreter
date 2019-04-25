@@ -48,14 +48,11 @@ public:
 
 	// Statements
 	bool isSimpleStatement() const {
-		return isPrintKeyword() ||
-			isName() ||
-			isReturnKeyword();
+		return isPrintKeyword() || isName() || isArrayOp() || isCall() ||
+			   isReturnKeyword();
 	}
 	bool isCompoundStatement() const {
-		return isForKeyword() ||
-			isIf() ||
-			isDefKeyword();
+		return isForKeyword() || isIf() || isDefKeyword();
 	}
 	
 	// Types
@@ -63,9 +60,20 @@ public:
 	bool &isWholeNumber()      { return _isWholeNumber;       }
     bool isWholeNumber() const { return _isWholeNumber;       }
 	bool &isFloat()            { return _isFloat;             }
-    bool isFloat() const       { return _isFloat;             }
-	bool isName() const        { return _name.length() > 0;   }
+    bool isFloat() const       { return _isFloat;             }	
 	bool isKeyword() const     { return _keyword.length() > 0;}
+
+	bool isName() const {
+		return _name.length() > 0 && !isArrayOp() && !isCall() && !isSub();
+	}
+	
+	// Functions
+	bool &isCall()         { return _call;    }
+  	bool isCall() const    { return _call;    }
+	bool &isArrayOp()      { return _arrayOp; }
+	bool isArrayOp() const { return _arrayOp; }
+	bool &isSub()          { return _sub;     }
+	bool isSub() const     { return _sub;     }
 
 	// Assignment Operator
 	bool isAssignmentOperator() const { return _symbol == '='; }
@@ -148,8 +156,8 @@ private:
 	std::string _keyword;
     bool _eof, _eol;
 	bool _indent, _dedent;
-	bool _isWholeNumber;
-	bool _isFloat;
+	bool _isWholeNumber, _isFloat;
+	bool _call, _arrayOp, _sub;
     char _symbol;
     int _wholeNumber;
 	double _float;

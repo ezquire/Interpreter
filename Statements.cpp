@@ -22,9 +22,8 @@ void Statements::print() {
 }
 
 void Statements::evaluate(SymTab &symTab) {
-    for (auto &s: _statements) {
-        s->evaluate(symTab);
-	}
+	for (auto &s: _statements)
+		s->evaluate(symTab);
 }
 
 // AssignmentStatement
@@ -54,7 +53,7 @@ void AssignmentStatement::print() {
 }
 
 // PrintStatement
-PrintStatement::PrintStatement() : _rhsList{} {}
+PrintStatement::PrintStatement(): _rhsList{} {}
 
 PrintStatement::PrintStatement(std::vector<std::shared_ptr<ExprNode>>exprList):
 	_rhsList{std::move(exprList)} {}

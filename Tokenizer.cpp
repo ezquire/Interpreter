@@ -94,7 +94,8 @@ Token Tokenizer::getToken() {
         ungottenToken = false;
         return lastToken;
     }
-    if(lastToken.dedent() && col < stack.top() ) {
+
+	if(lastToken.dedent() && col < stack.top() ) {
         stack.pop();
         token.dedent() = true;
         _tokens.push_back(token);
@@ -165,8 +166,20 @@ Token Tokenizer::getToken() {
 		std::string name = readName();
 		if( isKeyword(name) )
 			token.setKeyword( name );
-		else
-			token.setName( name );
+		else {
+			inStream.get(c);
+			if(c == '.') {
+				token.setName(name);
+				token.isArrayOp() = true;
+			} else if(c == '(') {
+				token.setName(name);
+				token.isCall() = true;
+			} else {
+				if(inStream.good())
+					inStream.putback(c);
+				token.setName( name );
+			}
+		}
 	} else if(c == '"') // we have a string
 		token.setString( readString() );
 	else if( c == '<' || c == '>' || c == '!') {
