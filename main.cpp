@@ -29,8 +29,6 @@ int main(int argc, char *argv[]) {
 
     Tokenizer tokenizer(inputStream);
 
-	// Uncomment the lines below and comment out everything
-	// after the comment block and before "return 0;" for debugging
     /*Token tok = tokenizer.getToken();
 	while( !tok.eof() )
 		tok = tokenizer.getToken();

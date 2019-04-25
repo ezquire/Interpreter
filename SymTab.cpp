@@ -16,7 +16,7 @@
 void SymTab::setValueFor(std::string const &vName,
 						 std::shared_ptr<TypeDescriptor> rDesc) {
     // Define a variable by setting its initial value.
-	symTab[vName] = std::move(rDesc);
+	global[vName] = std::move(rDesc);
 }
 
 void SymTab::increment(std::string const &vName, int increment) {
@@ -35,7 +35,7 @@ void SymTab::increment(std::string const &vName, int increment) {
 }
 
 bool SymTab::isDefined(std::string const &vName) {
-    return symTab.find(vName) != symTab.end();
+    return global.find(vName) != global.end();
 }
 
 std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string const &vName) {
@@ -46,9 +46,31 @@ std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string const &vName) {
     }
 #ifdef DEBUG
     std::cout << "SymTab::getValueFor: " << vName << " contains ";
-	printValue( symTab.find(vName)->second.get() );
+	printValue( global.find(vName)->second.get() );
 	std::cout << std::endl;
 #endif
 	
-    return symTab.find(vName)->second;
+    return global.find(vName)->second;
+}
+
+void SymTab::openScope(std::vector<std::string> params,
+			   std::vector<std::shared_ptr<TypeDescriptor>> args) {
+	
+}
+
+void SymTab::setReturnValue(std::shared_ptr<TypeDescriptor> ret) {
+	global["returnVal"] = ret;
+}
+
+std::shared_ptr<TypeDescriptor> SymTab::getReturnValue() {
+	if( !isDefined("returnVal") ) {
+        std::cout << "SymTab::getReturnValue: returnVal";
+		std::cout << " has not been defined.\n";
+        exit(1);
+    }
+    return global.find("returnVal")->second;
+}
+
+void SymTab::closeScope() {
+	scope.pop_back();
 }
