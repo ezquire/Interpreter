@@ -4,6 +4,7 @@
  */
 
 #include "Functions.hpp"
+#include "Statements.hpp"
 #include "SymTab.hpp"
 
 // Functions
@@ -23,28 +24,4 @@ std::shared_ptr<Function> Functions::getFunction(std::string const &id) {
         exit(1);
     }
     return _functions.find(id)->second;
-}
-
-// Function
-Function::Function(): _id{""}, _suite{nullptr} {}
-
-Function::Function(std::string id, std::vector<std::string> params,
-				   std::unique_ptr<Statements> suite):
-	_id{id}, _parameters{params}, _suite{std::move(suite)} {}
-
-void Function::evaluate(SymTab &symTab) {
-	std::cout << "Function::evaluate not implemented yet" << std::endl;
-	exit(1);
-}
-
-std::string &Function::id() {
-	return _id;
-}
-
-std::vector<std::string> &Function::params() {
-	return _parameters;
-}
-
-std::unique_ptr<Statements> &Function::suite() {
-	return _suite;
 }

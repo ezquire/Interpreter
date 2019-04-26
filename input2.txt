@@ -1,7 +1,12 @@
-failCount = 0
+def inc(a , b):
+ a = a + b
 
-for i in range(0):
- print "This for loop has a range of 0, so it should never execute its statements."
- failCount = failCount + 1
+a = 1
+b = 2
 
-print failCount
+print a
+print b
+
+inc(a, b)
+
+print a

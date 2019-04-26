@@ -172,8 +172,14 @@ Token Tokenizer::getToken() {
 				token.setName(name);
 				token.isArrayOp() = true;
 			} else if(c == '(') {
-				token.setName(name);
-				token.isCall() = true;
+				if( !lastToken.isDefKeyword() ) {
+					token.isCall() = true;
+					token.setName(name);
+				} else {
+					if(inStream.good())
+						inStream.putback(c);
+					token.setName(name);
+				}
 			} else {
 				if(inStream.good())
 					inStream.putback(c);

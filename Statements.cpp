@@ -77,6 +77,29 @@ void PrintStatement::print() {
 	}
 }
 
+// CallStatement
+CallStatement::CallStatement(): _callList{} {}
+
+CallStatement::CallStatement(std::string id,
+							 std::vector<std::shared_ptr<ExprNode>> callList):
+	_id{id}, _callList{callList} {}
+
+void CallStatement::evaluate(SymTab &symTab) {
+	std::cout << "Need to implement CallStatement::evaluate" << std::endl;
+	exit(1);
+}
+
+std::vector<std::shared_ptr<ExprNode>> &CallStatement::callList() {
+	return _callList;
+}
+
+void CallStatement::print() {
+	for(auto &l: _callList) {
+		l->print();
+		std::cout << std::endl;
+	}
+}
+
 // ForStatement
 ForStatement::ForStatement() : _statements{nullptr}  {}
 
@@ -108,6 +131,10 @@ std::string &ForStatement::getId() {
 }
 
 void ForStatement::print() {
+	std::cout << _id << std::endl;
+	for(auto &n : _range)
+		n->print();
+	std::cout << std::endl;
  	_statements->print();
     std::cout << std::endl;
 }
@@ -172,8 +199,44 @@ void IfStatement::print() {
 	std::cout << std::endl;
 	_firstSuite->print();
     std::cout << std::endl;
-	//print vectors
-	//print vectors
-	//_elseSuite->print();
-	//std::cout << std::endl;
+	for(auto &t: _elifTests)
+		t->print();
+	std::cout << std::endl;
+	for(auto &s: _elifSuites)
+		s->print();
+	std::cout << std::endl;
+	_elseSuite->print();
+	std::cout << std::endl;
+}
+
+// Function
+Function::Function(): _id{""}, _suite{nullptr} {}
+
+Function::Function(std::string id, std::vector<std::string> params,
+				   std::unique_ptr<Statements> suite):
+	_id{id}, _parameters{params}, _suite{std::move(suite)} {}
+
+void Function::evaluate(SymTab &symTab) {
+	std::cout << "Function::evaluate not implemented yet" << std::endl;
+	exit(1);
+}
+
+std::string &Function::id() {
+	return _id;
+}
+
+std::vector<std::string> &Function::params() {
+	return _parameters;
+}
+
+std::unique_ptr<Statements> &Function::suite() {
+	return _suite;
+}
+
+void Function::print() {
+	std::cout << _id << std::endl;
+	for(auto &p: _parameters)
+		std::cout << p << std::endl;
+	_suite->print();
+    std::cout << std::endl;
 }

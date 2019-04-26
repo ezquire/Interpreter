@@ -39,7 +39,7 @@ public:
 	std::unique_ptr<ForStatement> for_stmt();
 
 	std::unique_ptr<Function> func_def();
-	std::unique_ptr<ExprNode> call();
+	std::unique_ptr<CallStatement> call();
 	std::vector<std::string> parameter_list();
 
 	std::unique_ptr<ExprNode> test();

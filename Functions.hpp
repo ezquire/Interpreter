@@ -13,22 +13,6 @@
 #include "SymTab.hpp"
 #include "Statements.hpp"
 
-class Function {
-public:
-	Function();
-	Function(std::string id, std::vector<std::string> params,
-			 std::unique_ptr<Statements> suite);
-	void evaluate(SymTab &symTab);
-	void print();
-	std::string &id();
-	std::vector<std::string> &params();
-	std::unique_ptr<Statements> &suite();
-private:
-	std::string _id;
-	std::vector<std::string> _parameters;
-	std::unique_ptr<Statements> _suite;
-};
-
 class Functions {
 public:
 	Functions() = default;

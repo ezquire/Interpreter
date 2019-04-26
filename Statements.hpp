@@ -66,6 +66,20 @@ private:
 	std::vector<std::shared_ptr<ExprNode>> _rhsList;
 };
 
+// CallStatement
+class CallStatement : public Statement {
+public:
+	CallStatement();
+	explicit CallStatement(std::string id,
+						   std::vector<std::shared_ptr<ExprNode>> callList);
+	std::vector<std::shared_ptr<ExprNode>> &callList();
+	void evaluate(SymTab &symTab) override;
+	void print() override;
+private:
+	std::string _id;
+	std::vector<std::shared_ptr<ExprNode>> _callList;
+};
+
 // ForStatement
 class ForStatement : public Statement {
 public:
@@ -78,9 +92,9 @@ public:
     void evaluate(SymTab &symTab) override;
     void print() override;
 private:
+	std::string _id;
 	std::vector<std::shared_ptr<ExprNode>> _range;
 	std::unique_ptr<Statements> _statements;
-	std::string _id;
 };
 
 // IfStatement
@@ -105,6 +119,22 @@ private:
 	std::vector<std::unique_ptr<ExprNode>> _elifTests;
 	std::vector<std::unique_ptr<Statements>> _elifSuites;
 	std::unique_ptr<Statements> _elseSuite;
+};
+
+class Function : public Statement {
+public:
+	Function();
+	Function(std::string id, std::vector<std::string> params,
+			 std::unique_ptr<Statements> suite);
+	void evaluate(SymTab &symTab) override;
+	void print() override;
+	std::string &id();
+	std::vector<std::string> &params();
+	std::unique_ptr<Statements> &suite();
+private:
+	std::string _id;
+	std::vector<std::string> _parameters;
+	std::unique_ptr<Statements> _suite;
 };
 
 #endif //EXPRINTER_STATEMENTS_HPP
