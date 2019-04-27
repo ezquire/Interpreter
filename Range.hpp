@@ -6,11 +6,7 @@
 #ifndef __RANGE_HPP
 #define __RANGE_HPP
 
-#include "SymTab.hpp"
 #include "Expr.hpp"
-
-#include<vector>
-#include<iostream> 
 
 class Range {
 public:

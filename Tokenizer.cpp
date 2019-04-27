@@ -3,9 +3,9 @@
  *
  */
 
-#include <iostream>
-#include <string>
 #include "Tokenizer.hpp"
+
+#include <fstream>
 
 Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, col{0}, inStream{stream}, lastToken{}, stack{} { stack.push(0); }
 

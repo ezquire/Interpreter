@@ -4,8 +4,6 @@
  */
 
 #include "Functions.hpp"
-#include "Statements.hpp"
-#include "SymTab.hpp"
 
 // Functions
 void Functions::addFunction(std::string const &id,

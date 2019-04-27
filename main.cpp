@@ -3,14 +3,9 @@
  *
  */
 
-#include <iostream>
-#include <vector>
-#include <memory>
-
-#include "Token.hpp"
-#include "Tokenizer.hpp"
 #include "Parser.hpp"
-#include "TypeDescriptor.hpp"
+
+#include <fstream>
 
 int main(int argc, char *argv[]) {
 
@@ -37,7 +32,8 @@ int main(int argc, char *argv[]) {
 	Parser parser(tokenizer);
 	auto statements = parser.file_input();
     SymTab symTab;
-    statements->evaluate(symTab);
 
-    return 0;
+	statements->evaluate(symTab);
+
+	return 0;
 }

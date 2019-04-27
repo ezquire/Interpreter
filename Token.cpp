@@ -3,7 +3,6 @@
  *
  */
 
-#include <iostream>
 #include "Token.hpp"
 
 Token::Token(): _name{""},

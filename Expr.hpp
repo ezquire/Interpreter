@@ -6,11 +6,10 @@
 #ifndef EXPRINTER_ARITHEXPR_HPP
 #define EXPRINTER_ARITHEXPR_HPP
 
-#include "TypeDescriptor.hpp"
-#include "Token.hpp"
 #include "SymTab.hpp"
 
-// Classes in this file define the internal representation of arithmetic expressions.
+// Classes in this file define the internal representation of arithmetic
+// expressions.
 
 // An ExprNode serves as the base class for expressions.
 // It forces the derived classes (subclasses) to implement two functions

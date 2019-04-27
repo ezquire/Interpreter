@@ -6,11 +6,9 @@
 #ifndef EXPRINTER_TOKENIZER_HPP
 #define EXPRINTER_TOKENIZER_HPP
 
-
-#include <fstream>
-#include <vector>
-#include <stack>
 #include "Token.hpp"
+#include <stack>
+#include <vector>
 
 class Tokenizer {
 public:

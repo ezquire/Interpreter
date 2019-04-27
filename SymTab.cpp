@@ -3,12 +3,7 @@
  *
  */
 
-#include <iostream>
-#include <memory>
-
 #include "SymTab.hpp"
-#include "TypeDescriptor.hpp"
-#include "Token.hpp"
 
 // Uncomment the line below to enable debugging
 // #define DEBUG 1

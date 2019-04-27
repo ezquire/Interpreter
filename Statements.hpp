@@ -6,13 +6,7 @@
 #ifndef EXPRINTER_STATEMENTS_HPP
 #define EXPRINTER_STATEMENTS_HPP
 
-#include <iostream>
-#include <vector>
-#include <memory>
-
 #include "Range.hpp"
-#include "Expr.hpp"
-#include "SymTab.hpp"
 
 // The Statement (abstract) class serves as a super class for all statements
 // defined in the language. Ultimately, statements have to be evaluated.

@@ -3,9 +3,7 @@
  *
  */
 
-#include "Range.hpp"
 #include "Statements.hpp"
-#include "TypeDescriptor.hpp"
 
 // Statement
 Statement::Statement() = default;
@@ -217,6 +215,7 @@ Function::Function(std::string id, std::vector<std::string> params,
 	_id{id}, _parameters{params}, _suite{std::move(suite)} {}
 
 void Function::evaluate(SymTab &symTab) {
+	
 	std::cout << "Function::evaluate not implemented yet" << std::endl;
 	exit(1);
 }

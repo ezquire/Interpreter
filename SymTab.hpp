@@ -7,10 +7,8 @@
 #define EXPRINTER_SYMTAB_HPP
 
 #include "TypeDescriptor.hpp"
-#include "Token.hpp"
-#include <string>
+
 #include <map>
-#include <memory>
 
 // This is a flat symbol table. It allows for variables to be
 // initialized, determines if a give variable has been defined or not, and if

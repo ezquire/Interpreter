@@ -4,11 +4,6 @@
  */
 
 #include "Range.hpp"
-#include "Expr.hpp"
-#include "Statements.hpp"
-#include "SymTab.hpp"
-
-#include<vector>
 
 Range::Range(): _start{0}, _end{0}, _step{0} {}
 

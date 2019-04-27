@@ -3,14 +3,7 @@
  *
  */
 
-#include <vector>
-#include <iostream>
-
-#include "Token.hpp"
 #include "Parser.hpp"
-#include "Statements.hpp"
-#include "Functions.hpp"
-#include "Range.hpp"
 
 // Parser functions
 void Parser::die(std::string const &where, std::string const &message, Token &token) {

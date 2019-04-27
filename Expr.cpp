@@ -3,12 +3,7 @@
  *
  */
 
-#include <iostream>
-#include <memory>
-#include <cmath>
-
 #include "Expr.hpp"
-#include "TypeDescriptor.hpp"
 
 // Uncomment the line below to enable debugging
 // #define DEBUG 1

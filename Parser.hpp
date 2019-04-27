@@ -6,16 +6,7 @@
 #ifndef __PARSER_HPP
 #define __PARSER_HPP
 
-#include <vector>
-#include <memory>
-#include <iostream>
-#include <map>
-
-#include "Token.hpp"
 #include "Tokenizer.hpp"
-#include "SymTab.hpp"
-#include "Expr.hpp"
-#include "Functions.hpp"
 #include "Statements.hpp"
 
 class Parser {
@@ -31,7 +22,7 @@ public:
 	std::unique_ptr<Statement> compound_stmt();
 	std::unique_ptr<ExprNode> return_stmt();
 	
-	std::vector< std::shared_ptr<ExprNode> >testlist();
+	std::vector<std::shared_ptr<ExprNode>> testlist();
 	
 	std::unique_ptr<Statements> suite();
 	std::unique_ptr<Statements> func_suite();

@@ -3,11 +3,9 @@
  *
  */
 
-#include <memory>
-#include <cmath>
-
 #include "TypeDescriptor.hpp"
-#include "Token.hpp"
+
+#include <cmath>
 
 // Type Descriptor
 TypeDescriptor::TypeDescriptor(types type): _type{type} {}

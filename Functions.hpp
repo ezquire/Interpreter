@@ -6,11 +6,6 @@
 #ifndef EXPRINTER_FUNCTIONS_HPP
 #define EXPRINTER_FUNCTIONS_HPP
 
-#include <iostream>
-#include <vector>
-#include <memory>
-
-#include "SymTab.hpp"
 #include "Statements.hpp"
 
 class Functions {

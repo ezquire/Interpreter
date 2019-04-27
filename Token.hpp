@@ -5,8 +5,10 @@
 
 #ifndef EXPRINTER_TOKEN_HPP
 #define EXPRINTER_TOKEN_HPP
+
 #include <string>
 #include <memory>
+#include <iostream>
 
 class Token {
 
