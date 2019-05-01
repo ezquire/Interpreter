@@ -8,6 +8,8 @@
 
 #include "Expr.hpp"
 
+class ExprNode;
+
 class Range {
 public:
     Range();

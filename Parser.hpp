@@ -8,19 +8,20 @@
 
 #include "Tokenizer.hpp"
 #include "Statements.hpp"
+#include "AST.hpp"
 
 class Parser {
 public:
     explicit Parser(Tokenizer &tokenizer) : tokenizer{tokenizer} {}
 
-	std::unique_ptr<Statements> file_input();
+	std::unique_ptr<AST> file_input();
 
 	std::unique_ptr<Statement> stmt();
 	std::unique_ptr<Statement> simple_stmt();
 	std::unique_ptr<PrintStatement> print_stmt();
 	std::unique_ptr<AssignmentStatement> assign_stmt();
 	std::unique_ptr<Statement> compound_stmt();
-	std::unique_ptr<ExprNode> return_stmt();
+	std::unique_ptr<ReturnStatement> return_stmt();
 	
 	std::vector<std::shared_ptr<ExprNode>> testlist();
 	
@@ -29,8 +30,8 @@ public:
 	std::unique_ptr<IfStatement> if_stmt();	
 	std::unique_ptr<ForStatement> for_stmt();
 
-	std::unique_ptr<Function> func_def();
-	std::unique_ptr<CallStatement> call();
+	std::shared_ptr<Function> func_def();
+	std::unique_ptr<Statement> call();
 	std::vector<std::string> parameter_list();
 
 	std::unique_ptr<ExprNode> test();

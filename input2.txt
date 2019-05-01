@@ -1,12 +1,4 @@
-def inc(a , b):
- a = a + b
+def printsum(a, b):
+ print a + b
 
-a = 1
-b = 2
-
-print a
-print b
-
-inc(a, b)
-
-print a
+printsum(1, 2)

@@ -3,11 +3,13 @@
  *
  */
 
-#ifndef EXPRINTER_ARITHEXPR_HPP
-#define EXPRINTER_ARITHEXPR_HPP
+#ifndef EXPRINTER_EXPR_HPP
+#define EXPRINTER_EXPR_HPP
 
 #include "SymTab.hpp"
+#include "FuncTab.hpp"
 
+class FuncTab;
 // Classes in this file define the internal representation of arithmetic
 // expressions.
 
@@ -16,10 +18,11 @@
 // Print and Evaluate.
 class ExprNode {
 public:
-    explicit ExprNode(Token token);
+	ExprNode () = default;
+    ExprNode(Token token);
     Token token();
     virtual void print() = 0;
-	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) = 0;
+	virtual std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) = 0;
 	virtual ~ExprNode() = default;
 private:
     Token _token;
@@ -32,10 +35,24 @@ public:
 	std::unique_ptr<ExprNode> &left();
 	std::unique_ptr<ExprNode> &right();
     void print() override;
-	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 private:
 	std::unique_ptr<ExprNode> _left;
 	std::unique_ptr<ExprNode> _right;
+};
+
+// An CallExprNode is useful to represent binary arithmetic operators.
+class CallExprNode: public ExprNode {  // An expression tree node.
+public:
+    CallExprNode(std::string id,
+				 std::vector<std::shared_ptr<ExprNode>> list);
+	std::vector<std::shared_ptr<ExprNode>> &list();
+	std::string &id();
+    void print() override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+private:
+	std::string _id;
+	std::vector<std::shared_ptr<ExprNode>> _list;
 };
 
 // WholeNumber is a leaf-node in an expression tree. It corresponds to
@@ -45,7 +62,7 @@ class WholeNumber: public ExprNode {
 public:
     explicit WholeNumber(Token token);
     void print() override;
-	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
 // Float is a leaf-node in an expression tree. It corresponds to
@@ -55,7 +72,7 @@ class Float: public ExprNode {
 public:
 	explicit Float(Token token);
 	void print() override;
-	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
 // Variable is a leaf-node in an expression tree. It corresponds to
@@ -65,7 +82,7 @@ class Variable: public ExprNode {
 public:
     explicit Variable(Token token);
     void print() override;
-	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
 // String is a leaf-node in an expression tree. It corresponds to
@@ -75,7 +92,7 @@ class String: public ExprNode {
 public:
     explicit String(Token token);
     void print() override;
-	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
 #endif //EXPRINTER_ARITHEXPR_HPP

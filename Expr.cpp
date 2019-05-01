@@ -14,16 +14,17 @@ ExprNode::ExprNode(Token token): _token{std::move(token)} {}
 Token ExprNode::token() { return _token; }
 
 // InfixExprNode
-InfixExprNode::InfixExprNode(Token tk) : ExprNode{std::move(tk)}, _left(nullptr), _right(nullptr) {}
+InfixExprNode::InfixExprNode(Token tk): ExprNode{std::move(tk)},
+										_left(nullptr), _right(nullptr) {}
 
 std::unique_ptr<ExprNode> &InfixExprNode::left() { return _left; }
 
 std::unique_ptr<ExprNode> &InfixExprNode::right() { return _right; }
 
-std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab) {
+std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
     // Evaluates an infix expression using a post-order
 	// Traversal of the expression tree.
-	auto lValue = left()->evaluate(symTab);
+	auto lValue = left()->evaluate(symTab, funcTab);
 
 	if( right() == nullptr) { // we have some unary operator on left()
 		if(token().isSubtractionOperator()) { // Negation operation
@@ -39,7 +40,7 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab) {
 				exit(2);
 		}
 	} else { // We have a left() and a right()
-		auto rValue = right()->evaluate(symTab);
+		auto rValue = right()->evaluate(symTab, funcTab);
 		auto slDesc = dynamic_cast<StringDescriptor *>(lValue.get());
 		auto srDesc = dynamic_cast<StringDescriptor *>(rValue.get());
 		auto lDesc = dynamic_cast<NumberDescriptor *>(lValue.get());
@@ -111,7 +112,7 @@ void WholeNumber::print() {
     token().print();
 }
 
-std::shared_ptr<TypeDescriptor> WholeNumber::evaluate(SymTab &symTab) {
+std::shared_ptr<TypeDescriptor> WholeNumber::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
 #ifdef DEBUG
     std::cout << "WholeNumber::evaluate: returning ";
 	std::cout << token().getWholeNumber() << std::endl;
@@ -129,7 +130,7 @@ void Float::print() {
 	token().print();
 }
 
-std::shared_ptr<TypeDescriptor> Float::evaluate(SymTab &symTab) {
+std::shared_ptr<TypeDescriptor> Float::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
 #ifdef DEBUG
     std::cout << "Float::evaluate: returning ";
 	std::cout << token().getFloat() << std::endl;
@@ -147,7 +148,7 @@ void Variable::print() {
     token().print();
 }
 
-std::shared_ptr<TypeDescriptor> Variable::evaluate(SymTab &symTab) {
+std::shared_ptr<TypeDescriptor> Variable::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
     if( !symTab.isDefined( token().getName() )) {
         std::cout << "Use of undefined variable, ";
 		std::cout << token().getName() << std::endl;
@@ -168,7 +169,7 @@ void String::print() {
 	token().print();
 }
 
-std::shared_ptr<TypeDescriptor> String::evaluate(SymTab &symTab) {
+std::shared_ptr<TypeDescriptor> String::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
 #ifdef DEBUG
     std::cout << "String::evaluate: returning " << token().getString() << std::endl;
 #endif
@@ -179,3 +180,50 @@ std::shared_ptr<TypeDescriptor> String::evaluate(SymTab &symTab) {
 }
 
 // Call 
+CallExprNode::CallExprNode(std::string id,
+						   std::vector<std::shared_ptr<ExprNode>> list) :
+	_id{id}, _list{std::move(list)} {}
+
+std::vector<std::shared_ptr<ExprNode>> & CallExprNode::list() {
+	return _list;
+}
+
+std::string &CallExprNode::id() {
+	return _id;
+}
+
+void CallExprNode::print() {
+	std::cout << _id << std::endl;
+	for(auto& l: _list) {
+		l->print();
+		std::cout << " ";
+	}
+	std::cout << std::endl;
+}
+
+std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
+	if(!funcTab->isDefined( _id )){
+		std::cout << "Function call error: " << _id << " is not defined.";
+		std::cout << std::endl;
+		exit(1);
+	}
+
+	auto function = funcTab->getFunction( _id );
+	auto params = function->params();
+	auto stmts = std::move(function->suite());
+
+	if (_list.size() != params.size()) {
+		std::cout << "Function call error: incorrect number of arguments to";
+		std::cout << " function: " << _id << std::endl;
+		exit(1);
+	}
+
+	std::vector<std::shared_ptr<TypeDescriptor>> args;
+
+	for(auto &l: _list)
+		args.push_back(l->evaluate(symTab, funcTab));
+
+	symTab.openScope(params, args);
+
+	return nullptr;
+}

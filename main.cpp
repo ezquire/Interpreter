@@ -30,10 +30,18 @@ int main(int argc, char *argv[]) {
 	tokenizer.printProcessedTokens();*/
 		
 	Parser parser(tokenizer);
-	auto statements = parser.file_input();
-    SymTab symTab;
+	auto ast = parser.file_input();
 
-	statements->evaluate(symTab);
+	auto funcTab = ast->funcTab();
+	auto statements = ast->stmts();
+
+	//funcTab->print();
+
+	SymTab symTab;
+
+	//statements->print();
+
+	statements->evaluate(symTab, funcTab);
 
 	return 0;
 }

@@ -11,7 +11,9 @@
 void SymTab::setValueFor(std::string const &vName,
 						 std::shared_ptr<TypeDescriptor> rDesc) {
     // Define a variable by setting its initial value.
-	global[vName] = std::move(rDesc);
+	if(scope.empty())
+		global[vName] = std::move(rDesc);
+	
 }
 
 void SymTab::increment(std::string const &vName, int increment) {
@@ -50,7 +52,8 @@ std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string const &vName) {
 
 void SymTab::openScope(std::vector<std::string> params,
 			   std::vector<std::shared_ptr<TypeDescriptor>> args) {
-	
+	std::cout << "SymTab::openScope need to implement" << std::endl;
+	exit(1);
 }
 
 void SymTab::setReturnValue(std::shared_ptr<TypeDescriptor> ret) {

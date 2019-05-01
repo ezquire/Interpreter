@@ -53,9 +53,7 @@ public:
 		return isPrintKeyword() || isName() || isArrayOp() || isCall() ||
 			   isReturnKeyword();
 	}
-	bool isCompoundStatement() const {
-		return isForKeyword() || isIf() || isDefKeyword();
-	}
+	bool isCompoundStatement() const { return isForKeyword() || isIf(); }
 	
 	// Types
 	bool isString() const      { return _string.length() > 0; }

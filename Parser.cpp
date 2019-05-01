@@ -4,8 +4,8 @@
  */
 
 #include "Parser.hpp"
+#include "FuncTab.hpp"
 
-// Parser functions
 void Parser::die(std::string const &where, std::string const &message, Token &token) {
     std::cout << where << " " << message << " ";
     token.print();
@@ -16,15 +16,22 @@ void Parser::die(std::string const &where, std::string const &message, Token &to
     exit(1);
 }
 
-std::unique_ptr<Statements> Parser::file_input() {
+std::unique_ptr<AST> Parser::file_input() {
 	// This function parses the grammar rule:
 	// file_input: {NEWLINE | stmt}* ENDMARKER
 	std::unique_ptr<Statements> stmts = std::make_unique<Statements>();
+	std::unique_ptr<FuncTab> funcTab = std::make_unique<FuncTab>();
+
 	Token tok = tokenizer.getToken();
 	while( !tok.eof() ) {
 		if ( tok.eol() )
 			tok = tokenizer.getToken();
-		else if( tok.isSimpleStatement() || tok.isCompoundStatement() ) {
+		else if( tok.isDefKeyword() ) {
+			tokenizer.ungetToken();
+			auto func = func_def();
+			funcTab->addFunction(func->id(), func);
+			tok = tokenizer.getToken();
+		} else if( tok.isSimpleStatement() || tok.isCompoundStatement() ) {
             tokenizer.ungetToken();
             auto statement = stmt();
             stmts->addStatement(std::move(statement));
@@ -34,11 +41,11 @@ std::unique_ptr<Statements> Parser::file_input() {
 			exit(1);
 		} else {
             tokenizer.ungetToken();
-            return stmts;
+			return std::make_unique<AST>(std::move(stmts), std::move(funcTab));
         }
 	}
 	tokenizer.ungetToken();
-	return stmts;
+	return std::make_unique<AST>(std::move(stmts), std::move(funcTab));
 }
 
 std::unique_ptr<Statement> Parser::stmt() {
@@ -123,35 +130,34 @@ std::unique_ptr<Statement> Parser::compound_stmt() {
 	} else if( tok.isIf() ) {
 		tokenizer.ungetToken();
 		return std::move( if_stmt() );
-	} else if( tok.isDefKeyword() ) {
+ 	}/* else if( tok.isDefKeyword() ) {
 		tokenizer.ungetToken();
 		return std::move( func_def() );
-	} else
+		}*/
+	else
 		die("Parser::compound_stmt", "Expected compound, instead got", tok);
 	return nullptr; // should never reach here
 }
 
-std::unique_ptr<CallStatement> Parser::call() {
+std::unique_ptr<Statement> Parser::call() {
 	// This functions parses the grammar rule:
 	// call: ID '(' { testlist } ')'
 	Token tok = tokenizer.getToken();
 	if( !tok.isCall() )
 		die("Parser::call", "Expected ID '(', instead got", tok);
-	std::string id = tok.getName();
-	auto list = testlist();
-	tok = tokenizer.getToken();
-	if( !tok.isCloseParen() )
-		die("Parser::call", "Expected ')', instead got", tok);
-	return std::make_unique<CallStatement>(id, list);
+	tokenizer.ungetToken();
+	auto call = factor();
+	return std::make_unique<CallStatement>(std::move(call));
 }
 
-std::unique_ptr<ExprNode> Parser::return_stmt() {
+std::unique_ptr<ReturnStatement> Parser::return_stmt() {
 	// This function parses the grammar rule:
 	// return_stmt: 'return' [test]
 	Token tok = tokenizer.getToken();
 	if(!tok.isReturnKeyword())
 		die("Parser::return_stmt", "Expected 'return', instead got", tok);
-	return std::move( test() );
+	auto expr = test();
+	return std::make_unique<ReturnStatement>(std::move(expr));
 }
 
 std::vector<std::shared_ptr<ExprNode>> Parser::testlist() {
@@ -186,10 +192,10 @@ std::unique_ptr<Statements> Parser::suite() {
 	while(tok.eol())
 		tok = tokenizer.getToken();
 	if( tok.eof() )
-		return _suite;
+		return _suite->stmts();
 	else if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
-	return _suite;
+	return _suite->stmts();
 }
 
 std::unique_ptr<Statements> Parser::func_suite() {
@@ -208,10 +214,10 @@ std::unique_ptr<Statements> Parser::func_suite() {
 	while(tok.eol())
 		tok = tokenizer.getToken();
 	if( tok.eof() )
-	   return _suite;
+		return _suite->stmts();
 	else if ( !tok.dedent() )
 		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
-	return _suite;
+	return _suite->stmts();
 }
 
 std::unique_ptr<IfStatement> Parser::if_stmt() {
@@ -288,7 +294,7 @@ std::unique_ptr<ForStatement> Parser::for_stmt() {
 										  std::move(_suite));
 }
 
-std::unique_ptr<Function> Parser::func_def() {
+std::shared_ptr<Function> Parser::func_def() {
 	// This function parses the grammar rule:
 	// func_def: 'def' ID '(' [parameter_list] ')' ':' func_suite
 	Token tok = tokenizer.getToken();
@@ -307,7 +313,7 @@ std::unique_ptr<Function> Parser::func_def() {
 	tok = tokenizer.getToken();
 	if( !tok.isColon() )
 		die("Parser::func_def", "Expected ':', instead got",tok);
-	auto suite = func_suite(); 
+	auto suite = func_suite();
 	return std::make_unique<Function>(id.getName(), param_list,
 									  std::move(suite));
 }
@@ -462,6 +468,13 @@ std::unique_ptr<ExprNode> Parser::factor() {
 		p->left() = factor();
 		p->right() = nullptr;
 		return p;
+	} else if ( tok.isCall() ) {
+		std::string id = tok.getName();
+		auto list = testlist();
+		tok = tokenizer.getToken();
+		if( !tok.isCloseParen() )
+			die("Parser::call", "Expected ')', instead got", tok);
+		return std::make_unique<CallExprNode>(id, list);
 	} else {
 		tokenizer.ungetToken();
 		auto p = atom();
