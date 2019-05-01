@@ -149,11 +149,11 @@ void Variable::print() {
 }
 
 std::shared_ptr<TypeDescriptor> Variable::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-    if( !symTab.isDefined( token().getName() )) {
+    /*if( !symTab.isDefined( token().getName() )) {
         std::cout << "Use of undefined variable, ";
 		std::cout << token().getName() << std::endl;
         exit(1);
-    }
+		}*/
 #ifdef DEBUG
     std::cout << "Variable::evaluate: returning ";
 	printValue( symTab.getValueFor(token().getName()).get() );

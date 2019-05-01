@@ -13,7 +13,8 @@ void SymTab::setValueFor(std::string const &vName,
     // Define a variable by setting its initial value.
 	if(scope.empty())
 		global[vName] = std::move(rDesc);
-	
+	else
+		scope.back()[vName] = std::move(rDesc);
 }
 
 void SymTab::increment(std::string const &vName, int increment) {
@@ -31,29 +32,43 @@ void SymTab::increment(std::string const &vName, int increment) {
 	    rDesc->value.intValue += increment;
 }
 
-bool SymTab::isDefined(std::string const &vName) {
-    return global.find(vName) != global.end();
+bool SymTab::isDefinedGlobal(std::string const &vName) {
+	return global.find(vName) != global.end();
+}
+
+bool SymTab::isDefinedScope(std::string const &vName) {
+	if(scope.empty())
+		return false;
+	return scope.back().find(vName) != scope.back().end();
 }
 
 std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string const &vName) {
-    if( !isDefined(vName) ) {
-        std::cout << "SymTab::getValueFor: " << vName;
-		std::cout << " has not been defined.\n";
-        exit(1);
-    }
-#ifdef DEBUG
-    std::cout << "SymTab::getValueFor: " << vName << " contains ";
-	printValue( global.find(vName)->second.get() );
-	std::cout << std::endl;
-#endif
-	
-    return global.find(vName)->second;
+	if(scope.empty()) {
+		if( !isDefinedGlobal(vName) ) {
+			std::cout << "SymTab::getValueFor: " << vName;
+			std::cout << " has not been defined.\n";
+			exit(1);
+		}
+		return global.find(vName)->second;
+	} else {
+		if(isDefinedScope(vName))
+			return scope.back().find(vName)->second;
+		else if (isDefinedGlobal(vName))
+			return global.find(vName)->second;
+		else {
+			std::cout << "SymTab::getValueFor: " << vName;
+			std::cout << " has not been defined.\n";
+			exit(1);
+		}
+	}
 }
 
 void SymTab::openScope(std::vector<std::string> params,
 			   std::vector<std::shared_ptr<TypeDescriptor>> args) {
-	std::cout << "SymTab::openScope need to implement" << std::endl;
-	exit(1);
+	std::map<std::string, std::shared_ptr<TypeDescriptor>> newScope;
+	for(unsigned i = 0; i < params.size(); ++i)
+		newScope[params[i]] = args[i];
+	scope.push_back(newScope);
 }
 
 void SymTab::setReturnValue(std::shared_ptr<TypeDescriptor> ret) {
@@ -61,7 +76,7 @@ void SymTab::setReturnValue(std::shared_ptr<TypeDescriptor> ret) {
 }
 
 std::shared_ptr<TypeDescriptor> SymTab::getReturnValue() {
-	if( !isDefined("returnVal") ) {
+	if( !isDefinedGlobal("returnVal") ) {
         std::cout << "SymTab::getReturnValue: returnVal";
 		std::cout << " has not been defined.\n";
         exit(1);

@@ -8,6 +8,7 @@
 
 #include "Expr.hpp"
 
+class FuncTab;
 class ExprNode;
 
 class Range {
@@ -16,7 +17,7 @@ public:
 	Range(int start, int end, int step);
 	Range(std::string const &varName,
 		  std::vector<std::shared_ptr<ExprNode>> rangeList,
-		  SymTab &symTab);
+		  SymTab &symTab, std::unique_ptr<FuncTab> &funcTab);
 	int getNext();
 	bool atEnd();
 	int &start();

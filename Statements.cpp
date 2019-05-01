@@ -126,7 +126,7 @@ ForStatement::ForStatement(std::string id,
 void ForStatement::evaluate(SymTab &symTab,
 							std::unique_ptr<FuncTab> &funcTab) {
 	std::unique_ptr<Range> range =
-		std::make_unique<Range>(getId(), getRange(), symTab);
+		std::make_unique<Range>(getId(), getRange(), symTab, funcTab);
 	while( !range->atEnd() ) {
 		statements()->evaluate(symTab, funcTab);
 		symTab.increment( getId(), range->step() );
