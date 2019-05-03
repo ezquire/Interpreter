@@ -20,7 +20,8 @@ class Statement {
 public:
     Statement();
     virtual void print() = 0;
-    virtual void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) = 0;
+    virtual void evaluate(SymTab &symTab,
+						  std::unique_ptr<FuncTab> &funcTab) = 0;
     virtual ~Statement() = default;
 };
 
@@ -32,6 +33,7 @@ public:
     void addStatement(std::unique_ptr<Statement> statement);
     void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab);
     void print();
+	std::vector<std::unique_ptr<Statement>> &getStatements();
 private:
     std::vector<std::unique_ptr<Statement>> _statements;
 };

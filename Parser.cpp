@@ -89,8 +89,8 @@ std::unique_ptr<Statement> Parser::simple_stmt() {
 		tokenizer.ungetToken();
 		return std::move( call() );
 	} else if ( tok.isReturnKeyword() ) {
-		std::cout << "Not implemented yet" << std::endl;
-		exit(1);
+		tokenizer.ungetToken();
+		return std::move( return_stmt() );
 	} else
 		die("Parser::simple_stmt", "Expected simple, instead got", tok);
 	return nullptr; // should never reach here

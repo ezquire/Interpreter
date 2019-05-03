@@ -7,6 +7,7 @@
 
 // Uncomment the line below to enable debugging
 // #define DEBUG 1
+#define RETURN "retVal"
 
 void SymTab::setValueFor(std::string const &vName,
 						 std::shared_ptr<TypeDescriptor> rDesc) {
@@ -72,18 +73,22 @@ void SymTab::openScope(std::vector<std::string> params,
 }
 
 void SymTab::setReturnValue(std::shared_ptr<TypeDescriptor> ret) {
-	global["returnVal"] = ret;
+	global[RETURN] = ret;
 }
 
 std::shared_ptr<TypeDescriptor> SymTab::getReturnValue() {
-	if( !isDefinedGlobal("returnVal") ) {
+	if( !isDefinedGlobal(RETURN) ) {
         std::cout << "SymTab::getReturnValue: returnVal";
 		std::cout << " has not been defined.\n";
         exit(1);
     }
-    return global.find("returnVal")->second;
+    return global.find(RETURN)->second;
 }
 
 void SymTab::closeScope() {
 	scope.pop_back();
+}
+
+void SymTab::removeReturn() {
+	global.erase(RETURN);
 }

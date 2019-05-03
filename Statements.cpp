@@ -5,6 +5,8 @@
 
 #include "Statements.hpp"
 
+#define RETURN "retVal"
+
 // Statement
 Statement::Statement() = default;
 
@@ -21,8 +23,18 @@ void Statements::print() {
 }
 
 void Statements::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-	for (auto &s: _statements)
+	for (auto &s: _statements) {
+		auto stmt = dynamic_cast<ReturnStatement *>(s.get());
+		if(stmt != nullptr) {
+			s->evaluate(symTab, funcTab);
+			break;
+		}
 		s->evaluate(symTab, funcTab);
+	}
+}
+
+std::vector<std::unique_ptr<Statement>> &Statements::getStatements() {
+	return _statements;
 }
 
 // AssignmentStatement
@@ -103,7 +115,7 @@ ReturnStatement::ReturnStatement(std::unique_ptr<ExprNode> stmt) :
 
 void ReturnStatement::evaluate(SymTab &symTab,
 							   std::unique_ptr<FuncTab> &funcTab) {
-	_stmt->evaluate(symTab, funcTab);
+	symTab.setReturnValue(_stmt->evaluate(symTab, funcTab));
 }
 
 std::unique_ptr<ExprNode> &ReturnStatement::stmt() {

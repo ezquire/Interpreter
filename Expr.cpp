@@ -7,6 +7,7 @@
 
 // Uncomment the line below to enable debugging
 // #define DEBUG 1
+#define RETURN "retVal"
 
 // ExprNode
 ExprNode::ExprNode(Token token): _token{std::move(token)} {}
@@ -149,11 +150,6 @@ void Variable::print() {
 }
 
 std::shared_ptr<TypeDescriptor> Variable::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-    /*if( !symTab.isDefined( token().getName() )) {
-        std::cout << "Use of undefined variable, ";
-		std::cout << token().getName() << std::endl;
-        exit(1);
-		}*/
 #ifdef DEBUG
     std::cout << "Variable::evaluate: returning ";
 	printValue( symTab.getValueFor(token().getName()).get() );
@@ -210,7 +206,7 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 
 	auto function = funcTab->getFunction( _id );
 	auto params = function->params();
-	auto stmts = std::move(function->suite());
+	auto stmts = std::move(function->suite()->getStatements());
 
 	if (_list.size() != params.size()) {
 		std::cout << "Function call error: incorrect number of arguments to";
@@ -225,5 +221,19 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 
 	symTab.openScope(params, args);
 
+	if(symTab.isDefinedGlobal(RETURN))
+		symTab.removeReturn();
+
+	for (auto &s: stmts) {
+		s->evaluate(symTab, funcTab);
+		if(symTab.isDefinedGlobal(RETURN))
+			break;
+	}
+
+	symTab.closeScope();
+	
+	if(symTab.isDefinedGlobal(RETURN))
+		return symTab.getValueFor(RETURN);
+	
 	return nullptr;
 }

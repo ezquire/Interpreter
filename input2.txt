@@ -1,4 +1,11 @@
-def printsum(a, b):
- print a + b
+def sum(a, b):
+ return a + b
 
-printsum(1, 2)
+def printsum(a, b):
+ if( a < b):
+  return sum(1, 2)
+ print "this should not print"
+
+print sum(1, 2)
+
+print printsum(0, 2)

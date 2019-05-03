@@ -23,6 +23,7 @@ public:
 	void setReturnValue(std::shared_ptr<TypeDescriptor> ret);
 	std::shared_ptr<TypeDescriptor> getReturnValue();
 	void closeScope();
+	void removeReturn();
 private:
     std::map<std::string, std::shared_ptr<TypeDescriptor>> global;
 	std::vector<std::map<std::string, std::shared_ptr<TypeDescriptor>>> scope; 
