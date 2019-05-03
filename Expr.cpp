@@ -206,7 +206,6 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 
 	auto function = funcTab->getFunction( _id );
 	auto params = function->params();
-	auto stmts = std::move(function->suite()->getStatements());
 
 	if (_list.size() != params.size()) {
 		std::cout << "Function call error: incorrect number of arguments to";
@@ -224,11 +223,7 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 	if(symTab.isDefinedGlobal(RETURN))
 		symTab.removeReturn();
 
-	for (auto &s: stmts) {
-		s->evaluate(symTab, funcTab);
-		if(symTab.isDefinedGlobal(RETURN))
-			break;
-	}
+	function->evaluate(symTab, funcTab);
 
 	symTab.closeScope();
 	

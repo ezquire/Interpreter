@@ -135,16 +135,17 @@ class Function : public Statement {
 public:
 	Function();
 	Function(std::string id, std::vector<std::string> params,
-			 std::unique_ptr<Statements> suite);
+			 std::vector<std::unique_ptr<Statement>> suite);
 	void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 	void print() override;
 	std::string &id();
 	std::vector<std::string> &params();
-	std::unique_ptr<Statements> &suite();
+	std::vector<std::unique_ptr<Statement>> &suite();
 private:
 	std::string _id;
 	std::vector<std::string> _parameters;
-	std::unique_ptr<Statements> _suite;
+	std::vector<std::unique_ptr<Statement>> _suite;
+	//	std::shared_ptr<Statements> _suite;
 };
 
 #endif //EXPRINTER_STATEMENTS_HPP

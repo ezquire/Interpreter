@@ -10,6 +10,7 @@
 #include "FuncTab.hpp"
 
 class FuncTab;
+
 // Classes in this file define the internal representation of arithmetic
 // expressions.
 

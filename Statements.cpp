@@ -238,16 +238,18 @@ void IfStatement::print() {
 }
 
 // Function
-Function::Function(): _id{""}, _suite{nullptr} {}
+Function::Function(): _id{""}, _parameters{},  _suite{} {}
 
 Function::Function(std::string id, std::vector<std::string> params,
-				   std::unique_ptr<Statements> suite):
+				   std::vector<std::unique_ptr<Statement>> suite):
 	_id{id}, _parameters{params}, _suite{std::move(suite)} {}
 
 void Function::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-	
-	std::cout << "Function::evaluate not implemented yet" << std::endl;
-	exit(1);
+	for (auto &s: _suite) {
+		s->evaluate(symTab, funcTab);
+		if(symTab.isDefinedGlobal(RETURN))
+			break;
+	}
 }
 
 std::string &Function::id() {
@@ -258,7 +260,7 @@ std::vector<std::string> &Function::params() {
 	return _parameters;
 }
 
-std::unique_ptr<Statements> &Function::suite() {
+std::vector<std::unique_ptr<Statement>> &Function::suite() {
 	return _suite;
 }
 
@@ -266,6 +268,7 @@ void Function::print() {
 	std::cout << _id << std::endl;
 	for(auto &p: _parameters)
 		std::cout << p << std::endl;
-	_suite->print();
+	for(auto &s: _suite)
+		s->print();
     std::cout << std::endl;
 }

@@ -130,11 +130,7 @@ std::unique_ptr<Statement> Parser::compound_stmt() {
 	} else if( tok.isIf() ) {
 		tokenizer.ungetToken();
 		return std::move( if_stmt() );
- 	}/* else if( tok.isDefKeyword() ) {
-		tokenizer.ungetToken();
-		return std::move( func_def() );
-		}*/
-	else
+ 	} else
 		die("Parser::compound_stmt", "Expected compound, instead got", tok);
 	return nullptr; // should never reach here
 }
@@ -302,7 +298,7 @@ std::shared_ptr<Function> Parser::func_def() {
 		die("Parser::func_def", "Expected 'def', instead got", tok);
 	Token id = tokenizer.getToken();
 	if( !id.isName() )
-		die("Parser::func_def", "Expected ID, instead got", tok);
+		die("Parser::func_def", "Expected ID, instead got", id);
 	tok = tokenizer.getToken();
 	if( !tok.isOpenParen() )
 		die("Parser::func_def", "Expected '(', instead got", tok);
@@ -314,8 +310,8 @@ std::shared_ptr<Function> Parser::func_def() {
 	if( !tok.isColon() )
 		die("Parser::func_def", "Expected ':', instead got",tok);
 	auto suite = func_suite();
-	return std::make_unique<Function>(id.getName(), param_list,
-									  std::move(suite));
+	return std::make_shared<Function>(id.getName(), param_list,
+									  std::move(suite->getStatements()));
 }
 
 std::vector<std::string> Parser::parameter_list() {
