@@ -15,7 +15,7 @@ Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, co
 std::string Tokenizer::readName() {
     std::string name;
     char c;
-    while( inStream.get(c) && isalnum(c))
+    while( inStream.get(c) && (isalnum(c) || c == '_'))
         name += c;
     if(inStream.good())  // In the loop, we have read one char too many.
         inStream.putback(c);
@@ -161,7 +161,7 @@ Token Tokenizer::getToken() {
 	} else if( isdigit(c) || c == '.') { // we have a number
 		inStream.putback(c);
 		readNumber(token);
-	} else if(isalpha(c)) { // we have a name or a keyword
+	} else if(isalpha(c) || c == '_') { // we have a name or a keyword
 		inStream.putback(c);
 		std::string name = readName();
 		if( isKeyword(name) )
