@@ -31,6 +31,7 @@ public:
 	std::unique_ptr<IfStatement> if_stmt();
 	std::unique_ptr<Statements> suite();
 	std::vector< std::shared_ptr<ExprNode> >testlist();
+    std::vector< std::shared_ptr<ExprNode> >array_init();
 	std::unique_ptr<ExprNode> test();
 	std::unique_ptr<ExprNode> and_test();
 	std::unique_ptr<ExprNode> not_test();
@@ -39,6 +40,8 @@ public:
     std::unique_ptr<ExprNode> term();
 	std::unique_ptr<ExprNode> factor();
     std::unique_ptr<ExprNode> atom();
+    std::unique_ptr<ExprNode> array_len();
+    std::unique_ptr<ArrayOps> array_ops();
 
 private:
     Tokenizer &tokenizer;

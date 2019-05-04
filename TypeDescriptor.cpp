@@ -23,10 +23,16 @@ StringDescriptor::StringDescriptor(types descType): TypeDescriptor(descType) {}
 // Array Descriptor
 StringArray::StringArray(types descType): TypeDescriptor(descType) {}
 
+// Number Array descriptor
+NumberArray::NumberArray(types descType): TypeDescriptor(descType) {}
+
 // Print function
 void printValue(TypeDescriptor *desc) {	
 	auto sDesc = dynamic_cast<StringDescriptor *>(desc);
 	auto nDesc = dynamic_cast<NumberDescriptor *>(desc);
+    auto aDesc = dynamic_cast<TypeDescriptor *>(desc);
+    auto dDesc = dynamic_cast<StringArray *>(desc);
+    auto mDesc = dynamic_cast<NumberArray *>(desc);
 	// dynamic_cast will return a nullptr if
 	// desc is not of datatype NumberDescriptor.
 	if( nDesc != nullptr ) { // We have a number
@@ -38,8 +44,16 @@ void printValue(TypeDescriptor *desc) {
 		else if( nDesc->type() == TypeDescriptor::BOOLEAN )
 			std::cout << nDesc->value.boolValue;
 		else std::cout << "Misconfigured union type." << std::endl;		
-	} else if( sDesc != nullptr ) // we must have a string
+	}
+    else if(aDesc->type() == TypeDescriptor::NULLARRAY){
+            std::cout<<"empty array";
+    }
+    else if( sDesc != nullptr ) // we must have a string
 		std::cout << sDesc->value;
+    else if(dDesc != nullptr)
+        std::cout<<"we have a string array of size "<<dDesc->stringArray.size();
+    else if(mDesc != nullptr)
+        std::cout<<"we have a  int array of size "<<mDesc->numberArray.size();
 	else { // we don't know the type
 		std::cout << "Unable to cast TypeDescriptor to a known type\n";
 		exit(1);
@@ -501,3 +515,5 @@ std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 	}
 	return nullptr;
 }
+
+

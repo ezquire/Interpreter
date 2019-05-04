@@ -79,4 +79,30 @@ public:
 	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab) override;
 };
 
+//Arrays
+class Array: public ExprNode {
+public:
+    explicit Array(Token token);
+    void print() override;
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab) override;
+};
+
+class LenArray: public ExprNode {
+public:
+    explicit LenArray(Token token);
+   // explicit LenArray(std::string);
+    void print() override;
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab) override;
+  //  std::string ID;
+    
+};
+
+/*
+class PopArray: public ExprNode {
+public:
+    explicit PopArray(Token token);
+    
+    void print() override;
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab) override;
+};*/
 #endif //EXPRINTER_ARITHEXPR_HPP

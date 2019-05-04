@@ -28,17 +28,78 @@ void Statements::evaluate(SymTab &symTab) {
 }
 
 // AssignmentStatement
-AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr} {}
+AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr}, _array{nullptr} {}
 
 AssignmentStatement::AssignmentStatement(std::string lhsVar,
 										 std::unique_ptr<ExprNode> rhsExpr):
 	_lhsVariable{std::move(lhsVar)}, _rhsExpression{std::move(rhsExpr)} {}
 
+AssignmentStatement::AssignmentStatement(std::string lhsVar, std::vector<std::shared_ptr<ExprNode>> array) {
+    _lhsVariable = lhsVar;
+    _array = array;
+}
+/*
+AssignmentStatement::AssignmentStatement(std::string lhsVar):
+
+  _lhsVariable{std::move(lhsVar)} {}
+*/
 void AssignmentStatement::evaluate(SymTab &symTab) {
-    symTab.setValueFor(lhsVariable(),
+    
+    if(rhsExpression() != nullptr){
+        symTab.setValueFor(lhsVariable(),
 					   rhsExpression()->evaluate(symTab));
+    }
+    //case with empty array
+    else if(arrSize() == 0){
+        std::shared_ptr<TypeDescriptor> desc = std::make_shared<TypeDescriptor>(TypeDescriptor::NULLARRAY);
+        
+        symTab.setValueFor(lhsVariable(), desc);
+    }
+    //case with non-empty array
+    else if(arrSize() > 0){
+        //case for string arrays
+        if(_array[0]->evaluate(symTab)->type() == TypeDescriptor::STRING){
+            //create string array type descriptor
+            std::shared_ptr<StringArray> desc =
+               std::make_shared<StringArray>(StringArray::STRINGARRAY);
+            //create vector to hold string array items
+            std::vector<std::string> _stringArray;
+            //push items into string array
+            for(int i = 0; i<= _array.size()-1; i++){
+
+                auto sIDesc = dynamic_cast<StringDescriptor*>(_array[i]->evaluate(symTab).get());
+                _stringArray.push_back(sIDesc->value);
+            }
+            //set stringArray in String array descriptor to hold vector of strings
+            desc->stringArray = _stringArray;
+            symTab.setValueFor(lhsVariable(), desc);
+        }
+        else if(_array[0]->evaluate(symTab)->type() == TypeDescriptor::INTEGER){
+            //create string array type descriptor
+            
+            std::shared_ptr<NumberArray> Ndesc =
+              std::make_shared<NumberArray>(NumberArray::NUMBERARRAY);
+            //create vector to hold string array items
+            std::vector<int> _numberArray;
+            //push items into string array
+            
+            for(int i = 0; i<= _array.size()-1; i++){
+                
+                auto sIDesc = dynamic_cast<NumberDescriptor*>(_array[i]->evaluate(symTab).get());
+                _numberArray.push_back(sIDesc->value.intValue);
+            }
+            //set stringArray in String array descriptor to hold vector of strings
+            Ndesc->numberArray = _numberArray;
+            symTab.setValueFor(lhsVariable(), Ndesc);
+            
+        }
+    
+    }
 }
 
+int AssignmentStatement::arrSize() {
+    return _array.size();
+}
 std::string &AssignmentStatement::lhsVariable() {
     return _lhsVariable;
 }
@@ -178,3 +239,19 @@ void IfStatement::print() {
 	//_elseSuite->print();
 	//std::cout << std::endl;
 }
+
+//ARRAYOPS
+ArrayOps::ArrayOps() : _s{""}, _s1{""} {}
+
+ArrayOps::ArrayOps(std::string s, std::string s1){
+    _s = s;
+    _s1 = s1;
+}
+
+
+void ArrayOps::evaluate(SymTab & symTab) {
+    
+    std::cout<<"hi";
+}
+
+void ArrayOps::print(){}

@@ -31,6 +31,8 @@ public:
 	bool isReturnKeyword() const { return _keyword == "return"; }
 	bool isDefKeyword() const    { return _keyword == "def";    }
 	bool isLenKeyword() const    { return _keyword == "len";    }
+    bool isPopKeyword() const { return _keyword == "pop"; }
+    bool isAppendKeyword() const { return _keyword == "append"; }
 
 	// Boolean Keywords
 	bool isOrKeyword() const  { return _keyword == "or";  }
@@ -66,7 +68,9 @@ public:
     bool isFloat() const       { return _isFloat;             }
 	bool isName() const        { return _name.length() > 0;   }
 	bool isKeyword() const     { return _keyword.length() > 0;}
-
+    bool &isarrayOP()          { return _isarrayOP;           }
+    bool isarrayOP() const     { return _isarrayOP;           }
+   
 	// Assignment Operator
 	bool isAssignmentOperator() const { return _symbol == '='; }
 
@@ -77,6 +81,9 @@ public:
     bool isCloseParen() const { return _symbol == ')'; }
 	bool isOpenBrace() const  { return _symbol == '{'; }
     bool isCloseBrace() const { return _symbol == '}'; }
+    bool isOpenBrack() const { return _symbol == '['; }
+    bool isCloseBrack() const { return _symbol == ']'; }
+    bool isPeriod() const { return _symbol == '.';}
 
 	// Arithmetic Operators
     bool isMultiplicationOperator() const { return _symbol == '*'; }
@@ -150,6 +157,7 @@ private:
 	bool _indent, _dedent;
 	bool _isWholeNumber;
 	bool _isFloat;
+    bool _isarrayOP;
     char _symbol;
     int _wholeNumber;
 	double _float;

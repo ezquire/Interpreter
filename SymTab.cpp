@@ -51,3 +51,5 @@ std::shared_ptr<TypeDescriptor> SymTab::getValueFor(std::string const &vName) {
 	
     return symTab.find(vName)->second;
 }
+
+

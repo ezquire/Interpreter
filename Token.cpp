@@ -26,6 +26,7 @@ void Token::print() const {
     else if( isOpenBrace() ) std::cout << " { ";
     else if( isCloseBrace() ) std::cout << " } ";
     else if( isComma() ) std::cout << " , ";
+    else if( isPeriod()) std::cout<< ".";
     else if( isEqual() ) std::cout << " == ";
     else if( isNotEqual() ) std::cout << " != ";
     else if( isLessThan() ) std::cout << " < ";
@@ -42,10 +43,13 @@ void Token::print() const {
     else if( isModuloOperator() )  std::cout << " % ";
     else if( isDivisionOperator() )  std::cout << " / ";
     else if( isFloorDivision() ) std::cout << " // ";
+    else if( isOpenBrack() ) std::cout<< "[";
+    else if( isCloseBrack() ) std::cout<< "]";
     else if( isName() )  std::cout << getName();
 	else if( isKeyword() ) std::cout << getKeyword();
     else if( isWholeNumber() ) std::cout << getWholeNumber();
     else if( isFloat() ) std::cout << getFloat();
     else if( isString() ) std::cout << getString();
+    //else if( isLen() ) std::cout << getName();
     else std::cout << "Uninitialized token.\n";
 }
