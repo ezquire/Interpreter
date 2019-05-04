@@ -87,7 +87,7 @@ bool Tokenizer::isKeyword(std::string str) {
 Token Tokenizer::getToken() {
 
     bool blankline = false;
-    char c;
+    char c = '\0';
     Token token;
 
     if(ungottenToken) {

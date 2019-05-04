@@ -13,6 +13,9 @@ Token::Token(): _name{""},
 				_dedent{false},
                 _isWholeNumber{false},
 				_isFloat{false},
+				_call{false},
+                _arrayOp{false},
+                _sub{false},
                 _symbol{'\0'},
                 _wholeNumber{0},
 				_float{0.0} {}
@@ -46,5 +49,8 @@ void Token::print() const {
     else if( isWholeNumber() ) std::cout << getWholeNumber();
     else if( isFloat() ) std::cout << getFloat();
     else if( isString() ) std::cout << getString();
+	else if( isCall() ) std::cout << "CALL " << getName();
+    else if( isSub() ) std::cout << "ARRAY SUB " << getName();
+    else if( isArrayOp() ) std::cout << "ARRAY OP " << getName();
     else std::cout << "Uninitialized token.\n";
 }
