@@ -6,6 +6,8 @@
 #include "Parser.hpp"
 #include "FuncTab.hpp"
 
+bool outsideFuncDef = true;
+
 void Parser::die(std::string const &where, std::string const &message, Token &token) {
     std::cout << where << " " << message << " ";
     token.print();
@@ -26,19 +28,22 @@ std::unique_ptr<AST> Parser::file_input() {
 	while( !tok.eof() ) {
 		if ( tok.eol() )
 			tok = tokenizer.getToken();
+		else if( tok.isReturnKeyword() && outsideFuncDef )
+			die("Parser::file_input", "Expected no return, instead got", tok);
 		else if( tok.isDefKeyword() ) {
+			outsideFuncDef = false;
 			tokenizer.ungetToken();
 			auto func = func_def();
 			funcTab->addFunction(func->id(), func);
 			tok = tokenizer.getToken();
+			outsideFuncDef = true;
 		} else if( tok.isSimpleStatement() || tok.isCompoundStatement() ) {
             tokenizer.ungetToken();
             auto statement = stmt();
             stmts->addStatement(std::move(statement));
             tok = tokenizer.getToken();
         } else if( tok.indent() ) {
-			std::cout << "Parser::file_input unexpected indent\n";
-			exit(1);
+			die("Parser::file_input", "Expected no indent, instead got", tok);
 		} else {
             tokenizer.ungetToken();
 			return std::make_unique<AST>(std::move(stmts), std::move(funcTab));
