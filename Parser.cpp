@@ -4,7 +4,6 @@
  */
 
 #include "Parser.hpp"
-#include "FuncTab.hpp"
 
 bool outsideFuncDef = true;
 

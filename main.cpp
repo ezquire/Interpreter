@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     /*Token tok = tokenizer.getToken();
 	while( !tok.eof() )
 		tok = tokenizer.getToken();
-	tokenizer.printProcessedTokens();*/
+		tokenizer.printProcessedTokens();*/
 		
 	Parser parser(tokenizer);
 	auto ast = parser.file_input();
@@ -35,11 +35,7 @@ int main(int argc, char *argv[]) {
 	auto funcTab = ast->funcTab();
 	auto statements = ast->stmts();
 
-	//funcTab->print();
-
 	SymTab symTab;
-
-	//statements->print();
 
 	statements->evaluate(symTab, funcTab);
 

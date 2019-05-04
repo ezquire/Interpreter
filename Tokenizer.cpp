@@ -34,6 +34,19 @@ std::string Tokenizer::readString() {
 }
 
 // This function is called when it is known that
+// the first character in input is an array operation.
+// The function reads and returns all characters of the operation.
+std::string Tokenizer::readArrayOp() {
+    std::string op;
+    char c;
+    while( inStream.get(c) && isalpha(c) && c != '(')
+		op += c;
+	if(inStream.good())  // In the loop, we have read one char too many.
+        inStream.putback(c);
+    return op;
+}
+
+// This function is called when it is known that
 // the first character in input is a digit or a '.'
 // The function reads and sets the appropriate number with the
 // appropriate type.
@@ -81,6 +94,10 @@ bool Tokenizer::isKeyword(std::string str) {
 			str == "return");
 }
 
+bool Tokenizer::isArrayOp(std::string str) {
+	return (str == "append" || str == "pop");
+}
+
 // This function gets a token for the parser
 // It determines the scoping by parsing whitespace
 // and generating appropriate indent and dedent tokens
@@ -94,7 +111,6 @@ Token Tokenizer::getToken() {
         ungottenToken = false;
         return lastToken;
     }
-
 	if(lastToken.dedent() && col < stack.top() ) {
         stack.pop();
         token.dedent() = true;
@@ -170,7 +186,13 @@ Token Tokenizer::getToken() {
 			inStream.get(c);
 			if(c == '.') {
 				token.setName(name);
-				token.isArrayOp() = true;
+				std::string op = readArrayOp();
+				if(isArrayOp(op))
+					token.setArrayOp(op);
+				else {
+					std::cout << "Invalid array operator\n";
+					exit(1);
+				}					
 			} else if(c == '(') {
 				if( !lastToken.isDefKeyword() ) {
 					token.isCall() = true;

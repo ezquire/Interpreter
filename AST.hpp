@@ -7,7 +7,6 @@
 #define EXPRINTER_AST_HPP
 
 #include "Statements.hpp"
-#include "FuncTab.hpp"
 
 class AST {
 public:

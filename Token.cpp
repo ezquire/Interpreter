@@ -7,6 +7,9 @@
 
 Token::Token(): _name{""},
 				_string{""},
+				_relOp{""},
+				_keyword{""},
+				_arrayOp{""},
 				_eof{false},
 				_eol{false},
                 _indent{false},
@@ -14,7 +17,6 @@ Token::Token(): _name{""},
                 _isWholeNumber{false},
 				_isFloat{false},
 				_call{false},
-                _arrayOp{false},
                 _sub{false},
                 _symbol{'\0'},
                 _wholeNumber{0},
@@ -51,6 +53,7 @@ void Token::print() const {
     else if( isString() ) std::cout << getString();
 	else if( isCall() ) std::cout << "CALL " << getName();
     else if( isSub() ) std::cout << "ARRAY SUB " << getName();
-    else if( isArrayOp() ) std::cout << "ARRAY OP " << getName();
+    else if( isAppend() ) std::cout << "ARRAY APPEND " << getName();
+	else if( isPop() ) std::cout << "ARRAY POP " << getName();
     else std::cout << "Uninitialized token.\n";
 }

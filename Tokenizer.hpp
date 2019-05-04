@@ -27,9 +27,11 @@ private:
     std::vector<Token> _tokens;
 private:
 	bool isKeyword(std::string str);
+	bool isArrayOp(std::string str);
     std::string readName();
 	std::string readOp();
 	std::string readString();
+	std::string readArrayOp();
     void readNumber(Token &tok);
 };
 
