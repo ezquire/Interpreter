@@ -219,16 +219,15 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 		args.push_back(l->evaluate(symTab, funcTab));
 
 	symTab.openScope(params, args);
-	
+
 	function->evaluate(symTab, funcTab);
 
 	symTab.closeScope();
-	
+
 	if(symTab.isDefinedGlobal(RETURN)) {
 		auto retVal = symTab.getValueFor(RETURN);
 		symTab.removeReturn();
 		return retVal;
 	}
-	
 	return nullptr;
 }
