@@ -315,7 +315,7 @@ std::shared_ptr<Function> Parser::func_def() {
 		die("Parser::func_def", "Expected ':', instead got",tok);
 	auto suite = func_suite();
 	return std::make_shared<Function>(id.getName(), param_list,
-									  std::move(suite->getStatements()));
+									  std::move(suite));
 }
 
 std::vector<std::string> Parser::parameter_list() {

@@ -1,24 +1,15 @@
 def sum(a, b):
- return a + b
+  return a + b
 
-#if 1 < 2:
-# return 2
+print sum(1, 2)
 
 def printsum(a, b):
- if( a < b):
-  print "if", a, "<", b, "this should print 3:"
-  return sum(1, 2)
-  print "this should not print"
- else:
-  return sum(2, 3)
- print "this should not print"
-
-print "sum(1, 2) =", sum(1, 2)
-
-print "sum(2, 3) =", sum(2, 3)
+  if( a < b):
+    if( 1 < 2):
+      print "if", a, "<", b, "this should print 3:"
+      return sum(1, 2)
+    print "this should not print"
+  else:
+    return sum(2, 3)
 
 print "printsum(0, 2)", printsum(0, 2)
-
-a = printsum(0, 0)
-
-print "a:", a

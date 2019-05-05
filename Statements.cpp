@@ -24,11 +24,8 @@ void Statements::print() {
 
 void Statements::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
 	for (auto &s: _statements) {
-		auto stmt = dynamic_cast<ReturnStatement *>(s.get());
-		if(stmt != nullptr) {
-			s->evaluate(symTab, funcTab);
+		if(symTab.isDefinedGlobal(RETURN))
 			break;
-		}
 		s->evaluate(symTab, funcTab);
 	}
 }
@@ -241,15 +238,16 @@ void IfStatement::print() {
 Function::Function(): _id{""}, _parameters{},  _suite{} {}
 
 Function::Function(std::string id, std::vector<std::string> params,
-				   std::vector<std::unique_ptr<Statement>> suite):
+				   std::unique_ptr<Statements> suite):
 	_id{id}, _parameters{params}, _suite{std::move(suite)} {}
 
 void Function::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-	for (auto &s: _suite) {
+	/*for (auto &s: _suite) {
 		s->evaluate(symTab, funcTab);
 		if(symTab.isDefinedGlobal(RETURN))
 			break;
-	}
+			}*/
+	_suite->evaluate(symTab, funcTab);
 }
 
 std::string &Function::id() {
@@ -260,7 +258,7 @@ std::vector<std::string> &Function::params() {
 	return _parameters;
 }
 
-std::vector<std::unique_ptr<Statement>> &Function::suite() {
+std::unique_ptr<Statements> &Function::suite() {
 	return _suite;
 }
 
@@ -268,7 +266,6 @@ void Function::print() {
 	std::cout << _id << std::endl;
 	for(auto &p: _parameters)
 		std::cout << p << std::endl;
-	for(auto &s: _suite)
-		s->print();
+	_suite->print();
     std::cout << std::endl;
 }
