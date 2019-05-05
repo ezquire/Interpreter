@@ -3,9 +3,9 @@
  *
  */
 
-#include <iostream>
-#include <string>
 #include "Tokenizer.hpp"
+
+#include <fstream>
 
 Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, col{0}, inStream{stream}, lastToken{}, stack{} { stack.push(0); }
 
@@ -15,7 +15,7 @@ Tokenizer::Tokenizer(std::ifstream &stream): ungottenToken{false}, bol{true}, co
 std::string Tokenizer::readName() {
     std::string name;
     char c;
-    while( inStream.get(c) && isalnum(c))
+    while( inStream.get(c) && (isalnum(c) || c == '_'))
         name += c;
     if(inStream.good())  // In the loop, we have read one char too many.
         inStream.putback(c);
@@ -31,6 +31,19 @@ std::string Tokenizer::readString() {
     while( inStream.get(c) && c != '"')
         _string += c; 
     return _string;
+}
+
+// This function is called when it is known that
+// the first character in input is an array operation.
+// The function reads and returns all characters of the operation.
+std::string Tokenizer::readArrayOp() {
+    std::string op;
+    char c;
+    while( inStream.get(c) && isalpha(c) && c != '(')
+		op += c;
+	if(inStream.good())  // In the loop, we have read one char too many.
+        inStream.putback(c);
+    return op;
 }
 
 // This function is called when it is known that
@@ -81,20 +94,24 @@ bool Tokenizer::isKeyword(std::string str) {
 			str == "return");
 }
 
+bool Tokenizer::isArrayOp(std::string str) {
+	return (str == "append" || str == "pop");
+}
+
 // This function gets a token for the parser
 // It determines the scoping by parsing whitespace
 // and generating appropriate indent and dedent tokens
 Token Tokenizer::getToken() {
 
     bool blankline = false;
-    char c;
+    char c = '\0';
     Token token;
 
     if(ungottenToken) {
         ungottenToken = false;
         return lastToken;
     }
-    if(lastToken.dedent() && col < stack.top() ) {
+	if(lastToken.dedent() && col < stack.top() ) {
         stack.pop();
         token.dedent() = true;
         _tokens.push_back(token);
@@ -160,13 +177,37 @@ Token Tokenizer::getToken() {
 	} else if( isdigit(c) || c == '.') { // we have a number
 		inStream.putback(c);
 		readNumber(token);
-	} else if(isalpha(c)) { // we have a name or a keyword
+	} else if(isalpha(c) || c == '_') { // we have a name or a keyword
 		inStream.putback(c);
 		std::string name = readName();
 		if( isKeyword(name) )
 			token.setKeyword( name );
-		else
-			token.setName( name );
+		else {
+			inStream.get(c);
+			if(c == '.') {
+				token.setName(name);
+				std::string op = readArrayOp();
+				if(isArrayOp(op))
+					token.setArrayOp(op);
+				else {
+					std::cout << "Invalid array operator\n";
+					exit(1);
+				}					
+			} else if(c == '(') {
+				if( !lastToken.isDefKeyword() ) {
+					token.isCall() = true;
+					token.setName(name);
+				} else {
+					if(inStream.good())
+						inStream.putback(c);
+					token.setName(name);
+				}
+			} else {
+				if(inStream.good())
+					inStream.putback(c);
+				token.setName( name );
+			}
+		}
 	} else if(c == '"') // we have a string
 		token.setString( readString() );
 	else if( c == '<' || c == '>' || c == '!') {

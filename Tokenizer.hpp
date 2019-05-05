@@ -6,11 +6,9 @@
 #ifndef EXPRINTER_TOKENIZER_HPP
 #define EXPRINTER_TOKENIZER_HPP
 
-
-#include <fstream>
-#include <vector>
-#include <stack>
 #include "Token.hpp"
+#include <stack>
+#include <vector>
 
 class Tokenizer {
 public:
@@ -20,18 +18,20 @@ public:
 	void printProcessedTokens();
 	bool getBol() const { return bol; }
 private:
-    Token lastToken;
-	int col;
-    bool ungottenToken;
+	bool ungottenToken;
 	bool bol;
+	int col;
+	std::ifstream &inStream;
+    Token lastToken;
 	std::stack<int> stack;
-    std::ifstream &inStream;
     std::vector<Token> _tokens;
 private:
 	bool isKeyword(std::string str);
+	bool isArrayOp(std::string str);
     std::string readName();
 	std::string readOp();
 	std::string readString();
+	std::string readArrayOp();
     void readNumber(Token &tok);
 };
 

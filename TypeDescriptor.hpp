@@ -6,12 +6,9 @@
 #ifndef EXPRINTER_TYPEDESCRIPTOR_HPP
 #define EXPRINTER_TYPEDESCRIPTOR_HPP
 
-#include <iostream>
-#include <string>
-#include <memory>
-#include <vector>
-
 #include "Token.hpp"
+
+#include <vector>
 
 class TypeDescriptor {
 public:

@@ -4,11 +4,6 @@
  */
 
 #include "Range.hpp"
-#include "Expr.hpp"
-#include "Statements.hpp"
-#include "SymTab.hpp"
-
-#include<vector>
 
 Range::Range(): _start{0}, _end{0}, _step{0} {}
 
@@ -17,7 +12,7 @@ Range::Range( int start, int end, int step ):
 
 Range::Range(std::string const &varName,
 			 std::vector<std::shared_ptr<ExprNode>> rangeList,
-			 SymTab &symTab) {
+			 SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
 	if(rangeList.empty() || rangeList.size() > 3) {
 		std::cout << "Error: Incorrect number of arguments to Range()\n";
 		exit(1);
@@ -27,7 +22,7 @@ Range::Range(std::string const &varName,
 		start->value.intValue = 0; // set start to 0 by default
 		symTab.setValueFor( varName, start ); // set value of ID to start
 
-		auto end = rangeList[0]->evaluate(symTab);
+		auto end = rangeList[0]->evaluate(symTab, funcTab);
 		auto endVal = dynamic_cast<NumberDescriptor *>(end.get());
 
 		if( endVal == nullptr ) {
@@ -42,9 +37,9 @@ Range::Range(std::string const &varName,
 			_step = 1; 
 		}
 	} else if(rangeList.size() == 2) { // start and end only, step is 1
-		auto start = rangeList[0]->evaluate(symTab);
+		auto start = rangeList[0]->evaluate(symTab, funcTab);
 		symTab.setValueFor(varName, start); // set value of ID to start
-		auto end = rangeList[1]->evaluate(symTab);
+		auto end = rangeList[1]->evaluate(symTab, funcTab);
 		auto startVal = dynamic_cast<NumberDescriptor *>(start.get());
 		if(startVal == nullptr) {
 			std::cout << "startVal error casting TypeDescriptor\n";
@@ -65,10 +60,10 @@ Range::Range(std::string const &varName,
 			_step = 1; 
 		}
 	} else { // start, end, and step
-		auto start = rangeList[0]->evaluate(symTab);
+		auto start = rangeList[0]->evaluate(symTab, funcTab);
 		symTab.setValueFor(varName, start); // set value of ID to start
-		auto end = rangeList[1]->evaluate(symTab);
-		auto step = rangeList[2]->evaluate(symTab);
+		auto end = rangeList[1]->evaluate(symTab, funcTab);
+		auto step = rangeList[2]->evaluate(symTab, funcTab);
 		auto startVal = dynamic_cast<NumberDescriptor *>(start.get());
 		auto endVal = dynamic_cast<NumberDescriptor *>(end.get());
 		auto stepVal = dynamic_cast<NumberDescriptor *>(step.get());

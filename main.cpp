@@ -3,14 +3,9 @@
  *
  */
 
-#include <iostream>
-#include <vector>
-#include <memory>
-
-#include "Token.hpp"
-#include "Tokenizer.hpp"
 #include "Parser.hpp"
-#include "TypeDescriptor.hpp"
+
+#include <fstream>
 
 int main(int argc, char *argv[]) {
 
@@ -29,17 +24,20 @@ int main(int argc, char *argv[]) {
 
     Tokenizer tokenizer(inputStream);
 
-	// Uncomment the lines below and comment out everything
-	// after the comment block and before "return 0;" for debugging
     /*Token tok = tokenizer.getToken();
 	while( !tok.eof() )
 		tok = tokenizer.getToken();
-	tokenizer.printProcessedTokens();*/
+		tokenizer.printProcessedTokens();*/
 		
 	Parser parser(tokenizer);
-	auto statements = parser.file_input();
-    SymTab symTab;
-    statements->evaluate(symTab);
+	auto ast = parser.file_input();
 
-    return 0;
+	auto funcTab = ast->funcTab();
+	auto statements = ast->stmts();
+
+	SymTab symTab;
+
+	statements->evaluate(symTab, funcTab);
+
+	return 0;
 }

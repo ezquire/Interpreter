@@ -6,13 +6,10 @@
 #ifndef EXPRINTER_STATEMENTS_HPP
 #define EXPRINTER_STATEMENTS_HPP
 
-#include <iostream>
-#include <vector>
-#include <memory>
-
 #include "Range.hpp"
-#include "Expr.hpp"
-#include "SymTab.hpp"
+
+class FuncTab;
+class ExprNode;
 
 // The Statement (abstract) class serves as a super class for all statements
 // defined in the language. Ultimately, statements have to be evaluated.
@@ -23,7 +20,8 @@ class Statement {
 public:
     Statement();
     virtual void print() = 0;
-    virtual void evaluate(SymTab &symTab) = 0;
+    virtual void evaluate(SymTab &symTab,
+						  std::unique_ptr<FuncTab> &funcTab) = 0;
     virtual ~Statement() = default;
 };
 
@@ -33,8 +31,9 @@ class Statements {
 public:
     Statements();
     void addStatement(std::unique_ptr<Statement> statement);
-    void evaluate(SymTab &symTab);
+    void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab);
     void print();
+	std::vector<std::unique_ptr<Statement>> &getStatements();
 private:
     std::vector<std::unique_ptr<Statement>> _statements;
 };
@@ -47,7 +46,7 @@ public:
     AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
     std::string &lhsVariable();
 	std::unique_ptr<ExprNode> &rhsExpression();
-    void evaluate (SymTab &symTab) override;
+    void evaluate (SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
     std::string _lhsVariable;
@@ -60,10 +59,22 @@ public:
 	PrintStatement();
     explicit PrintStatement(std::vector<std::shared_ptr<ExprNode>> rhsList);
 	std::vector<std::shared_ptr<ExprNode>> &rhsList();
-    void evaluate(SymTab &symTab) override;
+    void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
 	std::vector<std::shared_ptr<ExprNode>> _rhsList;
+};
+
+// CallStatement
+class CallStatement : public Statement {
+public:
+	CallStatement();
+	CallStatement(std::unique_ptr<ExprNode> call);
+	std::unique_ptr<ExprNode> &call();
+	void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+	void print() override;
+private:
+	std::unique_ptr<ExprNode> _call;
 };
 
 // ForStatement
@@ -75,12 +86,12 @@ public:
 	std::unique_ptr<Statements> &statements();
 	std::vector<std::shared_ptr<ExprNode>> &getRange();
 	std::string &getId();
-    void evaluate(SymTab &symTab) override;
+    void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
+	std::string _id;
 	std::vector<std::shared_ptr<ExprNode>> _range;
 	std::unique_ptr<Statements> _statements;
-	std::string _id;
 };
 
 // IfStatement
@@ -97,7 +108,7 @@ public:
 	std::vector<std::unique_ptr<ExprNode>> &elifTests();
 	std::vector<std::unique_ptr<Statements>> &elifSuites();
 	std::unique_ptr<Statements> &elseSuite(); 
-    void evaluate(SymTab &symTab) override;
+    void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
 	std::unique_ptr<ExprNode> _firstTest;
@@ -105,6 +116,36 @@ private:
 	std::vector<std::unique_ptr<ExprNode>> _elifTests;
 	std::vector<std::unique_ptr<Statements>> _elifSuites;
 	std::unique_ptr<Statements> _elseSuite;
+};
+
+// ReturnStatement
+class ReturnStatement : public Statement {
+public:
+	ReturnStatement();
+	ReturnStatement(std::unique_ptr<ExprNode> stmt);
+	std::unique_ptr<ExprNode> &stmt();
+	void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+	void print() override;
+private:
+	std::unique_ptr<ExprNode> _stmt;
+};
+
+// Function
+class Function : public Statement {
+public:
+	Function();
+	Function(std::string id, std::vector<std::string> params,
+			 std::unique_ptr<Statements> suite);
+	void evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+	void print() override;
+	std::string &id();
+	std::vector<std::string> &params();
+	std::unique_ptr<Statements> &suite();
+private:
+	std::string _id;
+	std::vector<std::string> _parameters;
+	//std::vector<std::unique_ptr<Statement>> _suite;
+	std::unique_ptr<Statements> _suite;
 };
 
 #endif //EXPRINTER_STATEMENTS_HPP
