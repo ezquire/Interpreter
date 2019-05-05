@@ -6,11 +6,10 @@
 #ifndef __RANGE_HPP
 #define __RANGE_HPP
 
-#include "SymTab.hpp"
 #include "Expr.hpp"
 
-#include<vector>
-#include<iostream> 
+class FuncTab;
+class ExprNode;
 
 class Range {
 public:
@@ -18,7 +17,7 @@ public:
 	Range(int start, int end, int step);
 	Range(std::string const &varName,
 		  std::vector<std::shared_ptr<ExprNode>> rangeList,
-		  SymTab &symTab);
+		  SymTab &symTab, std::unique_ptr<FuncTab> &funcTab);
 	int getNext();
 	bool atEnd();
 	int &start();

@@ -3,19 +3,23 @@
  *
  */
 
-#include <iostream>
 #include "Token.hpp"
 
 Token::Token(): _name{""},
 				_string{""},
+				_relOp{""},
+				_keyword{""},
+				_arrayOp{""},
 				_eof{false},
 				_eol{false},
-                _indent{false},
+        _indent{false},
 				_dedent{false},
-                _isWholeNumber{false},
+        _isWholeNumber{false},
 				_isFloat{false},
-                _symbol{'\0'},
-                _wholeNumber{0},
+				_call{false},
+        _sub{false},
+        _symbol{'\0'},
+        _wholeNumber{0},
 				_float{0.0} {}
 
 void Token::print() const {
@@ -46,10 +50,13 @@ void Token::print() const {
     else if( isOpenBrack() ) std::cout<< "[";
     else if( isCloseBrack() ) std::cout<< "]";
     else if( isName() )  std::cout << getName();
-	else if( isKeyword() ) std::cout << getKeyword();
+	  else if( isKeyword() ) std::cout << getKeyword();
     else if( isWholeNumber() ) std::cout << getWholeNumber();
     else if( isFloat() ) std::cout << getFloat();
     else if( isString() ) std::cout << getString();
-    //else if( isLen() ) std::cout << getName();
+	  else if( isCall() ) std::cout << "CALL " << getName();
+    else if( isSub() ) std::cout << "ARRAY SUB " << getName();
+    else if( isAppend() ) std::cout << "ARRAY APPEND " << getName();
+	  else if( isPop() ) std::cout << "ARRAY POP " << getName();
     else std::cout << "Uninitialized token.\n";
 }

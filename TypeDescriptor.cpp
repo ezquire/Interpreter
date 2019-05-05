@@ -3,11 +3,9 @@
  *
  */
 
-#include <memory>
-#include <cmath>
-
 #include "TypeDescriptor.hpp"
-#include "Token.hpp"
+
+#include <cmath>
 
 // Type Descriptor
 TypeDescriptor::TypeDescriptor(types type): _type{type} {}
@@ -55,8 +53,7 @@ void printValue(TypeDescriptor *desc) {
     else if(mDesc != nullptr)
         std::cout<<"we have a  int array of size "<<mDesc->numberArray.size();
 	else { // we don't know the type
-		std::cout << "Unable to cast TypeDescriptor to a known type\n";
-		exit(1);
+		std::cout << "None";
 	}
 }
 

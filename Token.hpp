@@ -5,8 +5,10 @@
 
 #ifndef EXPRINTER_TOKEN_HPP
 #define EXPRINTER_TOKEN_HPP
+
 #include <string>
 #include <memory>
+#include <iostream>
 
 class Token {
 
@@ -48,25 +50,32 @@ public:
 	bool isElif() const { return _keyword == "elif"; }
 	bool isElse() const { return _keyword == "else"; }
 
+	// Functions
+	bool &isCall()         { return _call;    }
+  	bool isCall() const    { return _call;    }
+	bool &isSub()          { return _sub;     }
+	bool isSub() const     { return _sub;     }
+	bool isArrayOp() const { return _arrayOp.length() > 0; }
+	bool isAppend() const  { return _arrayOp == "append";  }
+	bool isPop() const     { return _arrayOp == "pop";     }
+
+	bool isName() const {
+		return _name.length() > 0 && !isArrayOp() && !isCall() && !isSub();
+	}
+
 	// Statements
 	bool isSimpleStatement() const {
-		return isPrintKeyword() ||
-			isName() ||
-			isReturnKeyword();
+		return isPrintKeyword() || isName() || isArrayOp() || isCall() ||
+			   isReturnKeyword();
 	}
-	bool isCompoundStatement() const {
-		return isForKeyword() ||
-			isIf() ||
-			isDefKeyword();
-	}
+	bool isCompoundStatement() const { return isForKeyword() || isIf(); }
 	
 	// Types
 	bool isString() const      { return _string.length() > 0; }
 	bool &isWholeNumber()      { return _isWholeNumber;       }
     bool isWholeNumber() const { return _isWholeNumber;       }
 	bool &isFloat()            { return _isFloat;             }
-    bool isFloat() const       { return _isFloat;             }
-	bool isName() const        { return _name.length() > 0;   }
+    bool isFloat() const       { return _isFloat;             }	
 	bool isKeyword() const     { return _keyword.length() > 0;}
     bool &isarrayOP()          { return _isarrayOP;           }
     bool isarrayOP() const     { return _isarrayOP;           }
@@ -133,6 +142,9 @@ public:
 	void setString(std::string n) { _string = std::move(n); }
 	std::string getString() const { return _string; }
 
+	void setArrayOp(std::string op) { _arrayOp = std::move(op); }
+	std::string getArrayOp() const  { return _arrayOp; }
+
     void setWholeNumber(int n) {
         _wholeNumber = n;
         isWholeNumber() = true;
@@ -149,17 +161,17 @@ public:
     void print() const;
 
 private:
-    std::string _name;
+  std::string _name;
 	std::string _string;
 	std::string _relOp;
 	std::string _keyword;
-    bool _eof, _eol;
+	std::string _arrayOp;
+  bool _eof, _eol;
 	bool _indent, _dedent;
-	bool _isWholeNumber;
-	bool _isFloat;
-    bool _isarrayOP;
-    char _symbol;
-    int _wholeNumber;
+	bool _isWholeNumber, _isFloat;
+	bool _call, _sub;
+  char _symbol;
+  int _wholeNumber;
 	double _float;
 };
 
