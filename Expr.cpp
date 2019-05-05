@@ -175,6 +175,85 @@ std::shared_ptr<TypeDescriptor> String::evaluate(SymTab &symTab, std::unique_ptr
     return desc;
 }
 
+//Array
+
+Array::Array(Token token): ExprNode{std::move(token)} {}
+
+void Array::print() {
+    token().print();
+}
+
+std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab) {}
+
+//LenArray
+
+LenArray::LenArray(Token token): ExprNode{std::move(token)} {}
+
+void LenArray::print(){}
+
+std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab){
+    
+    if( !symTab.isDefined( token().getName() )) {
+        std::cout << "Use of undefined variable, ";
+        std::cout << token().getName() << std::endl;
+        exit(1);
+    }
+    
+    std::shared_ptr<NumberDescriptor> desc =
+      std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
+    
+    if(symTab.getValueFor(token().getName())->type() == NumberArray::NUMBERARRAY){
+        auto sIdesc = dynamic_cast<NumberArray*>(symTab.getValueFor(token().getName()).get());
+        desc->value.intValue = sIdesc->nArraySize();
+        return desc;
+    }
+    else if(symTab.getValueFor(token().getName())->type() == StringArray::STRINGARRAY){
+        auto sIdesc = dynamic_cast<StringArray*>(symTab.getValueFor(token().getName()).get());
+        desc->value.intValue = sIdesc->sArraySize();
+        return desc;
+    }
+}
+
+//PopArray
+/*
+PopArray::PopArray(Token token): ExprNode{std::move(token)} {}
+
+void PopArray::print(){
+    
+    std::cout<<"arrayop";
+}
+
+std::shared_ptr<TypeDescriptor> PopArray::evaluate(SymTab & symTab){
+    
+    if( !symTab.isDefined( token().getName() )) {
+        std::cout << "Use of undefined variable, ";
+        std::cout << token().getName() << std::endl;
+        exit(1);
+    }
+    
+    std::shared_ptr<NumberDescriptor> desc =
+      std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
+    
+    if(symTab.getValueFor(token().getName())->type() == NumberArray::NUMBERARRAY){
+        
+        //dynamic_cast<NumberArray*>(symTab.getValueFor(token().getName()).get())->nPop();
+        //sIdesc->nPop();
+         
+    }
+    else if(symTab.getValueFor(token().getName())->type() == StringArray::STRINGARRAY){
+        
+        //dynamic_cast<StringArray*>(symTab.getValueFor(token().getName()).get())-> sPop();
+        //sIdesc->sPop();
+    }
+    
+    
+    return desc;
+    
+    
+}
+
+*/
+
 // Call 
 CallExprNode::CallExprNode(std::string id,
 						   std::vector<std::shared_ptr<ExprNode>> list) :

@@ -12,10 +12,11 @@
 
 class TypeDescriptor {
 public:
-	enum types { INTEGER, DOUBLE, BOOLEAN, STRING, ARRAY };
+	enum types { INTEGER, DOUBLE, BOOLEAN, STRING, NULLARRAY, STRINGARRAY, NUMBERARRAY };
 
 	explicit TypeDescriptor(types type);
 	virtual ~TypeDescriptor() = default;
+    
 	
 	types &type();
 
@@ -43,6 +44,17 @@ class StringArray : public TypeDescriptor {
 public:
     explicit StringArray(types descType);
 	std::vector<std::string> stringArray;
+    int sArraySize(){return stringArray.size();}
+    void sPop() { stringArray.pop_back();}
+    
+};
+
+class NumberArray : public TypeDescriptor {
+public:
+    explicit NumberArray(types descType);
+    std::vector<int> numberArray;
+    int nArraySize(){return numberArray.size(); }
+    void nPop() { numberArray.pop_back();}
 };
 
 void printValue (TypeDescriptor *desc);

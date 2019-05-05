@@ -33,6 +33,8 @@ public:
 	bool isReturnKeyword() const { return _keyword == "return"; }
 	bool isDefKeyword() const    { return _keyword == "def";    }
 	bool isLenKeyword() const    { return _keyword == "len";    }
+    bool isPopKeyword() const { return _keyword == "pop"; }
+    bool isAppendKeyword() const { return _keyword == "append"; }
 
 	// Boolean Keywords
 	bool isOrKeyword() const  { return _keyword == "or";  }
@@ -75,7 +77,9 @@ public:
 	bool &isFloat()            { return _isFloat;             }
     bool isFloat() const       { return _isFloat;             }	
 	bool isKeyword() const     { return _keyword.length() > 0;}
-
+    bool &isarrayOP()          { return _isarrayOP;           }
+    bool isarrayOP() const     { return _isarrayOP;           }
+   
 	// Assignment Operator
 	bool isAssignmentOperator() const { return _symbol == '='; }
 
@@ -86,6 +90,9 @@ public:
     bool isCloseParen() const { return _symbol == ')'; }
 	bool isOpenBrace() const  { return _symbol == '{'; }
     bool isCloseBrace() const { return _symbol == '}'; }
+    bool isOpenBrack() const { return _symbol == '['; }
+    bool isCloseBrack() const { return _symbol == ']'; }
+    bool isPeriod() const { return _symbol == '.';}
 
 	// Arithmetic Operators
     bool isMultiplicationOperator() const { return _symbol == '*'; }
@@ -154,17 +161,17 @@ public:
     void print() const;
 
 private:
-    std::string _name;
+  std::string _name;
 	std::string _string;
 	std::string _relOp;
 	std::string _keyword;
 	std::string _arrayOp;
-    bool _eof, _eol;
+  bool _eof, _eol;
 	bool _indent, _dedent;
 	bool _isWholeNumber, _isFloat;
 	bool _call, _sub;
-    char _symbol;
-    int _wholeNumber;
+  char _symbol;
+  int _wholeNumber;
 	double _float;
 };
 
