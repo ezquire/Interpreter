@@ -40,17 +40,19 @@ public:
 class StringArray : public TypeDescriptor {
 public:
 	explicit StringArray(types descType);
-	std::vector<std::string> stringArray;
 	int sArraySize() { return stringArray.size(); }
 	void sPop() { stringArray.pop_back(); }
+	void sAppend(std::string element) { stringArray.push_back(element); }	
+	std::vector<std::string> stringArray;
 };
 
 class NumberArray : public TypeDescriptor {
 public:
 	explicit NumberArray(types descType);
-	std::vector<int> numberArray;
 	int nArraySize() { return numberArray.size(); }
 	void nPop() { numberArray.pop_back(); }
+	void nAppend(int element) { numberArray.push_back(element); }
+	std::vector<int> numberArray;
 };
 
 void printValue (TypeDescriptor *desc);

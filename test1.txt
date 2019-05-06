@@ -12,6 +12,10 @@ c.pop()
 
 print "len(c) after pop:", len(c)
 
+c.append(10)
+
+print "len(c) after append:", len(c)
+
 print d
 
 print e

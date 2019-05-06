@@ -202,7 +202,7 @@ std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab, std::unique_ptr<
 					(_list[i]->evaluate(symTab, funcTab).get());
 				if(sDesc == nullptr) {
 					std::cout << "Array::evaluate error: members must be of ";
-					std::cout << "the same type";
+					std::cout << "the same type\n";
 					exit(1);
 				} else
 					_stringArray.push_back(sDesc->value);
@@ -219,7 +219,7 @@ std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab, std::unique_ptr<
 					(_list[i]->evaluate(symTab, funcTab).get());
 				if(nDesc == nullptr) {
 					std::cout << "Array::evaluate error: members must be of ";
-					std::cout << "the same type";
+					std::cout << "the same type\n";
 					exit(1);
 				} else
 					_numberArray.push_back(nDesc->value.intValue);
@@ -243,59 +243,22 @@ std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab, std::unique_
     
     if(symTab.getValueFor(token().getName())->type() ==
 	   NumberArray::NUMBERARRAY) {
-        auto sIdesc = dynamic_cast<NumberArray*>
+        auto ndesc = dynamic_cast<NumberArray*>
 			(symTab.getValueFor(token().getName()).get());
-        desc->value.intValue = sIdesc->nArraySize();
+        desc->value.intValue = ndesc->nArraySize();
         return desc;
     } else if(symTab.getValueFor(token().getName())->type() ==
 			StringArray::STRINGARRAY) {
-        auto sIdesc = dynamic_cast<StringArray*>
+        auto sdesc = dynamic_cast<StringArray*>
 			(symTab.getValueFor(token().getName()).get());
-		desc->value.intValue = sIdesc->sArraySize();
+		desc->value.intValue = sdesc->sArraySize();
         return desc;
-    }
+    } else {
+		std::cout << "Array length not supported for this type\n";
+		exit(1);
+	}
 	return nullptr; // should never hit here
 }
-
-//PopArray
-/*
-PopArray::PopArray(Token token): ExprNode{std::move(token)} {}
-
-void PopArray::print(){
-    
-    std::cout<<"arrayop";
-}
-
-std::shared_ptr<TypeDescriptor> PopArray::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab){
-    
-    if( !symTab.isDefined( token().getName() )) {
-        std::cout << "Use of undefined variable, ";
-        std::cout << token().getName() << std::endl;
-        exit(1);
-    }
-    
-    std::shared_ptr<NumberDescriptor> desc =
-      std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
-    
-    if(symTab.getValueFor(token().getName())->type() == NumberArray::NUMBERARRAY){
-        
-        //dynamic_cast<NumberArray*>(symTab.getValueFor(token().getName()).get())->nPop();
-        //sIdesc->nPop();
-         
-    }
-    else if(symTab.getValueFor(token().getName())->type() == StringArray::STRINGARRAY){
-        
-        //dynamic_cast<StringArray*>(symTab.getValueFor(token().getName()).get())-> sPop();
-        //sIdesc->sPop();
-    }
-    
-    
-    return desc;
-    
-    
-}
-
-*/
 
 // Call 
 CallExprNode::CallExprNode(std::string id,
@@ -325,10 +288,8 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 		std::cout << std::endl;
 		exit(1);
 	}
-
 	auto function = funcTab->getFunction( _id );
 	auto params = function->params();
-
 	if (_list.size() != params.size()) {
 		std::cout << "Function call error: incorrect number of arguments to";
 		std::cout << " function: " << _id << std::endl;
@@ -336,14 +297,11 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 	}
 
 	std::vector<std::shared_ptr<TypeDescriptor>> args;
-
 	for(auto &l: _list)
 		args.push_back(l->evaluate(symTab, funcTab));
 
 	symTab.openScope(params, args);
-
 	function->evaluate(symTab, funcTab);
-
 	symTab.closeScope();
 
 	if(symTab.isDefinedGlobal(RETURN)) {

@@ -275,23 +275,51 @@ ArrayOps::ArrayOps(std::string id, std::string op,
 	_id{id}, _op{op}, _test{std::move(test)} {}
 
 void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
+	auto type = symTab.getValueFor(_id)->type();
 	if(_op == "append") {
-		std::cout << "Need to implement append\n";
-		exit(1);
+		auto element = _test->evaluate(symTab, funcTab);
+		if( type == TypeDescriptor::NUMBERARRAY ) {
+			if(element->type() == TypeDescriptor::INTEGER) {
+				auto nDesc = dynamic_cast<NumberDescriptor*>(element.get());
+				auto narray = dynamic_cast<NumberArray*>
+					(symTab.getValueFor(_id).get());
+				narray->nAppend(nDesc->value.intValue);
+			} else {
+				std::cout << "ArrayOps::evaluate error: members must be of ";
+				std::cout << "the same type\n";
+				exit(1);
+			}
+		} else if(type == TypeDescriptor::STRINGARRAY) {
+			if(element->type() == TypeDescriptor::STRING) {
+				auto sDesc = dynamic_cast<StringDescriptor*>(element.get());
+				auto sarray = dynamic_cast<StringArray*>
+					(symTab.getValueFor(_id).get());
+				sarray->sAppend(sDesc->value);
+			} else {
+				std::cout << "ArrayOps::evaluate error: members must be of ";
+				std::cout << "the same type\n";
+				exit(1);
+			}
+		} else if (type == TypeDescriptor::NULLARRAY) {
+			std::cout << "Need to implement append for NULLARRAY";
+			exit(1);
+		} else {
+			std::cout << "append is not supported for this type\n";
+			exit(1);
+		}
 	} else if (_op == "pop") {    
-		auto type = symTab.getValueFor(_id)->type();
-		if( type == NumberArray::NUMBERARRAY ) {
+		if( type == TypeDescriptor::NUMBERARRAY ) {
 			auto narray = dynamic_cast<NumberArray*>
 				(symTab.getValueFor(_id).get());
 			if(narray != nullptr)
 				narray->nPop();
-		} else if(type == StringArray::STRINGARRAY) {
+		} else if(type == TypeDescriptor::STRINGARRAY) {
 			auto sarray = dynamic_cast<StringArray*>
 				(symTab.getValueFor(_id).get());
 			if(sarray != nullptr)
 				sarray->sPop();
 		} else {
-			std::cout << "Array operations are not supported for this type\n";
+			std::cout << "pop is not supported for this type\n";
 			exit(1);
 		}
 	}
