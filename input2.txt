@@ -1,15 +1,15 @@
-def sum(a, b):
-  return a + b
+def alter(a):
+ b = [1, 2]
+ print b
+ alterb(b)
+ print b
+ a.pop()
 
-print sum(1, 2)
+def alterb(b):
+ b.pop()
 
-def printsum(a, b):
-  if( a < b):
-    if( 1 < 2):
-      print "if", a, "<", b, "this should print 3:"
-      return sum(1, 2)
-    print "this should not print"
-  else:
-    return sum(2, 3)
+a = [5, 2, 4]
 
-print "printsum(0, 2)", printsum(0, 2)
+alter(a)
+
+print a

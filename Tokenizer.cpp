@@ -202,6 +202,11 @@ Token Tokenizer::getToken() {
 						inStream.putback(c);
 					token.setName(name);
 				}
+			} else if (c == '[') {
+				if(inStream.good())
+					inStream.putback(c);
+				token.setName(name);
+				token.isSub() = true;
 			} else {
 				if(inStream.good())
 					inStream.putback(c);

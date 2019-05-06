@@ -521,13 +521,15 @@ std::unique_ptr<ExprNode> Parser::factor() {
 		auto p = array_len();
 		return p;
 	} else if( tok.isSub() ) {
-		std::cout << "Need to implement isSub";
-		exit(1);
+		//tokenizer.ungetToken();
+		//auto p = subscription();
+		//return p;
 	} else {
 		tokenizer.ungetToken();
 		auto p = atom();
 		return p;
 	}
+	return nullptr; // should never reach here
 }
 
 std::unique_ptr<ExprNode> Parser::atom() {

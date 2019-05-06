@@ -4,24 +4,12 @@ d = len(a)
 
 c = [1, 2, 3, 4, 5, 6, 7, 8]
 
-print "len(c):", len(c)
-
-e = len(c)
+print c
 
 c.pop()
 
-print "len(c) after pop:", len(c)
+print "c after pop:", c
 
 c.append(10)
 
-print "len(c) after append:", len(c)
-
-print d
-
-print e
-
-print d+e
-
-for i in range(len(a)):
-   print "hi"
-
+print "c after append:", c

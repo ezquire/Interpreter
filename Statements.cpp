@@ -303,12 +303,20 @@ void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
 		} else if (type == TypeDescriptor::NULLARRAY) {
 			if(element->type() == TypeDescriptor::INTEGER) {
 				auto nDesc = dynamic_cast<NumberDescriptor*>(element.get());
+				if(nDesc == nullptr) {
+					std::cout << "ArrayOps::evaluate  error: invalid cast";
+					exit(1);
+				}
 				std::shared_ptr<NumberArray> narray =
 					std::make_shared<NumberArray>(TypeDescriptor::NUMBERARRAY);
 				narray->nAppend(nDesc->value.intValue);
 				symTab.setValueFor(_id, narray);
 			} else if(element->type() == TypeDescriptor::STRING) {
 				auto sDesc = dynamic_cast<StringDescriptor*>(element.get());
+				if(sDesc == nullptr) {
+					std::cout << "ArrayOps::evaluate  error: invalid cast";
+					exit(1);
+				}					
 				std::shared_ptr<StringArray> sarray =
 					std::make_shared<StringArray>(TypeDescriptor::STRINGARRAY);
 				sarray->sAppend(sDesc->value);
@@ -321,7 +329,7 @@ void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
 			std::cout << "append() is not supported for this type\n";
 			exit(1);
 		}
-	} else if (_op == "pop") {    
+	} else if (_op == "pop") {
 		if( type == TypeDescriptor::NUMBERARRAY ) {
 			auto narray = dynamic_cast<NumberArray*>
 				(symTab.getValueFor(_id).get());
