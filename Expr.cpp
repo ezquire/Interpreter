@@ -240,20 +240,23 @@ std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab, std::unique_
     
     std::shared_ptr<NumberDescriptor> desc =
 		std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
-    
-    if(symTab.getValueFor(token().getName())->type() ==
-	   NumberArray::NUMBERARRAY) {
+
+	auto type = symTab.getValueFor(token().getName())->type();
+	
+    if(type == TypeDescriptor::NUMBERARRAY) {
         auto ndesc = dynamic_cast<NumberArray*>
 			(symTab.getValueFor(token().getName()).get());
         desc->value.intValue = ndesc->nArraySize();
         return desc;
-    } else if(symTab.getValueFor(token().getName())->type() ==
-			StringArray::STRINGARRAY) {
+    } else if(type == TypeDescriptor::STRINGARRAY) {
         auto sdesc = dynamic_cast<StringArray*>
 			(symTab.getValueFor(token().getName()).get());
 		desc->value.intValue = sdesc->sArraySize();
         return desc;
-    } else {
+    } else if(type == TypeDescriptor::NULLARRAY) {
+		desc->value.intValue = 0;
+        return desc;
+	} else {
 		std::cout << "Array length not supported for this type\n";
 		exit(1);
 	}

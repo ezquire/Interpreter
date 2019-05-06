@@ -285,7 +285,7 @@ void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
 					(symTab.getValueFor(_id).get());
 				narray->nAppend(nDesc->value.intValue);
 			} else {
-				std::cout << "ArrayOps::evaluate error: members must be of ";
+				std::cout << "ArrayOps::append error: members must be of ";
 				std::cout << "the same type\n";
 				exit(1);
 			}
@@ -296,15 +296,29 @@ void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
 					(symTab.getValueFor(_id).get());
 				sarray->sAppend(sDesc->value);
 			} else {
-				std::cout << "ArrayOps::evaluate error: members must be of ";
+				std::cout << "ArrayOps::append error: members must be of ";
 				std::cout << "the same type\n";
 				exit(1);
 			}
 		} else if (type == TypeDescriptor::NULLARRAY) {
-			std::cout << "Need to implement append for NULLARRAY";
-			exit(1);
+			if(element->type() == TypeDescriptor::INTEGER) {
+				auto nDesc = dynamic_cast<NumberDescriptor*>(element.get());
+				std::shared_ptr<NumberArray> narray =
+					std::make_shared<NumberArray>(TypeDescriptor::NUMBERARRAY);
+				narray->nAppend(nDesc->value.intValue);
+				symTab.setValueFor(_id, narray);
+			} else if(element->type() == TypeDescriptor::STRING) {
+				auto sDesc = dynamic_cast<StringDescriptor*>(element.get());
+				std::shared_ptr<StringArray> sarray =
+					std::make_shared<StringArray>(TypeDescriptor::STRINGARRAY);
+				sarray->sAppend(sDesc->value);
+				symTab.setValueFor(_id, sarray);
+			} else {
+				std::cout << "append() is not supported for this type\n";
+				exit(1);
+			}
 		} else {
-			std::cout << "append is not supported for this type\n";
+			std::cout << "append() is not supported for this type\n";
 			exit(1);
 		}
 	} else if (_op == "pop") {    
