@@ -17,7 +17,6 @@ std::string Tokenizer::readName() {
     char c;
     while( inStream.get(c) && (isalnum(c) || c == '_'))
         name += c;
-    
     if(inStream.good())  // In the loop, we have read one char too many.
         inStream.putback(c);
     return name;
@@ -92,7 +91,7 @@ bool Tokenizer::isKeyword(std::string str) {
 	return (str == "print" || str == "for" || str == "in" || str == "range" ||
 			str == "if" || str == "elif" || str == "else" || str == "not" ||
 			str == "and" || str == "or" || str == "len" || str == "def" ||
-			str == "return" || str == "pop" || str == "append");
+			str == "return");
 }
 
 bool Tokenizer::isArrayOp(std::string str) {
@@ -181,11 +180,6 @@ Token Tokenizer::getToken() {
 	} else if(isalpha(c) || c == '_') { // we have a name or a keyword
 		inStream.putback(c);
 		std::string name = readName();
-        inStream.get(c);
-        if(c == '.')
-            token.isarrayOP() = true;
-        if(inStream.good())
-            inStream.putback(c);
 		if( isKeyword(name) )
 			token.setKeyword( name );
 		else {
@@ -196,7 +190,7 @@ Token Tokenizer::getToken() {
 				if(isArrayOp(op))
 					token.setArrayOp(op);
 				else {
-					std::cout << "Invalid array operator\n";
+					std::cout << "getToken() invalid array operator\n";
 					exit(1);
 				}					
 			} else if(c == '(') {
@@ -234,7 +228,8 @@ Token Tokenizer::getToken() {
 		} else
 			token.relOp("//");
 	} else if( c == '+' || c == '*' || c == '%' || c == '-' || c == ':' ||
-			   c == '(' || c == ')' || c == '{' || c == '}' || c == ',' || c == '[' || c == ']' || c == '.')
+			   c == '(' || c == ')' || c == '{' || c == '}' || c == ',' ||
+			   c == '[' || c == ']')
 		token.symbol(c);
 	else {
 		std::cout << "Unknown character in input. -> ";

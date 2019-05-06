@@ -21,12 +21,9 @@ public:
 	std::unique_ptr<AssignmentStatement> assign_stmt();
 	std::unique_ptr<Statement> compound_stmt();
 	std::unique_ptr<ReturnStatement> return_stmt();
-	
-	std::vector<std::shared_ptr<ExprNode>> testlist();
-	
+	std::vector<std::shared_ptr<ExprNode>> testlist();	
 	std::unique_ptr<Statements> suite();
-	std::vector< std::shared_ptr<ExprNode> >testlist();
-  std::vector< std::shared_ptr<ExprNode> >array_init();
+    std::unique_ptr<ExprNode> array_init();
 	std::unique_ptr<Statements> func_suite();
 	std::unique_ptr<IfStatement> if_stmt();	
 	std::unique_ptr<ForStatement> for_stmt();

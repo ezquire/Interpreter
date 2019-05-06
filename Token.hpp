@@ -33,7 +33,7 @@ public:
 	bool isReturnKeyword() const { return _keyword == "return"; }
 	bool isDefKeyword() const    { return _keyword == "def";    }
 	bool isLenKeyword() const    { return _keyword == "len";    }
-    bool isPopKeyword() const { return _keyword == "pop"; }
+    bool isPopKeyword() const    { return _keyword == "pop"; }
     bool isAppendKeyword() const { return _keyword == "append"; }
 
 	// Boolean Keywords
@@ -77,8 +77,6 @@ public:
 	bool &isFloat()            { return _isFloat;             }
     bool isFloat() const       { return _isFloat;             }	
 	bool isKeyword() const     { return _keyword.length() > 0;}
-    bool &isarrayOP()          { return _isarrayOP;           }
-    bool isarrayOP() const     { return _isarrayOP;           }
    
 	// Assignment Operator
 	bool isAssignmentOperator() const { return _symbol == '='; }

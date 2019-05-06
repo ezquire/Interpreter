@@ -176,42 +176,83 @@ std::shared_ptr<TypeDescriptor> String::evaluate(SymTab &symTab, std::unique_ptr
 }
 
 //Array
-
-Array::Array(Token token): ExprNode{std::move(token)} {}
+Array::Array(std::vector<std::shared_ptr<ExprNode>> list) :
+	_list{list} {}
 
 void Array::print() {
-    token().print();
+	for(auto &l: _list) {
+		l->print();
+		std::cout << std::endl;
+	}
 }
 
-std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab) {}
+std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
+    //case with empty array
+    if(_list.size() == 0)
+		return std::make_shared<TypeDescriptor>(TypeDescriptor::NULLARRAY);
+	//case with non-empty array
+	else if(_list.size() > 0){
+		//case for string arrays
+		if(_list[0]->evaluate(symTab, funcTab)->type() == TypeDescriptor::STRING) {
+            //create string array type descriptor
+            std::shared_ptr<StringArray> desc =
+               std::make_shared<StringArray>(StringArray::STRINGARRAY);
+            //create vector to hold string array items
+            std::vector<std::string> _stringArray;
+            //push items into string array
+            for(unsigned i = 0; i < _list.size(); ++i){
+                auto sIDesc = dynamic_cast<StringDescriptor*>(_list[i]->evaluate(symTab, funcTab).get());
+                _stringArray.push_back(sIDesc->value);
+            }
+            //set stringArray in String array descriptor to hold vector of strings
+			desc->stringArray = _stringArray;
+			return desc;
+        }
+        else if(_list[0]->evaluate(symTab, funcTab)->type() == TypeDescriptor::INTEGER){
+            //create string array type descriptor
+            
+            std::shared_ptr<NumberArray> Ndesc =
+              std::make_shared<NumberArray>(NumberArray::NUMBERARRAY);
+            //create vector to hold string array items
+            std::vector<int> _numberArray;
+            //push items into string array
+            
+            for(unsigned i = 0; i < _list.size(); ++i) {
+                auto sIDesc = dynamic_cast<NumberDescriptor*>(_list[i]->evaluate(symTab, funcTab).get());
+                _numberArray.push_back(sIDesc->value.intValue);
+            }
+			//set numArray in String array descriptor to hold vector of strings
+            Ndesc->numberArray = _numberArray;
+			return Ndesc;
+        }
+	}
+	return nullptr;
+}
 
 //LenArray
-
 LenArray::LenArray(Token token): ExprNode{std::move(token)} {}
 
-void LenArray::print(){}
+void LenArray::print() {}
 
-std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab){
-    
-    if( !symTab.isDefined( token().getName() )) {
-        std::cout << "Use of undefined variable, ";
-        std::cout << token().getName() << std::endl;
-        exit(1);
-    }
+std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab){
     
     std::shared_ptr<NumberDescriptor> desc =
-      std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
+		std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
     
-    if(symTab.getValueFor(token().getName())->type() == NumberArray::NUMBERARRAY){
-        auto sIdesc = dynamic_cast<NumberArray*>(symTab.getValueFor(token().getName()).get());
+    if(symTab.getValueFor(token().getName())->type() ==
+	   NumberArray::NUMBERARRAY) {
+        auto sIdesc = dynamic_cast<NumberArray*>
+			(symTab.getValueFor(token().getName()).get());
         desc->value.intValue = sIdesc->nArraySize();
         return desc;
-    }
-    else if(symTab.getValueFor(token().getName())->type() == StringArray::STRINGARRAY){
-        auto sIdesc = dynamic_cast<StringArray*>(symTab.getValueFor(token().getName()).get());
-        desc->value.intValue = sIdesc->sArraySize();
+    } else if(symTab.getValueFor(token().getName())->type() ==
+			StringArray::STRINGARRAY) {
+        auto sIdesc = dynamic_cast<StringArray*>
+			(symTab.getValueFor(token().getName()).get());
+		desc->value.intValue = sIdesc->sArraySize();
         return desc;
     }
+	return nullptr; // should never hit here
 }
 
 //PopArray
@@ -223,7 +264,7 @@ void PopArray::print(){
     std::cout<<"arrayop";
 }
 
-std::shared_ptr<TypeDescriptor> PopArray::evaluate(SymTab & symTab){
+std::shared_ptr<TypeDescriptor> PopArray::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab){
     
     if( !symTab.isDefined( token().getName() )) {
         std::cout << "Use of undefined variable, ";

@@ -19,7 +19,7 @@ class FuncTab;
 // Print and Evaluate.
 class ExprNode {
 public:
-	ExprNode () = default;
+	ExprNode() = default;
     ExprNode(Token token);
     Token token();
     virtual void print() = 0;
@@ -42,8 +42,8 @@ private:
 	std::unique_ptr<ExprNode> _right;
 };
 
-// An CallExprNode is useful to represent binary arithmetic operators.
-class CallExprNode: public ExprNode {  // An expression tree node.
+// A CallExprNode is useful to represent function calls
+class CallExprNode: public ExprNode {
 public:
     CallExprNode(std::string id,
 				 std::vector<std::shared_ptr<ExprNode>> list);
@@ -58,7 +58,7 @@ private:
 
 // WholeNumber is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
-// syntax of arithmetic expressions.
+// syntax of expressions.
 class WholeNumber: public ExprNode {
 public:
     explicit WholeNumber(Token token);
@@ -99,19 +99,18 @@ public:
 //Arrays
 class Array: public ExprNode {
 public:
-    explicit Array(Token token);
-    void print() override;
-    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab) override;
+	Array(std::vector<std::shared_ptr<ExprNode>> list);
+	void print() override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+private:
+	std::vector<std::shared_ptr<ExprNode>> _list;
 };
 
 class LenArray: public ExprNode {
 public:
     explicit LenArray(Token token);
-   // explicit LenArray(std::string);
     void print() override;
-    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab) override;
-  //  std::string ID;
-    
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
 /*
@@ -120,7 +119,7 @@ public:
     explicit PopArray(Token token);
     
     void print() override;
-    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab) override;
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };*/
 
 #endif //EXPRINTER_ARITHEXPR_HPP
