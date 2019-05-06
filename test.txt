@@ -4,8 +4,10 @@ c = []
 
 print len(c)
 
-c.append("hello")
-
 c.append(1)
+c.append(2)
 
 print len(c)
+
+print c
+print a

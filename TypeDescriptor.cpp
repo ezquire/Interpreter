@@ -28,11 +28,10 @@ NumberArray::NumberArray(types descType): TypeDescriptor(descType) {}
 void printValue(TypeDescriptor *desc) {	
 	auto sDesc = dynamic_cast<StringDescriptor *>(desc);
 	auto nDesc = dynamic_cast<NumberDescriptor *>(desc);
-    auto aDesc = dynamic_cast<TypeDescriptor *>(desc);
-    auto dDesc = dynamic_cast<StringArray *>(desc);
-    auto mDesc = dynamic_cast<NumberArray *>(desc);
+    auto sArray = dynamic_cast<StringArray *>(desc);
+    auto nArray = dynamic_cast<NumberArray *>(desc);
 	// dynamic_cast will return a nullptr if
-	// desc is not of datatype NumberDescriptor.
+	// desc is not that type.
 	if( nDesc != nullptr ) { // We have a number
 		// desc must have been of type NumberDescriptor
 		if( nDesc->type() == TypeDescriptor::INTEGER )
@@ -43,16 +42,23 @@ void printValue(TypeDescriptor *desc) {
 			std::cout << nDesc->value.boolValue;
 		else std::cout << "Misconfigured union type." << std::endl;		
 	}
-    else if(aDesc->type() == TypeDescriptor::NULLARRAY){
-            std::cout<<"empty array";
-    }
-    else if( sDesc != nullptr ) // we must have a string
+	else if( desc->type() == TypeDescriptor::NULLARRAY)
+		std::cout << "[]" << std::endl;
+	else if( sDesc != nullptr )
 		std::cout << sDesc->value;
-    else if(dDesc != nullptr)
-        std::cout<<"we have a string array of size "<<dDesc->stringArray.size();
-    else if(mDesc != nullptr)
-        std::cout<<"we have a  int array of size "<<mDesc->numberArray.size();
-	else { // we don't know the type
+    else if(sArray != nullptr) {
+		std::cout << '[';
+		for(unsigned i = 0; i < sArray->stringArray.size()-1; ++i)
+			std::cout << '\'' << sArray->stringArray[i] << '\'' << ", ";
+		std::cout << '\'';
+		std::cout << sArray->stringArray[sArray->stringArray.size()-1] << "\'";
+		std::cout << ']';
+	} else if(nArray != nullptr) {
+		std::cout << '[';
+		for(unsigned i = 0; i < nArray->numberArray.size()-1; ++i)
+			std::cout << nArray->numberArray[i] << ", ";
+		std::cout << nArray->numberArray[nArray->numberArray.size()-1] << ']';
+	} else { // we don't know the type
 		std::cout << "None";
 	}
 }
