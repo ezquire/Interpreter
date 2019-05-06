@@ -189,6 +189,7 @@ std::vector<std::shared_ptr<ExprNode>> Parser::testlist() {
 std::unique_ptr<Statements> Parser::suite() {
 	// This function parses the grammar rules:
 	// NEWLINE INDENT stmt+ DEDENT
+	// NEWLINE INDENT (stmt | return_stmt)+ DEDENT
 	Token tok = tokenizer.getToken();
 	if ( !tok.eol() )
 		die("Parser::suite", "Expected 'NEWLINE', instead got",tok);
@@ -198,28 +199,6 @@ std::unique_ptr<Statements> Parser::suite() {
 	if ( !tok.indent() )
 		die("Parser::suite", "Expected 'INDENT', instead got",tok);
 	auto _suite = file_input();
-	tok = tokenizer.getToken();
-	while(tok.eol())
-		tok = tokenizer.getToken();
-	if( tok.eof() )
-		return _suite->stmts();
-	else if ( !tok.dedent() )
-		die("Parser::suite", "Expected 'DEDENT', instead got",tok);
-	return _suite->stmts();
-}
-
-std::unique_ptr<Statements> Parser::func_suite() {
-	// This function parses the grammar rules:
-	// NEWLINE INDENT (stmt | return_stmt)+ DEDENT
- 	Token tok = tokenizer.getToken();
-	if ( !tok.eol() )
-		die("Parser::suite", "Expected 'NEWLINE', instead got",tok);
-	tok = tokenizer.getToken();
-	while(tok.eol())
-		tok = tokenizer.getToken();
-	if ( !tok.indent() )
-		die("Parser::suite", "Expected 'INDENT', instead got",tok);
-    auto _suite = file_input();
 	tok = tokenizer.getToken();
 	while(tok.eol())
 		tok = tokenizer.getToken();
@@ -299,9 +278,9 @@ std::unique_ptr<ForStatement> Parser::for_stmt() {
 	tok = tokenizer.getToken();
     if ( !tok.isColon() )
 		die("Parser::for_stmt", "Expected ':', instead got", tok);
-	auto _suite = suite();
+	auto stmts = suite();
 	return std::make_unique<ForStatement>(id.getName(), std::move(rangeList),
-										  std::move(_suite));
+										  std::move(stmts));
 }
 
 std::shared_ptr<Function> Parser::func_def() {
@@ -323,9 +302,10 @@ std::shared_ptr<Function> Parser::func_def() {
 	tok = tokenizer.getToken();
 	if( !tok.isColon() )
 		die("Parser::func_def", "Expected ':', instead got",tok);
-	auto suite = func_suite();
+	//auto suite = func_suite();
+	auto stmts = suite();
 	return std::make_shared<Function>(id.getName(), param_list,
-									  std::move(suite));
+									  std::move(stmts));
 }
 
 std::vector<std::string> Parser::parameter_list() {
@@ -383,7 +363,9 @@ std::unique_ptr<ArrayOps> Parser::array_ops() {
 	if(!tok.isCloseParen())
 		die("Parser::array_ops", "Expected 'close paren', instead got", tok);
 
-	return std::make_unique<ArrayOps>(arrayOp.getName(), arrayOp.getArrayOp());
+	return std::make_unique<ArrayOps>(arrayOp.getName(),
+									  arrayOp.getArrayOp(),
+									  std::move(arrayTest));
 }
 
 std::unique_ptr<ExprNode> Parser::array_len() {
@@ -534,6 +516,13 @@ std::unique_ptr<ExprNode> Parser::factor() {
 		if( !tok.isCloseParen() )
 			die("Parser::call", "Expected ')', instead got", tok);
 		return std::make_unique<CallExprNode>(id, list);
+	} else if( tok.isLenKeyword() ) {
+		tokenizer.ungetToken();
+		auto p = array_len();
+		return p;
+	} else if( tok.isSub() ) {
+		std::cout << "Need to implement isSub";
+		exit(1);
 	} else {
 		tokenizer.ungetToken();
 		auto p = atom();
@@ -553,11 +542,6 @@ std::unique_ptr<ExprNode> Parser::atom() {
 		return std::make_unique<Float>(tok);
     else if( tok.isName() )
         return std::make_unique<Variable>(tok);
-    else if( tok.isLenKeyword()){
-        tokenizer.ungetToken();
-        auto p = array_len();
-        return p;
-    }
 	else if( tok.isString() )
 		return std::make_unique<String>(tok);
     else if (tok.isOpenParen()) {
@@ -568,7 +552,7 @@ std::unique_ptr<ExprNode> Parser::atom() {
 				"Expected close-parenthesis, instead got", tok);
         return p;
     }
-	else if(tok.isCloseParen()) {
+	else if(tok.isCloseParen() || tok.isCloseBrack() ) {
 		tokenizer.ungetToken();
 		return nullptr;
 	}

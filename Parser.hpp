@@ -24,7 +24,6 @@ public:
 	std::vector<std::shared_ptr<ExprNode>> testlist();	
 	std::unique_ptr<Statements> suite();
     std::unique_ptr<ExprNode> array_init();
-	std::unique_ptr<Statements> func_suite();
 	std::unique_ptr<IfStatement> if_stmt();	
 	std::unique_ptr<ForStatement> for_stmt();
 

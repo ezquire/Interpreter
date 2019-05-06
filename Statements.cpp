@@ -35,31 +35,21 @@ std::vector<std::unique_ptr<Statement>> &Statements::getStatements() {
 }
 
 // AssignmentStatement
-AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr}, _array{nullptr} {}
+AssignmentStatement::AssignmentStatement(): _lhsVariable{""},
+											_rhsExpression{nullptr} {}
 
 AssignmentStatement::AssignmentStatement(std::string lhsVar,
 										 std::unique_ptr<ExprNode> rhsExpr):
 	_lhsVariable{std::move(lhsVar)}, _rhsExpression{std::move(rhsExpr)} {}
 
-/*AssignmentStatement::AssignmentStatement(std::string lhsVar, std::vector<std::shared_ptr<ExprNode>> array) {
-    _lhsVariable = lhsVar;
-    _array = array;
-	}*/
-
 void AssignmentStatement::evaluate(SymTab &symTab,
 								   std::unique_ptr<FuncTab> &funcTab) {
-    //if(rhsExpression() != nullptr) {
 	symTab.setValueFor(lhsVariable(),
 						   rhsExpression()->evaluate(symTab, funcTab));
-		//}
-
 }
 
-int AssignmentStatement::arrSize() {
-    return _array.size();
-}
 std::string &AssignmentStatement::lhsVariable() {
-    return _lhsVariable;
+	return _lhsVariable;
 }
 
 std::unique_ptr<ExprNode> &AssignmentStatement::rhsExpression() {
@@ -277,16 +267,34 @@ void Function::print() {
     std::cout << std::endl;
 }
 
-//ARRAYOPS
-ArrayOps::ArrayOps() : _s{""}, _s1{""} {}
+//Array Ops 
+ArrayOps::ArrayOps() : _id{""}, _op{""}, _test{nullptr} {}
 
-ArrayOps::ArrayOps(std::string s, std::string s1){
-    _s = s;
-    _s1 = s1;
-}
+ArrayOps::ArrayOps(std::string id, std::string op,
+				   std::unique_ptr<ExprNode> test) :
+	_id{id}, _op{op}, _test{std::move(test)} {}
 
 void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
-	
+	if(_op == "append") {
+		std::cout << "Need to implement append\n";
+		exit(1);
+	} else if (_op == "pop") {    
+		auto type = symTab.getValueFor(_id)->type();
+		if( type == NumberArray::NUMBERARRAY ) {
+			auto narray = dynamic_cast<NumberArray*>
+				(symTab.getValueFor(_id).get());
+			if(narray != nullptr)
+				narray->nPop();
+		} else if(type == StringArray::STRINGARRAY) {
+			auto sarray = dynamic_cast<StringArray*>
+				(symTab.getValueFor(_id).get());
+			if(sarray != nullptr)
+				sarray->sPop();
+		} else {
+			std::cout << "Array operations are not supported for this type\n";
+			exit(1);
+		}
+	}
 }
 
 void ArrayOps::print(){}

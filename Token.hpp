@@ -88,9 +88,9 @@ public:
     bool isCloseParen() const { return _symbol == ')'; }
 	bool isOpenBrace() const  { return _symbol == '{'; }
     bool isCloseBrace() const { return _symbol == '}'; }
-    bool isOpenBrack() const { return _symbol == '['; }
+    bool isOpenBrack() const  { return _symbol == '['; }
     bool isCloseBrack() const { return _symbol == ']'; }
-    bool isPeriod() const { return _symbol == '.';}
+    bool isPeriod() const     { return _symbol == '.';}
 
 	// Arithmetic Operators
     bool isMultiplicationOperator() const { return _symbol == '*'; }

@@ -33,6 +33,10 @@ void SymTab::increment(std::string const &vName, int increment) {
 	    rDesc->value.intValue += increment;
 }
 
+bool SymTab::isDefined(std::string const &vName) {
+	return isDefinedGlobal(vName) || isDefinedScope(vName);
+}
+
 bool SymTab::isDefinedGlobal(std::string const &vName) {
 	return global.find(vName) != global.end();
 }

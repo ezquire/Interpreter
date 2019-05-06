@@ -188,42 +188,44 @@ void Array::print() {
 
 std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
     //case with empty array
-    if(_list.size() == 0)
+    if(_list.size() == 0 || _list[0] == nullptr)
 		return std::make_shared<TypeDescriptor>(TypeDescriptor::NULLARRAY);
 	//case with non-empty array
-	else if(_list.size() > 0){
-		//case for string arrays
-		if(_list[0]->evaluate(symTab, funcTab)->type() == TypeDescriptor::STRING) {
-            //create string array type descriptor
-            std::shared_ptr<StringArray> desc =
-               std::make_shared<StringArray>(StringArray::STRINGARRAY);
-            //create vector to hold string array items
-            std::vector<std::string> _stringArray;
-            //push items into string array
-            for(unsigned i = 0; i < _list.size(); ++i){
-                auto sIDesc = dynamic_cast<StringDescriptor*>(_list[i]->evaluate(symTab, funcTab).get());
-                _stringArray.push_back(sIDesc->value);
+	else if(_list.size() > 0 && _list[0] != nullptr) {
+		auto type = _list[0]->evaluate(symTab, funcTab)->type();
+		if(type == TypeDescriptor::STRING) {
+			std::shared_ptr<StringArray> sArrayDesc =
+				std::make_shared<StringArray>(StringArray::STRINGARRAY);
+			std::vector<std::string> _stringArray;
+			for(unsigned i = 0; i < _list.size(); ++i) {
+				auto sDesc = dynamic_cast<StringDescriptor*>
+					(_list[i]->evaluate(symTab, funcTab).get());
+				if(sDesc == nullptr) {
+					std::cout << "Array::evaluate error: members must be of ";
+					std::cout << "the same type";
+					exit(1);
+				} else
+					_stringArray.push_back(sDesc->value);
             }
-            //set stringArray in String array descriptor to hold vector of strings
-			desc->stringArray = _stringArray;
-			return desc;
-        }
-        else if(_list[0]->evaluate(symTab, funcTab)->type() == TypeDescriptor::INTEGER){
-            //create string array type descriptor
-            
-            std::shared_ptr<NumberArray> Ndesc =
-              std::make_shared<NumberArray>(NumberArray::NUMBERARRAY);
-            //create vector to hold string array items
-            std::vector<int> _numberArray;
-            //push items into string array
-            
+			sArrayDesc->stringArray = _stringArray;
+			return sArrayDesc;
+        } else if(type == TypeDescriptor::INTEGER) {
+			std::shared_ptr<NumberArray> numArrayDesc =
+				std::make_shared<NumberArray>(NumberArray::NUMBERARRAY);
+			std::vector<int> _numberArray;
+            //push items into number array
             for(unsigned i = 0; i < _list.size(); ++i) {
-                auto sIDesc = dynamic_cast<NumberDescriptor*>(_list[i]->evaluate(symTab, funcTab).get());
-                _numberArray.push_back(sIDesc->value.intValue);
+                auto nDesc = dynamic_cast<NumberDescriptor*>
+					(_list[i]->evaluate(symTab, funcTab).get());
+				if(nDesc == nullptr) {
+					std::cout << "Array::evaluate error: members must be of ";
+					std::cout << "the same type";
+					exit(1);
+				} else
+					_numberArray.push_back(nDesc->value.intValue);
             }
-			//set numArray in String array descriptor to hold vector of strings
-            Ndesc->numberArray = _numberArray;
-			return Ndesc;
+            numArrayDesc->numberArray = _numberArray;
+			return numArrayDesc;
         }
 	}
 	return nullptr;

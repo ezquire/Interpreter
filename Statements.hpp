@@ -44,17 +44,13 @@ class AssignmentStatement : public Statement {
 public:
     AssignmentStatement();
     AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
-    AssignmentStatement(std::string lhsVar, std::vector<std::shared_ptr<ExprNode>> array);
-    AssignmentStatement(std::string lhsVar);
-    std::string &lhsVariable();
+	std::string &lhsVariable();
 	std::unique_ptr<ExprNode> &rhsExpression();
-    int arrSize();
-    void evaluate (SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+	void evaluate (SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
     std::string _lhsVariable;
 	std::unique_ptr<ExprNode> _rhsExpression;
-    std::vector<std::shared_ptr<ExprNode>> _array;
 };
 
 // PrintStatement
@@ -126,12 +122,13 @@ private:
 class ArrayOps : public Statement {
 public:
     ArrayOps();
-    ArrayOps(std::string s, std::string s1);
+    ArrayOps(std::string id, std::string op, std::unique_ptr<ExprNode> test);
     void evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
-    std::string _s;
-    std::string _s1;
+    std::string _id;
+    std::string _op;
+	std::unique_ptr<ExprNode> _test;
 };
 
 // ReturnStatement
