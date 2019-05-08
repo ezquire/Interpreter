@@ -36,20 +36,57 @@ std::vector<std::unique_ptr<Statement>> &Statements::getStatements() {
 
 // AssignmentStatement
 AssignmentStatement::AssignmentStatement(): _lhsVariable{""},
+											_lhsExpression{nullptr},
 											_rhsExpression{nullptr} {}
 
 AssignmentStatement::AssignmentStatement(std::string lhsVar,
+										 std::unique_ptr<ExprNode> lhsExpr,
 										 std::unique_ptr<ExprNode> rhsExpr):
-	_lhsVariable{std::move(lhsVar)}, _rhsExpression{std::move(rhsExpr)} {}
+	_lhsVariable{std::move(lhsVar)}, _lhsExpression{std::move(lhsExpr)},
+	_rhsExpression{std::move(rhsExpr)} {}
 
 void AssignmentStatement::evaluate(SymTab &symTab,
 								   std::unique_ptr<FuncTab> &funcTab) {
-	symTab.setValueFor(lhsVariable(),
+	if(_lhsExpression == nullptr) {
+        symTab.setValueFor(lhsVariable(),
 						   rhsExpression()->evaluate(symTab, funcTab));
+    } else {
+		auto lhsindex = dynamic_cast<NumberDescriptor*>
+			(_lhsExpression->evaluate(symTab, funcTab).get());
+		if(lhsindex->type() != TypeDescriptor::INTEGER) {
+			std::cout << "AssignmentStatement::evaluate error index must be";
+			std::cout << " an integer\n";
+			exit(1);
+		}
+		int index = lhsindex->value.intValue;
+		auto lhs = symTab.getValueFor(lhsVariable());
+		auto rhs = _rhsExpression->evaluate(symTab, funcTab);
+		if(lhs->type() == TypeDescriptor::STRINGARRAY) {
+            if(rhs->type() != TypeDescriptor::STRING){
+                std::cout<<"array value not of compatible types"<<std::endl;
+                exit(1);
+            }
+			auto desc = dynamic_cast<StringDescriptor*>(rhs.get());
+            std::string val = desc->value;
+            dynamic_cast<StringArray*>(lhs.get())->setSubStr(index, val);
+        } else if(lhs->type() == TypeDescriptor::NUMBERARRAY) {
+            if(rhs->type() != TypeDescriptor::INTEGER){
+                std::cout<<"array value not of compatible types"<<std::endl;
+                exit(1);
+            }
+			auto desc = dynamic_cast<NumberDescriptor*>(rhs.get());
+			int val = desc->value.intValue;
+            dynamic_cast<NumberArray*>(lhs.get())->setSubNum(index, val);
+        } 
+	}
 }
 
 std::string &AssignmentStatement::lhsVariable() {
 	return _lhsVariable;
+}
+
+std::unique_ptr<ExprNode> &AssignmentStatement::lhsExpression() {
+    return _lhsExpression;
 }
 
 std::unique_ptr<ExprNode> &AssignmentStatement::rhsExpression() {
@@ -232,7 +269,8 @@ void IfStatement::print() {
 	for(auto &s: _elifSuites)
 		s->print();
 	std::cout << std::endl;
-	_elseSuite->print();
+	if(_elseSuite)
+		_elseSuite->print();
 	std::cout << std::endl;
 }
 

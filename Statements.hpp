@@ -43,13 +43,17 @@ private:
 class AssignmentStatement : public Statement {
 public:
     AssignmentStatement();
-    AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
+    AssignmentStatement(std::string lhsVar,
+						std::unique_ptr<ExprNode> lhsExpr,
+						std::unique_ptr<ExprNode> rhsExpr);
 	std::string &lhsVariable();
+	std::unique_ptr<ExprNode> &lhsExpression();
 	std::unique_ptr<ExprNode> &rhsExpression();
 	void evaluate (SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
     std::string _lhsVariable;
+	std::unique_ptr<ExprNode> _lhsExpression;
 	std::unique_ptr<ExprNode> _rhsExpression;
 };
 

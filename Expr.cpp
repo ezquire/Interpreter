@@ -26,7 +26,6 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab, std::uni
     // Evaluates an infix expression using a post-order
 	// Traversal of the expression tree.
 	auto lValue = left()->evaluate(symTab, funcTab);
-
 	if( right() == nullptr) { // we have some unary operator on left()
 		if(token().isSubtractionOperator()) { // Negation operation
 			changeSign(lValue.get());
@@ -50,18 +49,21 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab, std::uni
 		if(slDesc != nullptr && srDesc != nullptr) // we have two strings
 			return stringOperations(slDesc, srDesc, token());
 		else if(lDesc != nullptr && rDesc != nullptr) { // we have two numbers
-			if(token().isBooleanOperator()) { // Needs its own function? 
+			if(token().isBooleanKeyword()) { // Needs its own function? 
 				auto lType = lDesc->type();
 				if( token().isAndKeyword() ) {
 					if(lType == TypeDescriptor::BOOLEAN) {
+						//std::cout << "hit Infix lType == BOOLEAN\n";
 						if(lDesc->value.boolValue == 0)
 							return lValue;
 						else return rValue;
 					} else if(lType == TypeDescriptor::DOUBLE) {
+						//std::cout << "hit Infix lType == DOUBLE\n";
 						if(lDesc->value.doubleValue == 0.0)
 							return lValue;
 						else return rValue;
 					} else if(lType == TypeDescriptor::INTEGER) {
+						//std::cout << "hit Infix lType == INTEGER\n";
 						if(lDesc->value.intValue == 0)
 							return lValue;
 						else return rValue;
@@ -102,8 +104,11 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab, std::uni
 
 void InfixExprNode::print() {
     _left->print();
+	std::cout << ' ';
     token().print();
+	std::cout << ' ';
     _right->print();
+	std::cout << std::endl;
 }
 
 // WholeNumber
@@ -181,7 +186,8 @@ Array::Array(std::vector<std::shared_ptr<ExprNode>> list) :
 
 void Array::print() {
 	for(auto &l: _list) {
-		l->print();
+		if(l != nullptr)
+			l->print();
 		std::cout << std::endl;
 	}
 }
@@ -234,7 +240,9 @@ std::shared_ptr<TypeDescriptor> Array::evaluate(SymTab &symTab, std::unique_ptr<
 //LenArray
 LenArray::LenArray(Token token): ExprNode{std::move(token)} {}
 
-void LenArray::print() {}
+void LenArray::print() {
+	std::cout << "Array length";
+}
 
 std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab){
     
@@ -254,6 +262,7 @@ std::shared_ptr<TypeDescriptor> LenArray::evaluate(SymTab & symTab, std::unique_
 		desc->value.intValue = sdesc->sArraySize();
         return desc;
     } else if(type == TypeDescriptor::NULLARRAY) {
+		std::cout << "Hit type == TypeDescriptor::NULLARRAY\n";
 		desc->value.intValue = 0;
         return desc;
 	} else {
@@ -312,5 +321,59 @@ std::shared_ptr<TypeDescriptor> CallExprNode::evaluate(SymTab &symTab, std::uniq
 		symTab.removeReturn();
 		return retVal;
 	}
+	return nullptr;
+}
+
+// Subscription
+Subscription::Subscription(std::string id, std::unique_ptr<ExprNode> test) :
+	_id{id}, _test{std::move(test)} {}
+
+std::unique_ptr<ExprNode> &Subscription::test() {
+	return _test;
+}
+
+std::string &Subscription::id() {
+	return _id;
+}
+
+void Subscription::print() {
+	std::cout << _id << std::endl;
+	_test->print();
+	std::cout << std::endl;
+}
+
+std::shared_ptr<TypeDescriptor> Subscription::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
+	if(_test == nullptr) {
+		std::cout << "_test is null\n";
+		exit(1);
+	}
+	auto test = dynamic_cast<NumberDescriptor*>
+		(_test->evaluate(symTab, funcTab).get());
+	if(test == nullptr || test->type() != TypeDescriptor::INTEGER) {
+		std::cout << "Subscription::evaluate error index is not an integer\n";
+		exit(1);
+	}
+	int index = test->value.intValue;
+	auto type = symTab.getValueFor(_id)->type();
+	if(type == TypeDescriptor::NUMBERARRAY) {
+		std::shared_ptr<NumberDescriptor> desc =
+			std::make_shared<NumberDescriptor>(TypeDescriptor::INTEGER);
+        auto narray = dynamic_cast<NumberArray*>
+			(symTab.getValueFor(_id).get());
+		int element = narray->nSub(index);
+        desc->value.intValue = element;
+        return desc;
+    } else if(type == TypeDescriptor::STRINGARRAY) {
+		std::shared_ptr<StringDescriptor> desc =
+			std::make_shared<StringDescriptor>(TypeDescriptor::STRING);        
+        auto sarray = dynamic_cast<StringArray*>
+			(symTab.getValueFor(_id).get());
+        std::string element = sarray->sSub(index);
+        desc->value = element;
+        return desc;
+    } /*else if (type == TypeDescriptor::NULLARRAY) {
+		std::cout << "Subscription::evaluate error index out of bounds\n";
+		exit(1);
+		}*/
 	return nullptr;
 }

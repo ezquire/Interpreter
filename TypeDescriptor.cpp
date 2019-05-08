@@ -18,11 +18,27 @@ NumberDescriptor::NumberDescriptor(types descType): TypeDescriptor(descType) {}
 // String Descriptor
 StringDescriptor::StringDescriptor(types descType): TypeDescriptor(descType) {}
 
-// Array Descriptor
+// String Array Descriptor
 StringArray::StringArray(types descType): TypeDescriptor(descType) {}
+
+std::string StringArray::sSub(int n){
+    if( n > (int)stringArray.size()-1 || n < 0 ) {
+        std::cout << "StringArray::sSub array index out of bounds\n";
+        exit(1);
+    }
+	return stringArray[n];
+}
 
 // Number Array descriptor
 NumberArray::NumberArray(types descType): TypeDescriptor(descType) {}
+
+int NumberArray::nSub(int n){
+    if( n > (int)numberArray.size()-1 || n < 0 ){
+        std::cout << "StringArray::sSub array index out of bounds\n";
+        exit(1);
+    }
+	return numberArray[n];
+}
 
 // Print function
 void printValue(TypeDescriptor *desc) {	
@@ -91,6 +107,7 @@ void changeSign(TypeDescriptor *desc) {
 		nDesc->value.doubleValue *= -1;
 }
 
+// Negate
 std::shared_ptr<TypeDescriptor> negate(TypeDescriptor *desc) {
 	auto nDesc = dynamic_cast<NumberDescriptor *>(desc);
 	if(nDesc == nullptr) {
@@ -152,6 +169,7 @@ std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 	}
 }
 
+// Relational Operations
 std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 											  NumberDescriptor *rDesc,
 											  Token const &tok) {
@@ -306,6 +324,7 @@ std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 	return nullptr;
 }
 
+// Arithmetic Operations
 std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 												NumberDescriptor *rDesc,
 												Token const &tok) {
@@ -318,9 +337,7 @@ std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 	if(lType == TypeDescriptor::DOUBLE || rType == TypeDescriptor::DOUBLE) {
 		std::cout << "Double type not supported yet\n";
 		exit(1);
-	}
-
-	else if(tok.isAdditionOperator()) {
+	} else if(tok.isAdditionOperator()) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.intValue =

@@ -45,7 +45,7 @@ private:
 // A CallExprNode is useful to represent function calls
 class CallExprNode: public ExprNode {
 public:
-    CallExprNode(std::string id,
+    explicit CallExprNode(std::string id,
 				 std::vector<std::shared_ptr<ExprNode>> list);
 	std::vector<std::shared_ptr<ExprNode>> &list();
 	std::string &id();
@@ -96,16 +96,17 @@ public:
 	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
-//Arrays
+// Arrays
 class Array: public ExprNode {
 public:
-	Array(std::vector<std::shared_ptr<ExprNode>> list);
+	explicit Array(std::vector<std::shared_ptr<ExprNode>> list);
 	void print() override;
 	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 private:
 	std::vector<std::shared_ptr<ExprNode>> _list;
 };
 
+// Array Length
 class LenArray: public ExprNode {
 public:
     explicit LenArray(Token token);
@@ -113,13 +114,17 @@ public:
     std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
 };
 
-/*
-class PopArray: public ExprNode {
+// Subscription
+class Subscription: public ExprNode {
 public:
-    explicit PopArray(Token token);
-    
-    void print() override;
+	Subscription(std::string id, std::unique_ptr<ExprNode> test);
+	void print() override;
     std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) override;
-};*/
+	std::unique_ptr<ExprNode> &test();
+	std::string &id();
+private:
+	std::string _id;
+	std::unique_ptr<ExprNode> _test;
+};
 
 #endif //EXPRINTER_ARITHEXPR_HPP

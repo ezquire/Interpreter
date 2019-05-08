@@ -43,6 +43,10 @@ public:
 	int sArraySize() { return stringArray.size(); }
 	void sPop() { stringArray.pop_back(); }
 	void sAppend(std::string element) { stringArray.push_back(element); }	
+	//returns indexed value of vector
+	std::string sSub(int n);
+    //sets indexed value of vector
+    void setSubStr(int n, std::string s) { stringArray[n] = s; }
 	std::vector<std::string> stringArray;
 };
 
@@ -52,6 +56,10 @@ public:
 	int nArraySize() { return numberArray.size(); }
 	void nPop() { numberArray.pop_back(); }
 	void nAppend(int element) { numberArray.push_back(element); }
+	//returns indexed value of vector
+    int nSub(int n);
+    //sets indexed value of vector
+    void setSubNum(int n, int s) { numberArray[n] = s;}
 	std::vector<int> numberArray;
 };
 

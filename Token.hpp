@@ -40,7 +40,7 @@ public:
 	bool isOrKeyword() const  { return _keyword == "or";  }
 	bool isAndKeyword() const { return _keyword == "and"; }
 	bool isNotKeyword() const { return _keyword == "not"; }
-	bool isBooleanOperator() const {
+	bool isBooleanKeyword() const {
 		return isOrKeyword() ||
 			isAndKeyword() ||
 			isNotKeyword();
@@ -60,7 +60,7 @@ public:
 	bool isPop() const     { return _arrayOp == "pop";     }
 
 	bool isName() const {
-		return _name.length() > 0 && !isArrayOp() && !isCall() && !isSub();
+		return _name.length() > 0 && !isArrayOp() && !isCall();
 	}
 
 	// Statements

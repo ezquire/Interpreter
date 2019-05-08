@@ -1,15 +1,4 @@
-def alter(a):
- b = [1, 2]
- print b
- alterb(b)
- print b
- a.pop()
-
-def alterb(b):
- b.pop()
-
-a = [5, 2, 4]
-
-alter(a)
-
-print a
+a = []
+if 0 < 0 and a[0] > 0:
+  print ("this should not print")
+print ("we should have seen an error")

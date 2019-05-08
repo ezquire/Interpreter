@@ -117,7 +117,22 @@ std::unique_ptr<AssignmentStatement> Parser::assign_stmt() {
     Token varName = tokenizer.getToken();
 	if (!varName.isName())
         die("Parser::assign_stmt", "Expected name, instead got", varName);
-
+	if(varName.isSub()) {
+		Token tok = tokenizer.getToken();
+		if(!tok.isOpenBrack())
+			die("Parser::assign_stmt", "Expected '[' instead got", tok);
+		auto index = test();
+		tok = tokenizer.getToken();
+		if(!tok.isCloseBrack())
+			die("Parser::assign_stmt", "Expected ']' instead got", tok);
+		tok = tokenizer.getToken();
+		if ( !tok.isAssignmentOperator() )
+			die("Parser::assign_stmt", "Expected '=', instead got", tok);
+		auto expr = test();
+		return std::make_unique<AssignmentStatement>(varName.getName(),
+													 std::move(index),
+													 std::move(expr));
+	}
 	Token tok = tokenizer.getToken();
 	if ( !tok.isAssignmentOperator() )
 		die("Parser::assign_stmt", "Expected '=', instead got", tok);
@@ -126,11 +141,13 @@ std::unique_ptr<AssignmentStatement> Parser::assign_stmt() {
 		tokenizer.ungetToken();
 		auto array = array_init();
 		return std::make_unique<AssignmentStatement>(varName.getName(),
+													 nullptr,
 													 std::move(array));
 	}
 	tokenizer.ungetToken();
 	auto expr = test();
 	return std::make_unique<AssignmentStatement>(varName.getName(),
+												 nullptr,
 												 std::move(expr));
 }
 
@@ -331,18 +348,30 @@ std::vector<std::string> Parser::parameter_list() {
 	return list;
 }
 
-// Subscription
+std::unique_ptr<ExprNode> Parser::subscription() {
+	Token sub = tokenizer.getToken();
+	if(!sub.isSub())
+		die("Parser::subscription", "Expected 'sub' instead got", sub);
+	Token tok = tokenizer.getToken();
+	if(!tok.isOpenBrack())
+		die("Parser::subscription", "Expected '[' instead got", tok);
+	auto index = test();
+	tok = tokenizer.getToken();
+	if(!tok.isCloseBrack())
+		die("Parser::subscription", "Expected ']' instead got", tok);
+	return std::make_unique<Subscription>(sub.getName(), std::move(index));
+}
 
 std::unique_ptr<ExprNode> Parser::array_init() {
 	// This function parses the grammar rule:
 	// array_init: '[' [ testlist ] ']'
 	Token tok = tokenizer.getToken();
 	if( !tok.isOpenBrack() )
-		die("Parser::suite", "Expected 'Open Bracket' instead got", tok);
+		die("Parser::array_init", "Expected '[' instead got", tok);
 	auto list = testlist();
 	tok = tokenizer.getToken();
 	if( !tok.isCloseBrack() )
-		die("Parser::suite", "Expected 'Open Bracket' instead got", tok);
+		die("Parser::array_init", "Expected ']' instead got", tok);
 	return std::make_unique<Array>(list);
 }
 
@@ -373,19 +402,19 @@ std::unique_ptr<ExprNode> Parser::array_len() {
 	// array_len: ’len’ ’(’ ID ’)’
 	Token tok = tokenizer.getToken();
 	if(!tok.isLenKeyword())
-		die("Parser::suite", "Expected 'len' instead got", tok);
+		die("Parser::array_len", "Expected 'len' instead got", tok);
 
 	tok = tokenizer.getToken();
 	if(!tok.isOpenParen())
-		die("Parser::suite", "Expected 'openParen' instead got", tok);
+		die("Parser::array_len", "Expected 'openParen' instead got", tok);
 
 	Token name = tokenizer.getToken();
 	if(!name.isName())
-		die("Parser::suite", "Expected 'name' instead got", name);
+		die("Parser::array_len", "Expected 'name' instead got", name);
 
 	tok = tokenizer.getToken();
 	if(!tok.isCloseParen())
-		die("Parser::suite", "Expected 'closeParen' instead got", tok);
+		die("Parser::array_len", "Expected 'closeParen' instead got", tok);
 
 	return std::make_unique<LenArray>(name);    
 }
@@ -521,9 +550,9 @@ std::unique_ptr<ExprNode> Parser::factor() {
 		auto p = array_len();
 		return p;
 	} else if( tok.isSub() ) {
-		//tokenizer.ungetToken();
-		//auto p = subscription();
-		//return p;
+		tokenizer.ungetToken();
+		auto p = subscription();
+		return p;
 	} else {
 		tokenizer.ungetToken();
 		auto p = atom();
