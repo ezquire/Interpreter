@@ -26,6 +26,8 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab, std::uni
     // Evaluates an infix expression using a post-order
 	// Traversal of the expression tree.
 	auto lValue = left()->evaluate(symTab, funcTab);
+	auto slDesc = dynamic_cast<StringDescriptor *>(lValue.get());
+	auto lDesc = dynamic_cast<NumberDescriptor *>(lValue.get());
 	if( right() == nullptr) { // we have some unary operator on left()
 		if(token().isSubtractionOperator()) { // Negation operation
 			changeSign(lValue.get());
@@ -39,51 +41,44 @@ std::shared_ptr<TypeDescriptor> InfixExprNode::evaluate(SymTab &symTab, std::uni
 				std::cout << std::endl;
 				exit(2);
 		}
+	} else if( token().isAndKeyword() && lDesc != nullptr) {
+		auto lType = lDesc->type();
+		if(lType == TypeDescriptor::BOOLEAN) {
+			if(lDesc->value.boolValue == 0)
+				return lValue;
+			else return right()->evaluate(symTab, funcTab);;
+		} else if(lType == TypeDescriptor::DOUBLE) {
+			if(lDesc->value.doubleValue == 0.0)
+				return lValue;
+			else return right()->evaluate(symTab, funcTab);;
+		} else if(lType == TypeDescriptor::INTEGER) {
+			if(lDesc->value.intValue == 0)
+				return lValue;
+			else return right()->evaluate(symTab, funcTab);;
+		}
+	} else if( token().isOrKeyword() && lDesc != nullptr) {
+		auto lType = lDesc->type();
+		if(lType == TypeDescriptor::BOOLEAN) {
+			if(lDesc->value.boolValue != 0)
+				return lValue;
+			else return right()->evaluate(symTab, funcTab);;
+		} else if(lType == TypeDescriptor::DOUBLE) {
+			if(lDesc->value.doubleValue != 0.0)
+				return lValue;
+			else return right()->evaluate(symTab, funcTab);;
+		} else if(lType == TypeDescriptor::INTEGER) {
+			if(lDesc->value.intValue != 0)
+				return lValue;
+			else return right()->evaluate(symTab, funcTab);;
+		}
 	} else { // We have a left() and a right()
 		auto rValue = right()->evaluate(symTab, funcTab);
-		auto slDesc = dynamic_cast<StringDescriptor *>(lValue.get());
 		auto srDesc = dynamic_cast<StringDescriptor *>(rValue.get());
-		auto lDesc = dynamic_cast<NumberDescriptor *>(lValue.get());
 		auto rDesc = dynamic_cast<NumberDescriptor *>(rValue.get());
-
 		if(slDesc != nullptr && srDesc != nullptr) // we have two strings
 			return stringOperations(slDesc, srDesc, token());
 		else if(lDesc != nullptr && rDesc != nullptr) { // we have two numbers
-			if(token().isBooleanKeyword()) { // Needs its own function? 
-				auto lType = lDesc->type();
-				if( token().isAndKeyword() ) {
-					if(lType == TypeDescriptor::BOOLEAN) {
-						//std::cout << "hit Infix lType == BOOLEAN\n";
-						if(lDesc->value.boolValue == 0)
-							return lValue;
-						else return rValue;
-					} else if(lType == TypeDescriptor::DOUBLE) {
-						//std::cout << "hit Infix lType == DOUBLE\n";
-						if(lDesc->value.doubleValue == 0.0)
-							return lValue;
-						else return rValue;
-					} else if(lType == TypeDescriptor::INTEGER) {
-						//std::cout << "hit Infix lType == INTEGER\n";
-						if(lDesc->value.intValue == 0)
-							return lValue;
-						else return rValue;
-					}
-				} else if( token().isOrKeyword() ) {
-					if(lType == TypeDescriptor::BOOLEAN) {
-						if(lDesc->value.boolValue != 0)
-							return lValue;
-						else return rValue;
-					} else if(lType == TypeDescriptor::DOUBLE) {
-						if(lDesc->value.doubleValue != 0.0)
-							return lValue;
-						else return rValue;
-					} else if(lType == TypeDescriptor::INTEGER) {
-						if(lDesc->value.intValue != 0)
-							return lValue;
-						else return rValue;
-					}
-				}
-			} else if(token().isRelOp())	
+			if(token().isRelOp())	
 				return relOperations(lDesc, rDesc, token());
 			else if(token().isArithmeticOperator())
 				return arithOperations(lDesc, rDesc, token());
@@ -371,9 +366,9 @@ std::shared_ptr<TypeDescriptor> Subscription::evaluate(SymTab &symTab, std::uniq
         std::string element = sarray->sSub(index);
         desc->value = element;
         return desc;
-    } /*else if (type == TypeDescriptor::NULLARRAY) {
+    } else if (type == TypeDescriptor::NULLARRAY) {
 		std::cout << "Subscription::evaluate error index out of bounds\n";
 		exit(1);
-		}*/
+	}
 	return nullptr;
 }
