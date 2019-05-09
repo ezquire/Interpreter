@@ -1,0 +1,13 @@
+a = ["hi","bye", "lie", "cry", "tie"]
+b = ["lie", "cry", "die", "tie"]
+c = []
+
+print len(c)
+
+c.append("hello")
+c.append(2)
+
+print len(c)
+
+print c
+print a

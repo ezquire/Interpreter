@@ -190,7 +190,7 @@ Token Tokenizer::getToken() {
 				if(isArrayOp(op))
 					token.setArrayOp(op);
 				else {
-					std::cout << "Invalid array operator\n";
+					std::cout << "getToken() invalid array operator\n";
 					exit(1);
 				}					
 			} else if(c == '(') {
@@ -202,6 +202,11 @@ Token Tokenizer::getToken() {
 						inStream.putback(c);
 					token.setName(name);
 				}
+			} else if (c == '[') {
+				if(inStream.good())
+					inStream.putback(c);
+				token.setName(name);
+				token.isSub() = true;
 			} else {
 				if(inStream.good())
 					inStream.putback(c);
@@ -228,7 +233,8 @@ Token Tokenizer::getToken() {
 		} else
 			token.relOp("//");
 	} else if( c == '+' || c == '*' || c == '%' || c == '-' || c == ':' ||
-			   c == '(' || c == ')' || c == '{' || c == '}' || c == ',')
+			   c == '(' || c == ')' || c == '{' || c == '}' || c == ',' ||
+			   c == '[' || c == ']')
 		token.symbol(c);
 	else {
 		std::cout << "Unknown character in input. -> ";

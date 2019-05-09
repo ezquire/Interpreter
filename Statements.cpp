@@ -35,22 +35,61 @@ std::vector<std::unique_ptr<Statement>> &Statements::getStatements() {
 }
 
 // AssignmentStatement
-AssignmentStatement::AssignmentStatement(): _lhsVariable{""}, _rhsExpression{nullptr} {}
+AssignmentStatement::AssignmentStatement(): _lhsVariable{""},
+											_lhsExpression{nullptr},
+											_rhsExpression{nullptr} {}
 
 AssignmentStatement::AssignmentStatement(std::string lhsVar,
+										 std::unique_ptr<ExprNode> lhsExpr,
 										 std::unique_ptr<ExprNode> rhsExpr):
-	_lhsVariable{std::move(lhsVar)}, _rhsExpression{std::move(rhsExpr)} {}
+	_lhsVariable{std::move(lhsVar)}, _lhsExpression{std::move(lhsExpr)},
+	_rhsExpression{std::move(rhsExpr)} {}
 
-void AssignmentStatement::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-    symTab.setValueFor(lhsVariable(),
-					   rhsExpression()->evaluate(symTab, funcTab));
+void AssignmentStatement::evaluate(SymTab &symTab,
+								   std::unique_ptr<FuncTab> &funcTab) {
+	if(_lhsExpression == nullptr) {
+        symTab.setValueFor(lhsVariable(),
+						   rhsExpression()->evaluate(symTab, funcTab));
+    } else {
+		auto lhsindex = dynamic_cast<NumberDescriptor*>
+			(_lhsExpression->evaluate(symTab, funcTab).get());
+		if(lhsindex->type() != TypeDescriptor::INTEGER) {
+			std::cout << "AssignmentStatement::evaluate error index must be";
+			std::cout << " an integer\n";
+			exit(1);
+		}
+		int index = lhsindex->value.intValue;
+		auto lhs = symTab.getValueFor(lhsVariable());
+		auto rhs = _rhsExpression->evaluate(symTab, funcTab);
+		if(lhs->type() == TypeDescriptor::STRINGARRAY) {
+            if(rhs->type() != TypeDescriptor::STRING){
+                std::cout<<"array value not of compatible types"<<std::endl;
+                exit(1);
+            }
+			auto desc = dynamic_cast<StringDescriptor*>(rhs.get());
+            std::string val = desc->value;
+            dynamic_cast<StringArray*>(lhs.get())->setSubStr(index, val);
+        } else if(lhs->type() == TypeDescriptor::NUMBERARRAY) {
+            if(rhs->type() != TypeDescriptor::INTEGER){
+                std::cout<<"array value not of compatible types"<<std::endl;
+                exit(1);
+            }
+			auto desc = dynamic_cast<NumberDescriptor*>(rhs.get());
+			int val = desc->value.intValue;
+            dynamic_cast<NumberArray*>(lhs.get())->setSubNum(index, val);
+        } 
+	}
 }
 
 std::string &AssignmentStatement::lhsVariable() {
-    return _lhsVariable;
+	return _lhsVariable;
 }
 
-std::unique_ptr<ExprNode>&AssignmentStatement::rhsExpression() {
+std::unique_ptr<ExprNode> &AssignmentStatement::lhsExpression() {
+    return _lhsExpression;
+}
+
+std::unique_ptr<ExprNode> &AssignmentStatement::rhsExpression() {
     return _rhsExpression;
 }
 
@@ -230,7 +269,8 @@ void IfStatement::print() {
 	for(auto &s: _elifSuites)
 		s->print();
 	std::cout << std::endl;
-	_elseSuite->print();
+	if(_elseSuite)
+		_elseSuite->print();
 	std::cout << std::endl;
 }
 
@@ -242,11 +282,6 @@ Function::Function(std::string id, std::vector<std::string> params,
 	_id{id}, _parameters{params}, _suite{std::move(suite)} {}
 
 void Function::evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) {
-	/*for (auto &s: _suite) {
-		s->evaluate(symTab, funcTab);
-		if(symTab.isDefinedGlobal(RETURN))
-			break;
-			}*/
 	_suite->evaluate(symTab, funcTab);
 }
 
@@ -269,3 +304,85 @@ void Function::print() {
 	_suite->print();
     std::cout << std::endl;
 }
+
+//Array Ops 
+ArrayOps::ArrayOps() : _id{""}, _op{""}, _test{nullptr} {}
+
+ArrayOps::ArrayOps(std::string id, std::string op,
+				   std::unique_ptr<ExprNode> test) :
+	_id{id}, _op{op}, _test{std::move(test)} {}
+
+void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
+	auto type = symTab.getValueFor(_id)->type();
+	if(_op == "append") {
+		auto element = _test->evaluate(symTab, funcTab);
+		if( type == TypeDescriptor::NUMBERARRAY ) {
+			if(element->type() == TypeDescriptor::INTEGER) {
+				auto nDesc = dynamic_cast<NumberDescriptor*>(element.get());
+				auto narray = dynamic_cast<NumberArray*>
+					(symTab.getValueFor(_id).get());
+				narray->nAppend(nDesc->value.intValue);
+			} else {
+				std::cout << "ArrayOps::append error: members must be of ";
+				std::cout << "the same type\n";
+				exit(1);
+			}
+		} else if(type == TypeDescriptor::STRINGARRAY) {
+			if(element->type() == TypeDescriptor::STRING) {
+				auto sDesc = dynamic_cast<StringDescriptor*>(element.get());
+				auto sarray = dynamic_cast<StringArray*>
+					(symTab.getValueFor(_id).get());
+				sarray->sAppend(sDesc->value);
+			} else {
+				std::cout << "ArrayOps::append error: members must be of ";
+				std::cout << "the same type\n";
+				exit(1);
+			}
+		} else if (type == TypeDescriptor::NULLARRAY) {
+			if(element->type() == TypeDescriptor::INTEGER) {
+				auto nDesc = dynamic_cast<NumberDescriptor*>(element.get());
+				if(nDesc == nullptr) {
+					std::cout << "ArrayOps::evaluate  error: invalid cast";
+					exit(1);
+				}
+				std::shared_ptr<NumberArray> narray =
+					std::make_shared<NumberArray>(TypeDescriptor::NUMBERARRAY);
+				narray->nAppend(nDesc->value.intValue);
+				symTab.setValueFor(_id, narray);
+			} else if(element->type() == TypeDescriptor::STRING) {
+				auto sDesc = dynamic_cast<StringDescriptor*>(element.get());
+				if(sDesc == nullptr) {
+					std::cout << "ArrayOps::evaluate  error: invalid cast";
+					exit(1);
+				}					
+				std::shared_ptr<StringArray> sarray =
+					std::make_shared<StringArray>(TypeDescriptor::STRINGARRAY);
+				sarray->sAppend(sDesc->value);
+				symTab.setValueFor(_id, sarray);
+			} else {
+				std::cout << "append() is not supported for this type\n";
+				exit(1);
+			}
+		} else {
+			std::cout << "append() is not supported for this type\n";
+			exit(1);
+		}
+	} else if (_op == "pop") {
+		if( type == TypeDescriptor::NUMBERARRAY ) {
+			auto narray = dynamic_cast<NumberArray*>
+				(symTab.getValueFor(_id).get());
+			if(narray != nullptr)
+				narray->nPop();
+		} else if(type == TypeDescriptor::STRINGARRAY) {
+			auto sarray = dynamic_cast<StringArray*>
+				(symTab.getValueFor(_id).get());
+			if(sarray != nullptr)
+				sarray->sPop();
+		} else {
+			std::cout << "pop is not supported for this type\n";
+			exit(1);
+		}
+	}
+}
+
+void ArrayOps::print(){}

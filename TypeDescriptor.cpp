@@ -18,15 +18,36 @@ NumberDescriptor::NumberDescriptor(types descType): TypeDescriptor(descType) {}
 // String Descriptor
 StringDescriptor::StringDescriptor(types descType): TypeDescriptor(descType) {}
 
-// Array Descriptor
+// String Array Descriptor
 StringArray::StringArray(types descType): TypeDescriptor(descType) {}
+
+std::string StringArray::sSub(int n){
+    if( n > (int)stringArray.size()-1 || n < 0 ) {
+        std::cout << "StringArray::sSub array index out of bounds\n";
+        exit(1);
+    }
+	return stringArray[n];
+}
+
+// Number Array descriptor
+NumberArray::NumberArray(types descType): TypeDescriptor(descType) {}
+
+int NumberArray::nSub(int n){
+    if( n > (int)numberArray.size()-1 || n < 0 ){
+        std::cout << "StringArray::sSub array index out of bounds\n";
+        exit(1);
+    }
+	return numberArray[n];
+}
 
 // Print function
 void printValue(TypeDescriptor *desc) {	
 	auto sDesc = dynamic_cast<StringDescriptor *>(desc);
 	auto nDesc = dynamic_cast<NumberDescriptor *>(desc);
+    auto sArray = dynamic_cast<StringArray *>(desc);
+    auto nArray = dynamic_cast<NumberArray *>(desc);
 	// dynamic_cast will return a nullptr if
-	// desc is not of datatype NumberDescriptor.
+	// desc is not that type.
 	if( nDesc != nullptr ) { // We have a number
 		// desc must have been of type NumberDescriptor
 		if( nDesc->type() == TypeDescriptor::INTEGER )
@@ -36,9 +57,24 @@ void printValue(TypeDescriptor *desc) {
 		else if( nDesc->type() == TypeDescriptor::BOOLEAN )
 			std::cout << nDesc->value.boolValue;
 		else std::cout << "Misconfigured union type." << std::endl;		
-	} else if( sDesc != nullptr ) // we must have a string
+	}
+	else if( desc->type() == TypeDescriptor::NULLARRAY)
+		std::cout << "[]" << std::endl;
+	else if( sDesc != nullptr )
 		std::cout << sDesc->value;
-	else { // we don't know the type
+    else if(sArray != nullptr) {
+		std::cout << '[';
+		for(unsigned i = 0; i < sArray->stringArray.size()-1; ++i)
+			std::cout << '\'' << sArray->stringArray[i] << '\'' << ", ";
+		std::cout << '\'';
+		std::cout << sArray->stringArray[sArray->stringArray.size()-1] << "\'";
+		std::cout << ']';
+	} else if(nArray != nullptr) {
+		std::cout << '[';
+		for(unsigned i = 0; i < nArray->numberArray.size()-1; ++i)
+			std::cout << nArray->numberArray[i] << ", ";
+		std::cout << nArray->numberArray[nArray->numberArray.size()-1] << ']';
+	} else { // we don't know the type
 		std::cout << "None";
 	}
 }
@@ -71,6 +107,7 @@ void changeSign(TypeDescriptor *desc) {
 		nDesc->value.doubleValue *= -1;
 }
 
+// Negate
 std::shared_ptr<TypeDescriptor> negate(TypeDescriptor *desc) {
 	auto nDesc = dynamic_cast<NumberDescriptor *>(desc);
 	if(nDesc == nullptr) {
@@ -132,6 +169,7 @@ std::shared_ptr<TypeDescriptor> stringOperations(StringDescriptor *lValue,
 	}
 }
 
+// Relational Operations
 std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 											  NumberDescriptor *rDesc,
 											  Token const &tok) {
@@ -286,6 +324,7 @@ std::shared_ptr<TypeDescriptor> relOperations(NumberDescriptor *lDesc,
 	return nullptr;
 }
 
+// Arithmetic Operations
 std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 												NumberDescriptor *rDesc,
 												Token const &tok) {
@@ -298,9 +337,7 @@ std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 	if(lType == TypeDescriptor::DOUBLE || rType == TypeDescriptor::DOUBLE) {
 		std::cout << "Double type not supported yet\n";
 		exit(1);
-	}
-
-	else if(tok.isAdditionOperator()) {
+	} else if(tok.isAdditionOperator()) {
 		if(lType == TypeDescriptor::INTEGER
 		   && rType == TypeDescriptor::INTEGER) {
 			ret->value.intValue =
@@ -498,3 +535,5 @@ std::shared_ptr<TypeDescriptor> arithOperations(NumberDescriptor *lDesc,
 	}
 	return nullptr;
 }
+
+

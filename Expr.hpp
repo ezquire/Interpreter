@@ -19,7 +19,7 @@ class FuncTab;
 // Print and Evaluate.
 class ExprNode {
 public:
-	ExprNode () = default;
+	ExprNode() = default;
     ExprNode(Token token);
     Token token();
     virtual void print() = 0;
@@ -42,10 +42,10 @@ private:
 	std::unique_ptr<ExprNode> _right;
 };
 
-// An CallExprNode is useful to represent binary arithmetic operators.
-class CallExprNode: public ExprNode {  // An expression tree node.
+// A CallExprNode is useful to represent function calls
+class CallExprNode: public ExprNode {
 public:
-    CallExprNode(std::string id,
+    explicit CallExprNode(std::string id,
 				 std::vector<std::shared_ptr<ExprNode>> list);
 	std::vector<std::shared_ptr<ExprNode>> &list();
 	std::string &id();
@@ -58,7 +58,7 @@ private:
 
 // WholeNumber is a leaf-node in an expression tree. It corresponds to
 // a terminal in the production rules of the grammar that describes the
-// syntax of arithmetic expressions.
+// syntax of expressions.
 class WholeNumber: public ExprNode {
 public:
     explicit WholeNumber(Token token);
@@ -94,6 +94,37 @@ public:
     explicit String(Token token);
     void print() override;
 	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+};
+
+// Arrays
+class Array: public ExprNode {
+public:
+	explicit Array(std::vector<std::shared_ptr<ExprNode>> list);
+	void print() override;
+	std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+private:
+	std::vector<std::shared_ptr<ExprNode>> _list;
+};
+
+// Array Length
+class LenArray: public ExprNode {
+public:
+    explicit LenArray(Token token);
+    void print() override;
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+};
+
+// Subscription
+class Subscription: public ExprNode {
+public:
+	Subscription(std::string id, std::unique_ptr<ExprNode> test);
+	void print() override;
+    std::shared_ptr<TypeDescriptor> evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) override;
+	std::unique_ptr<ExprNode> &test();
+	std::string &id();
+private:
+	std::string _id;
+	std::unique_ptr<ExprNode> _test;
 };
 
 #endif //EXPRINTER_ARITHEXPR_HPP

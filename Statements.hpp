@@ -43,13 +43,17 @@ private:
 class AssignmentStatement : public Statement {
 public:
     AssignmentStatement();
-    AssignmentStatement(std::string lhsVar, std::unique_ptr<ExprNode> rhsExpr);
-    std::string &lhsVariable();
+    AssignmentStatement(std::string lhsVar,
+						std::unique_ptr<ExprNode> lhsExpr,
+						std::unique_ptr<ExprNode> rhsExpr);
+	std::string &lhsVariable();
+	std::unique_ptr<ExprNode> &lhsExpression();
 	std::unique_ptr<ExprNode> &rhsExpression();
-    void evaluate (SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
+	void evaluate (SymTab &symTab, std::unique_ptr<FuncTab> &funcTab) override;
     void print() override;
 private:
     std::string _lhsVariable;
+	std::unique_ptr<ExprNode> _lhsExpression;
 	std::unique_ptr<ExprNode> _rhsExpression;
 };
 
@@ -118,6 +122,19 @@ private:
 	std::unique_ptr<Statements> _elseSuite;
 };
 
+// array_ops
+class ArrayOps : public Statement {
+public:
+    ArrayOps();
+    ArrayOps(std::string id, std::string op, std::unique_ptr<ExprNode> test);
+    void evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) override;
+    void print() override;
+private:
+    std::string _id;
+    std::string _op;
+	std::unique_ptr<ExprNode> _test;
+};
+
 // ReturnStatement
 class ReturnStatement : public Statement {
 public:
@@ -144,7 +161,6 @@ public:
 private:
 	std::string _id;
 	std::vector<std::string> _parameters;
-	//std::vector<std::unique_ptr<Statement>> _suite;
 	std::unique_ptr<Statements> _suite;
 };
 

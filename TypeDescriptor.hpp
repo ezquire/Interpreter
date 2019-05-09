@@ -12,13 +12,11 @@
 
 class TypeDescriptor {
 public:
-	enum types { INTEGER, DOUBLE, BOOLEAN, STRING, ARRAY };
-
+	enum types { INTEGER, DOUBLE, BOOLEAN, STRING, NULLARRAY, STRINGARRAY,
+				 NUMBERARRAY };
 	explicit TypeDescriptor(types type);
-	virtual ~TypeDescriptor() = default;
-	
+	virtual ~TypeDescriptor() = default;	
 	types &type();
-
 private:
 	types _type;	
 };
@@ -30,7 +28,7 @@ public:
 		int intValue;
 		double doubleValue;
 		bool boolValue;
-	} value;	
+	} value;
 };
 
 class StringDescriptor : public TypeDescriptor {
@@ -41,8 +39,28 @@ public:
 
 class StringArray : public TypeDescriptor {
 public:
-    explicit StringArray(types descType);
+	explicit StringArray(types descType);
+	int sArraySize() { return stringArray.size(); }
+	void sPop() { stringArray.pop_back(); }
+	void sAppend(std::string element) { stringArray.push_back(element); }	
+	//returns indexed value of vector
+	std::string sSub(int n);
+    //sets indexed value of vector
+    void setSubStr(int n, std::string s) { stringArray[n] = s; }
 	std::vector<std::string> stringArray;
+};
+
+class NumberArray : public TypeDescriptor {
+public:
+	explicit NumberArray(types descType);
+	int nArraySize() { return numberArray.size(); }
+	void nPop() { numberArray.pop_back(); }
+	void nAppend(int element) { numberArray.push_back(element); }
+	//returns indexed value of vector
+    int nSub(int n);
+    //sets indexed value of vector
+    void setSubNum(int n, int s) { numberArray[n] = s;}
+	std::vector<int> numberArray;
 };
 
 void printValue (TypeDescriptor *desc);

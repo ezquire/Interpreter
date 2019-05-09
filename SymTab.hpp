@@ -15,6 +15,7 @@ public:
 	void setValueFor(std::string const &vName,
 					 std::shared_ptr<TypeDescriptor>rDesc);
 	void increment(std::string const &vName, int increment);
+	bool isDefined(std::string const &vName);
     bool isDefinedGlobal(std::string const &vName);
 	bool isDefinedScope(std::string const &vName);
 	std::shared_ptr<TypeDescriptor> getValueFor(std::string const &vName);

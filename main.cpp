@@ -38,6 +38,6 @@ int main(int argc, char *argv[]) {
 	SymTab symTab;
 
 	statements->evaluate(symTab, funcTab);
-
+	//statements->print();
 	return 0;
 }
