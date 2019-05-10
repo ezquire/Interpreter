@@ -41,6 +41,7 @@ class StringArray : public TypeDescriptor {
 public:
 	explicit StringArray(types descType);
 	int sArraySize() { return stringArray.size(); }
+	void sPopIndex(TypeDescriptor* desc);
 	void sPop() { stringArray.pop_back(); }
 	void sAppend(std::string element) { stringArray.push_back(element); }	
 	//returns indexed value of vector
@@ -54,6 +55,7 @@ class NumberArray : public TypeDescriptor {
 public:
 	explicit NumberArray(types descType);
 	int nArraySize() { return numberArray.size(); }
+	void nPopIndex(TypeDescriptor *desc);
 	void nPop() { numberArray.pop_back(); }
 	void nAppend(int element) { numberArray.push_back(element); }
 	//returns indexed value of vector

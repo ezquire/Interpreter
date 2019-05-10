@@ -29,15 +29,43 @@ std::string StringArray::sSub(int n){
 	return stringArray[n];
 }
 
+void StringArray::sPopIndex(TypeDescriptor *desc) {
+	auto index = dynamic_cast<NumberDescriptor*>(desc);
+	if(index == nullptr || desc->type() != INTEGER) {
+		std::cout << "StringArray::sPop error, index must be an integer\n";
+		exit(1);
+	} else if(index->value.intValue < 0 ||
+			  index->value.intValue > (int)stringArray.size()-1) {
+		std::cout << "StringArray::sPopIndex error, array index out of";
+		std::cout << " bounds\n";
+		exit(1);
+	} else
+		stringArray.erase(stringArray.begin() + index->value.intValue);
+}
+
 // Number Array descriptor
 NumberArray::NumberArray(types descType): TypeDescriptor(descType) {}
 
 int NumberArray::nSub(int n){
     if( n > (int)numberArray.size()-1 || n < 0 ){
-        std::cout << "StringArray::sSub array index out of bounds\n";
+        std::cout << "StringArray::nSub array index out of bounds\n";
         exit(1);
     }
 	return numberArray[n];
+}
+
+void NumberArray::nPopIndex(TypeDescriptor *desc) {
+	auto index = dynamic_cast<NumberDescriptor*>(desc);
+	if(index == nullptr || desc->type() != INTEGER) {
+		std::cout << "NumberArray::nPop error, index must be an integer\n";
+		exit(1);
+	} else if(index->value.intValue < 0 ||
+			  index->value.intValue > (int)numberArray.size()-1) {
+		std::cout << "NumberArray::nPopIndex error, array index out of";
+		std::cout << " bounds\n";
+		exit(1);
+	} else
+		numberArray.erase(numberArray.begin() + index->value.intValue);
 }
 
 // Print function

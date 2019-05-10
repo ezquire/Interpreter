@@ -315,6 +315,10 @@ ArrayOps::ArrayOps(std::string id, std::string op,
 void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
 	auto type = symTab.getValueFor(_id)->type();
 	if(_op == "append") {
+		if(_test == nullptr) {
+			std::cout << "ArrayOps::evaluate append, no element provided\n";
+			exit(1);
+		}
 		auto element = _test->evaluate(symTab, funcTab);
 		if( type == TypeDescriptor::NUMBERARRAY ) {
 			if(element->type() == TypeDescriptor::INTEGER) {
@@ -371,13 +375,25 @@ void ArrayOps::evaluate(SymTab & symTab, std::unique_ptr<FuncTab> &funcTab) {
 		if( type == TypeDescriptor::NUMBERARRAY ) {
 			auto narray = dynamic_cast<NumberArray*>
 				(symTab.getValueFor(_id).get());
-			if(narray != nullptr)
-				narray->nPop();
+			if(narray != nullptr) {
+				if(_test == nullptr)
+					narray->nPop();
+				else {
+					auto element = _test->evaluate(symTab, funcTab);
+					narray->nPopIndex(element.get());
+				}
+			}
 		} else if(type == TypeDescriptor::STRINGARRAY) {
 			auto sarray = dynamic_cast<StringArray*>
 				(symTab.getValueFor(_id).get());
-			if(sarray != nullptr)
-				sarray->sPop();
+			if(sarray != nullptr) {
+				if(_test == nullptr)
+					sarray->sPop();
+				else {
+					auto element = _test->evaluate(symTab, funcTab);
+					sarray->sPopIndex(element.get());
+				}
+			}
 		} else {
 			std::cout << "pop is not supported for this type\n";
 			exit(1);

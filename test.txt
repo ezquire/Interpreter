@@ -1,13 +1,11 @@
-a = ["hi","bye", "lie", "cry", "tie"]
-b = ["lie", "cry", "die", "tie"]
-c = []
+a = [1, 2, 3, 4, 5]
 
-print len(c)
+print a
 
-c.append("hello")
-c.append(2)
+a.pop(5)
 
-print len(c)
+print a
 
-print c
+a.pop()
+
 print a
